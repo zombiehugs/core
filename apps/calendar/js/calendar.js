@@ -598,6 +598,20 @@ Calendar={
 				});
 				/*var permissions = (this.checked) ? 1 : 0;*/
 			}
+		},
+		Remote:{
+			addCalendar:function(object){
+				
+			},
+			editCalendar:function(){
+				
+			},
+			deleteCalendar:function(){
+				
+			},
+			activation:function(){
+				
+			}
 		}
 	}
 }

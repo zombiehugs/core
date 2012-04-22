@@ -47,5 +47,25 @@ for($i = 0; $i < $count; $i++){
 if($count == 0){
 	echo '<p style="text-align:center;"><b>' . $l->t('No shared calendars') . '</b></p>';
 }
+?><br>
+<p><b><?php echo $l->t('Remote calendars'); ?>: </b></p>
+<table width="100%" style="border: 0;">
+<?php
+$remote = OC_Calendar_Remote::getall(OC_User::getUser());
+$count = count($remote);
+for($i = 0; $i < $count; $i++){
+	echo '<tr>';
+	$tmpl = new OC_Template('calendar', 'part.choosecalendar.rowfields.remote');
+	$tmpl->assign('remote', $remote[$i]);
+	$tmpl->printpage();
+	echo '</tr>';
+}
 ?>
+</table>
+<?php
+if($count == 0){
+	echo '<p style="text-align:center;"><b>' . $l->t('No remote calendars') . '</b></p>';
+}
+?>
+<span><a href="#" onclick="Calendar.UI.Remote.newCalendar(this);"><input type="button" value="<?php echo $l->t('New remote calendar') ?>"></a></span>
 </div>

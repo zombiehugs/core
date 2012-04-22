@@ -15,11 +15,11 @@ class OC_Calendar_Remote{
 	 * @return (int) $id - new id of the remote calendar
 	 */
 	public static function add($url, $userid){
-		//$url = ::validateURL($url, true); check and fix url
+		$url = OC_Validator::httpurl($url, true);
 		if(!$url){
 			return false;
 		}
-		$stmt = OC_DB::prepare('INSERT INTO *PREFIX*calendar_remote (url, userid, calendardata, lastupdate) VALUES(?,?,null,null)');
+		$stmt = OC_DB::prepare('INSERT INTO *PREFIX*calendar_remote (url, userid, calendardata, lastupdate, active) VALUES(?,?,null,null, 1)');
 		$stmt->execute(array($url,$userid,null));
 		$id = OC_DB::insertid('*PREFIX*calendar_remote');
 		self::update_cache($id);
