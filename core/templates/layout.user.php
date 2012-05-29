@@ -29,6 +29,8 @@
 	<body id="<?php echo $_['bodyid'];?>">
 		<header><div id="header">
 			<a href="<?php echo link_to('', 'index.php'); ?>" title="" id="owncloud"><img class="svg" src="<?php echo image_path('', 'logo-wide.svg'); ?>" alt="ownCloud" /></a>
+            <a id="notify-icon" href="#" title="<?php echo $l->t('Notifications');?>"><img class="svg" alt="<?php echo $l->t('Notifications');?>" src="<?php echo image_path('', 'actions/mail.svg'); ?>" /><span id="notify-counter" class="hidden">0</span></a>
+            <div id="notify-list" class="hidden"><ul><li>foo</li><li>bar</li></ul></div>
 			<form class="searchbox" action="#" method="post">
 				<input id="searchbox" class="svg" type="search" name="query" value="<?php if(isset($_POST['query'])){echo htmlentities($_POST['query']);};?>" autocomplete="off" />
 			</form>

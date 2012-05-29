@@ -55,7 +55,7 @@ class OC_App{
 		}
 
 		// Our very own core apps are hardcoded
-		foreach( array( 'settings') as $app ){
+		foreach( array( 'settings', 'notify' ) as $app ){
 			if(is_null($types)){
 				require( $app.'/appinfo/app.php' );
 			}
