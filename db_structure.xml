@@ -576,14 +576,6 @@
     <notnull>true</notnull>
    </field>
 
-   <index>
-    <name>notifications_pKey</name>
-    <primary>true</primary>
-    <field>
-     <name>id</name>
-    </field>
-   </index>
-
   </declaration>
 
  </table>
