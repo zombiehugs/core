@@ -1,6 +1,10 @@
 #notify-icon { position:absolute; right:20em; top:0; padding:1.2em 2em .55em 1.2em; -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=80)"; filter:alpha(opacity=80); opacity:.8; }
 #notify-icon:hover { -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)"; filter:alpha(opacity=100); opacity:1; }
 #notify-counter { line-height:10px; background:#fff; color:#1D2D44; position:absolute; top: 5px; left:5px; padding:1px; border-radius:2px 2px 2px 2px; }
+#notify-counter[data-count="0"] { display: none; }
 #notify-list { background:#fff; position:fixed; top:3.5em; right:18em; width:24em; box-shadow: 0 0 10px #000; }
-#notify-list div.notification.unread { background: red; }
-#notify-list div.notification.read { background: green; }
+#notify-list div.notification { margin: 0px 1px 1px 1px; }
+#notify-list div.notification.unread { background: #faa; }
+#notify-list div.notification.read { background: #afa; }
+#notify-list div.notification.unread:hover { background: #f55; }
+#notify-list div.notification.read:hover { background: #5f5; }

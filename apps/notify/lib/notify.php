@@ -68,9 +68,22 @@ class OC_Notify {
         }
     }
     
-    public static function getNotifications($number = 10) {
-        $notifyStmt = OCP\DB::prepare("SELECT * FROM *PREFIX*notifications WHERE uid = ? ORDER BY read ASC, moment DESC LIMIT ?");
-        $result = $notifyStmt->execute(array(OCP\User::getUser(), $number));
+    /**
+     * @brief get the latest notifications for the logged in user
+     * @param $count limit for number of notifications
+     * @return array with notifications
+     */
+    public static function getNotifications($count = null) {
+		if(!OCP\User::isLoggedIn()) {
+			return array();
+		}
+        if(!$number) {
+			$notifyStmt = OCP\DB::prepare("SELECT * FROM *PREFIX*notifications WHERE uid = ? ORDER BY read ASC, moment DESC");
+			$result = $notifyStmt->execute(array(OCP\User::getUser()));
+		} else {
+			$notifyStmt = OCP\DB::prepare("SELECT * FROM *PREFIX*notifications WHERE uid = ? ORDER BY read ASC, moment DESC LIMIT ?");
+			$result = $notifyStmt->execute(array(OCP\User::getUser(), $count));
+		}
         $notifications = $result->fetchAll();
         $paramStmt = OCP\DB::prepare("SELECT key, value FROM *PREFIX*notification_params WHERE nid = ?");
         foreach($notifications as $i => $n) {
@@ -83,4 +96,37 @@ class OC_Notify {
         }
         return $notifications;
     }
+    
+    /**
+     * @brief mark one or more notifications of the logged in user as read
+     * @param $id either notification id returned by sendUserNotification, app id or null
+     * @parem $read the (boolean) value to set the read column to
+     * @return true if the operation was successful, otherwise false
+     */
+    public static function markRead($id = null, $read = true) {
+		if(!OCP\User::isLoggedIn()) {
+			return false;
+		}
+		OCP\Util::writeLog("notify", "(int) \$read = " . (int)$read, OCP\Util::DEBUG);
+		$user = OCP\User::getUser();
+		if(is_null($id)) {
+			// update all user notifications
+			$stmt = OCP\DB::prepare("UPDATE *PREFIX*notifications SET read = ? WHERE uid = ?");
+			$stmt->execute(array((int) $read, $user));
+		} else if(is_numeric($id)) {
+			// update the user notification with the given id
+			$stmt = OCP\DB::prepare("UPDATE *PREFIX*notifications SET read = ? WHERE id = ? AND uid = ?");
+			$stmt->execute(array((int) $read, $id, $user));
+			if(!$stmt->numRows()) {
+				return false;
+			}
+		} else if(is_string($id)) {
+			// update all user notifications of the given app
+			$stmt = OCP\DB::prepare("UPDATE *PREFIX*notifications SET read = ? WHERE uid = ? AND appid = ?");
+			$stmt->execute(array((int) $read, $user, $id));
+		} else {
+			return false;
+		}
+		return true;
+	}
 }
