@@ -32,9 +32,14 @@
             <?php if(OCP\User::isLoggedIn()): ?>
             <?php
                 $unreadNumber = OC_Notify::getUnreadNumber();
+                $notifications = OC_Notify::getNotifications();
             ?>
             <a id="notify-icon" href="#" title="<?php echo $l->t('Notifications');?>"><img class="svg" alt="<?php echo $l->t('Notifications');?>" src="<?php echo image_path('', 'actions/mail.svg'); ?>" /><span id="notify-counter"<?php echo ($unreadNumber > 0 ? '' : 'class="hidden"'); ?>><?php echo $unreadNumber; ?></span></a>
-            <div id="notify-list" class="hidden"><ul><li>foo</li><li>bar</li></ul></div>
+            <div id="notify-list" class="hidden"><ul>
+                <?php foreach($notifications as $n): ?>
+                <li><div class="notification<?php echo ($n["read"] ? " read" : " unread"); ?>"><a href="<?php echo $n["href"]; ?>"><?php echo $n["content"]; ?></a></div></li>
+                <?php endforeach; ?>
+            </ul></div>
             <?php endif; ?>
 			<form class="searchbox" action="#" method="post">
 				<input id="searchbox" class="svg" type="search" name="query" value="<?php if(isset($_POST['query'])){echo htmlentities($_POST['query']);};?>" autocomplete="off" />
