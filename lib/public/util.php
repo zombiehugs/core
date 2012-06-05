@@ -237,7 +237,29 @@ class Util {
 		return(\OC_Hook::emit( $signalclass, $signalname, $params ));
 	}
 
-
+	/**
+	 * @brief send a new notification to the given user
+	 * @param $appid app which sends the notification
+	 * @param $uid receiving user
+	 * @param $message message, can contain HTML (<a>, <b>, <i>, <strong>, <em>, <span>) and placeholders (e.g. {name}) for parameters
+	 * @param $params keys and values for placeholders in $message
+	 * @param $href target URL, relative or absolute
+	 * @param $img image URL, relative or absolute
+	 * @return id of the inserted notification, null if unsuccessful
+     */
+    public static function sendUserNotification( $appid, $uid, $message, $params = array(), $href = null, $img = null ){
+		if(!isset(\OC::$CLASSPATH["OC_Notify"])) {
+			if(\OC_App::isEnabled("notify")) {
+				\OC::$CLASSPATH['OC_Notify'] = 'apps/notify/lib/notify.php';
+			}
+		}
+		if(!class_exists("OC_Notify")) {
+			// not implemented
+			return null;
+		} else {
+			return(\OC_Notify::sendUserNotification( $appid, $uid, $message, $params, $href, $img ));
+		}
+	}
 }
 
 ?>

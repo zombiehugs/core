@@ -38,8 +38,7 @@
    <field>
     <name>href</name>
     <type>text</type>
-    <default></default>
-    <notnull>true</notnull>
+    <notnull>false</notnull>
     <length>255</length>
    </field>
    
