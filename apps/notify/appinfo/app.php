@@ -20,6 +20,8 @@
 *
 */
 
-OCP\App::register( array( 'order' => 3, 'id' => 'notify', 'name' => 'Notifications' ));
+$l = OC_L10N::get('notify');
+OC::$CLASSPATH['OC_Notify'] = 'apps/notify/lib/notify.php';
+OCP\App::register( array( 'order' => 3, 'id' => 'notify', 'name' => $l->t('Notifications') ));
 OCP\Util::addScript( 'notify', 'notifications' );
 OCP\Util::addStyle( 'notify', 'notifications' );
