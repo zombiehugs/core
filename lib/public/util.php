@@ -276,25 +276,6 @@ class Util {
 	public static function sanitizeHTML( $value ){
 		return(\OC_Util::sanitizeHTML($value)); //Specify encoding for PHP<5.4
 	}
-	
-	/**
-     * @brief mark one or more notifications of the logged in user as read
-     * @param $id either notification id returned by sendUserNotification, app id or null
-     * @return true if the operation was successful, otherwise false
-     */
-	public static function setUserNotificationRead( $id = null, $read = true ){
-		if(!isset(\OC::$CLASSPATH["OC_Notify"])) {
-			if(\OC_App::isEnabled("notify")) {
-				\OC::$CLASSPATH['OC_Notify'] = 'apps/notify/lib/notify.php';
-			}
-		}
-		if(!class_exists("OC_Notify")) {
-			// not implemented
-			return null;
-		} else {
-			return(\OC_Notify::markRead( $id, $read ));
-		}
-	}
 }
 
 ?>

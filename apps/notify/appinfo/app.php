@@ -27,4 +27,16 @@ if(OCP\User::isLoggedIn()) {
 	// this makes no sense for guests, so only for users
 	OCP\Util::addScript( 'notify', 'notifications' );
 	OCP\Util::addStyle( 'notify', 'notifications' );
+	OCP\Util::addHeader( 'link', array(
+		'rel' => 'alternate',
+		'type' => 'application/atom+xml',
+		'title' => $l->t('ownCloud notifications (Atom 1.0)'),
+		'href' => OC::$WEBROOT . '/remote.php/notify_feed/feed.atom'
+	));
+	OCP\Util::addHeader( 'link', array(
+		'rel' => 'alternate',
+		'type' => 'application/rss+xml',
+		'title' => $l->t('ownCloud notifications (RSS 2.0)'),
+		'href' => OC::$WEBROOT . '/remote.php/notify_feed/feed.rss'
+	));
 }
