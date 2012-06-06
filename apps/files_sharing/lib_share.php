@@ -104,6 +104,7 @@ class OC_Share {
 						$counter++;
 					}
 				}
+				OCP\Util::sendUserNotification("files_sharing", $uid, "{owner} shared a file with you!", array("owner" => $uid_owner), OCP\Util::linkTo("files", "index.php") . "?dir=/Shared");
 				if (isset($gid)) {
 					$uid = $uid."@".$gid;
 				}
