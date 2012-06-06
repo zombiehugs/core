@@ -29,7 +29,7 @@
 	<body id="<?php echo $_['bodyid'];?>">
 		<header><div id="header">
 			<a href="<?php echo link_to('', 'index.php'); ?>" title="" id="owncloud"><img class="svg" src="<?php echo image_path('', 'logo-wide.svg'); ?>" alt="ownCloud" /></a>
-            <?php if(OCP\User::isLoggedIn()): ?>
+            <?php if(OCP\User::isLoggedIn() and OCP\App::isEnabled('notify')): ?>
             <?php
                 $unreadNumber = OC_Notify::getUnreadNumber();
                 $notifications = OC_Notify::getNotifications();
