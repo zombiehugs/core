@@ -49,19 +49,7 @@ class OC_App{
 	 * if $types is set, only apps of those types will be loaded
 	 */
 	public static function loadApps($types=null){
-		// Did we already load everything?
-		if( self::$init ){
-			return true;
-		}
-
-		// Our very own core apps are hardcoded
-		foreach( array( 'settings') as $app ){
-			if(is_null($types)){
-				require( $app.'/appinfo/app.php' );
-			}
-		}
-
-		// The rest comes here
+		// Load the enabled apps here
 		$apps = self::getEnabledApps();
 		// prevent app.php from printing output
 		ob_start();
