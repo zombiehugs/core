@@ -32,11 +32,11 @@ class OC_Files {
 	* get the content of a directory
 	* @param dir $directory
 	*/
-  public static function getDirectoryContent($directory, $mimetype_filter = ''){
+	public static function getDirectoryContent($directory, $mimetype_filter = ''){
 		if(strpos($directory,OC::$CONFIG_DATADIRECTORY)===0){
 			$directory=substr($directory,strlen(OC::$CONFIG_DATADIRECTORY));
 		}
-    $files=OC_FileCache::getFolderContent($directory, '', $mimetype_filter);
+		$files=OC_FileCache::getFolderContent($directory, '', $mimetype_filter);
 		foreach($files as &$file){
 			$file['directory']=$directory;
 			$file['type']=($file['mimetype']=='httpd/unix-directory')?'dir':'file';
@@ -170,7 +170,7 @@ class OC_Files {
 	* @param file $target
 	*/
 	public static function move($sourceDir,$source,$targetDir,$target){
-		if(OC_User::isLoggedIn()){
+		if(OC_User::isLoggedIn() && ($sourceDir != '' || $source != 'Shared')){
 			$targetFile=self::normalizePath($targetDir.'/'.$target);
 			$sourceFile=self::normalizePath($sourceDir.'/'.$source);
 			return OC_Filesystem::rename($sourceFile,$targetFile);
@@ -224,7 +224,7 @@ class OC_Files {
 	* @param file $name
 	*/
 	public static function delete($dir,$file){
-		if(OC_User::isLoggedIn()){
+		if(OC_User::isLoggedIn() && ($dir!= '' || $file != 'Shared')) {
 			$file=$dir.'/'.$file;
 			return OC_Filesystem::unlink($file);
 		}
@@ -373,10 +373,12 @@ class OC_Files {
 			}
 		}
 
-		//supress errors in case we don't have permissions for it
-		if(@file_put_contents(OC::$SERVERROOT.'/.htaccess', $htaccess)) {
-			return OC_Helper::computerFileSize($size);
-		}
+		//check for write permissions
+		if(is_writable(OC::$SERVERROOT.'/.htaccess')) {
+			file_put_contents(OC::$SERVERROOT.'/.htaccess', $htaccess);
+			return OC_Helper::computerFileSize($size);	
+		} else { OC_Log::write('files','Can\'t write upload limit to '.OC::$SERVERROOT.'/.htaccess. Please check the file permissions',OC_Log::WARN); }
+		
 		return false;
 	}
 

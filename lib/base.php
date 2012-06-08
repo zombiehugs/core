@@ -31,17 +31,13 @@ class OC{
 	 */
 	public static $CLASSPATH = array();
 	/**
-	 * $_SERVER['DOCUMENTROOT'] but without symlinks
-	 */
-	public static $DOCUMENTROOT = '';
-	/**
 	 * The installation path for owncloud on the server (e.g. /srv/http/owncloud)
 	 */
 	public static $SERVERROOT = '';
 	/**
 	 * the current request path relative to the owncloud root (e.g. files/index.php)
 	 */
-	public static $SUBURI = '';
+	private static $SUBURI = '';
 	/**
 	 * the owncloud root path for http requests (e.g. owncloud/)
 	 */
@@ -50,10 +46,6 @@ class OC{
 	 * the folder that stores that data files for the filesystem of the user (e.g. /srv/http/owncloud/data/myusername/files)
 	 */
 	public static $CONFIG_DATADIRECTORY = '';
-	/**
-	 * the folder that stores the data for the root filesystem (e.g. /srv/http/owncloud/data)
-	 */
-	public static $CONFIG_DATADIRECTORY_ROOT = '';
 	/**
 	 * The installation path of the 3rdparty folder on the server (e.g. /srv/http/owncloud/3rdparty)
 	 */
@@ -130,7 +122,7 @@ class OC{
 
 	public static function initPaths(){
 		// calculate the documentroot
-		OC::$DOCUMENTROOT=realpath($_SERVER['DOCUMENT_ROOT']);
+		$DOCUMENTROOT=realpath($_SERVER['DOCUMENT_ROOT']);
 		OC::$SERVERROOT=str_replace("\\",'/',substr(__FILE__,0,-13));
 		OC::$SUBURI=substr(realpath($_SERVER["SCRIPT_FILENAME"]),strlen(OC::$SERVERROOT));
 		$scriptName=$_SERVER["SCRIPT_NAME"];
@@ -146,7 +138,7 @@ class OC{
 		}
                 OC::$WEBROOT=substr($scriptName,0,strlen($scriptName)-strlen(OC::$SUBURI));
 		// try a new way to detect the WEBROOT which is simpler and also works with the app directory outside the owncloud folder. let´s see if this works for everybody
-//		OC::$WEBROOT=substr(OC::$SERVERROOT,strlen(OC::$DOCUMENTROOT));
+//		OC::$WEBROOT=substr(OC::$SERVERROOT,strlen($DOCUMENTROOT));
 
 
 		if(OC::$WEBROOT!='' and OC::$WEBROOT[0]!=='/'){
@@ -214,8 +206,8 @@ class OC{
 		// redirect to https site if configured
 		if( OC_Config::getValue( "forcessl", false )){
 			ini_set("session.cookie_secure", "on");
-			if(!isset($_SERVER['HTTPS']) or $_SERVER['HTTPS'] != 'on') {
-				$url = "https://". $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+			if(OC_Helper::serverProtocol()<>'https') {
+				$url = "https://". OC_Helper::serverHost() . $_SERVER['REQUEST_URI'];
 				header("Location: $url");
 				exit();
 			}
@@ -279,7 +271,7 @@ class OC{
 		ini_set('session.cookie_httponly','1;');
 		session_start();
 	}
-	
+
 	public static function loadapp(){
 		if(file_exists(OC::$APPSROOT . '/apps/' . OC::$REQUESTEDAPP . '/index.php')){
 			require_once(OC::$APPSROOT . '/apps/' . OC::$REQUESTEDAPP . '/index.php');
@@ -287,26 +279,17 @@ class OC{
 			trigger_error('The requested App was not found.', E_USER_ERROR);//load default app instead?
 		}
 	}
-	
+
 	public static function loadfile(){
 		if(file_exists(OC::$APPSROOT . '/apps/' . OC::$REQUESTEDAPP . '/' . OC::$REQUESTEDFILE)){
 			if(substr(OC::$REQUESTEDFILE, -3) == 'css'){
-				$appswebroot = (string) OC::$APPSWEBROOT;
-				$webroot = (string) OC::$WEBROOT;
-				$filepath = OC::$APPSROOT . '/apps/' . OC::$REQUESTEDAPP . '/' . OC::$REQUESTEDFILE;
-				header('Content-Type: text/css');
-				OC_Response::enableCaching();
-				OC_Response::setLastModifiedHeader(filemtime($filepath));
-				$cssfile = file_get_contents($filepath);
-				$cssfile = str_replace('%appswebroot%', $appswebroot, $cssfile);
-				$cssfile = str_replace('%webroot%', $webroot, $cssfile);
-				OC_Response::setETagHeader(md5($cssfile));
-				header('Content-Length: '.strlen($cssfile));
-				echo $cssfile;
+				$file = 'apps/' . OC::$REQUESTEDAPP . '/' . OC::$REQUESTEDFILE;
+				$minimizer = new OC_Minimizer_CSS();
+				$minimizer->output(array(array(OC::$APPSROOT, OC::$APPSWEBROOT, $file)));
 				exit;
 			}elseif(substr(OC::$REQUESTEDFILE, -3) == 'php'){
 				require_once(OC::$APPSROOT . '/apps/' . OC::$REQUESTEDAPP . '/' . OC::$REQUESTEDFILE);
-			}	
+			}
 		}else{
 			header('HTTP/1.0 404 Not Found');
 			exit;
@@ -317,7 +300,7 @@ class OC{
 		// register autoloader
 		spl_autoload_register(array('OC','autoload'));
 		setlocale(LC_ALL, 'en_US.UTF-8');
-		
+
 		// set some stuff
 		//ob_start();
 		error_reporting(E_ALL | E_STRICT);
@@ -329,10 +312,15 @@ class OC{
 		date_default_timezone_set('UTC');
 		ini_set('arg_separator.output','&amp;');
 
+		// try to switch magic quotes off.
+		if(function_exists('set_magic_quotes_runtime')) {
+			@set_magic_quotes_runtime(false);
+		}
+
 		//try to configure php to enable big file uploads.
 		//this doesn´t work always depending on the webserver and php configuration.
 		//Let´s try to overwrite some defaults anyways
-		
+
 		//try to set the maximum execution time to 60min
 		@set_time_limit(3600);
 		@ini_set('max_execution_time',3600);
@@ -362,7 +350,7 @@ class OC{
 			$_SERVER['PHP_AUTH_USER'] = strip_tags($name);
 			$_SERVER['PHP_AUTH_PW'] = strip_tags($password);
 		}
-		
+
 		self::initPaths();
 
 		// register the stream wrappers
@@ -376,16 +364,18 @@ class OC{
 
 		// CSRF protection
 		if(isset($_SERVER['HTTP_REFERER'])) $referer=$_SERVER['HTTP_REFERER']; else $referer='';
-		if(isset($_SERVER['HTTPS']) and $_SERVER['HTTPS']<>'') $protocol='https://'; else $protocol='http://';
+		$refererhost=parse_url($referer);
+		if(isset($refererhost['host'])) $refererhost=$refererhost['host']; else $refererhost='';
+		$server=OC_Helper::serverHost();
+		$serverhost=explode(':',$server);
+		$serverhost=$serverhost['0'];
 		if(!self::$CLI){
-			$server=$protocol.$_SERVER['SERVER_NAME'];
-			if(($_SERVER['REQUEST_METHOD']=='POST') and (substr($referer,0,strlen($server))<>$server)) {
-				$url = $protocol.$_SERVER['SERVER_NAME'].OC::$WEBROOT.'/index.php';
+			if(($_SERVER['REQUEST_METHOD']=='POST') and ($refererhost<>$serverhost)) {
+				$url = OC_Helper::serverProtocol().'://'.$server.OC::$WEBROOT.'/index.php';
 				header("Location: $url");
 				exit();
 			}
 		}
-
 		self::initSession();
 		self::initTemplateEngine();
 		self::checkUpgrade();
@@ -429,15 +419,15 @@ class OC{
 				OC_App::loadApps();
 			}
 		}
-		
+
 		// Check for blacklisted files
 		OC_Hook::connect('OC_Filesystem','write','OC_Filesystem','isBlacklisted');
 
 		//make sure temporary files are cleaned up
 		register_shutdown_function(array('OC_Helper','cleanTmp'));
-		
+
 		//parse the given parameters
-		self::$REQUESTEDAPP = (isset($_GET['app'])?str_replace('\0', '', strip_tags($_GET['app'])):OC_Config::getValue('defaultapp', 'files'));
+		self::$REQUESTEDAPP = (isset($_GET['app'])?str_replace(array('\0', '/', '\\', '..'), '', strip_tags($_GET['app'])):OC_Config::getValue('defaultapp', 'files'));
 		if(substr_count(self::$REQUESTEDAPP, '?') != 0){
 			$app = substr(self::$REQUESTEDAPP, 0, strpos(self::$REQUESTEDAPP, '?'));
 			$param = substr(self::$REQUESTEDAPP, strpos(self::$REQUESTEDAPP, '?') + 1);
@@ -487,7 +477,7 @@ if(!function_exists('get_temp_dir')) {
 			return dirname($temp);
 		}
 		if( $temp=sys_get_temp_dir())    return $temp;
-		
+
 		return null;
 	}
 }

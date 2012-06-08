@@ -89,6 +89,27 @@ class OC_Helper {
 		return $host;
 	}
 
+
+        /**
+         * @brief Returns the server protocol
+         * @returns the server protocol
+         *
+         * Returns the server protocol. It respects reverse proxy servers and load balancers
+         */
+	public static function serverProtocol() {
+		if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+			$proto = strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']);
+		}else{
+			if(isset($_SERVER['HTTPS']) and !empty($_SERVER['HTTPS']) and ($_SERVER['HTTPS']!='off')) {
+				$proto = 'https';
+			}else{
+				$proto = 'http';
+			}
+		}
+		return($proto);
+	}
+
+
 	/**
 	 * @brief Creates an absolute url
 	 * @param $app app
@@ -99,9 +120,7 @@ class OC_Helper {
 	 */
 	public static function linkToAbsolute( $app, $file ) {
 		$urlLinkTo = self::linkTo( $app, $file );
-		// Checking if the request was made through HTTPS. The last in line is for IIS
-		$protocol = isset($_SERVER['HTTPS']) && !empty($_SERVER['HTTPS']) && ($_SERVER['HTTPS']!='off');
-		$urlLinkTo = ($protocol?'https':'http') . '://'  . self::serverHost() . $urlLinkTo;
+		$urlLinkTo = self::serverProtocol(). '://'  . self::serverHost() . $urlLinkTo;
 		return $urlLinkTo;
 	}
 
@@ -112,8 +131,8 @@ class OC_Helper {
 	 *
 	 * Returns a absolute url to the given service.
 	 */
-	public static function linkToRemote( $service ) {
-		return self::linkToAbsolute( '', 'remote.php') . '/' . $service . '/';
+	public static function linkToRemote( $service, $add_slash = true ) {
+		return self::linkToAbsolute( '', 'remote.php') . '/' . $service . ($add_slash?'/':'');
 	}
 
 	/**
@@ -514,7 +533,7 @@ class OC_Helper {
 	 * remove all files created by self::tmpFile
 	 */
 	public static function cleanTmp(){
-		$leftoversFile='/tmp/oc-not-deleted';
+		$leftoversFile=get_temp_dir().'/oc-not-deleted';
 		if(file_exists($leftoversFile)){
 			$leftovers=file($leftoversFile);
 			foreach($leftovers as $file) {

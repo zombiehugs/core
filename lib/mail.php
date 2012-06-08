@@ -31,7 +31,7 @@ class OC_Mail {
 
 		$SMTPMODE = OC_Config::getValue( 'mail_smtpmode', 'sendmail' );
 		$SMTPHOST = OC_Config::getValue( 'mail_smtphost', '127.0.0.1' );
-		$SMTPAUTH = OC_Config::getValue( 'mail_smtpauth', 'false' ); 
+		$SMTPAUTH = OC_Config::getValue( 'mail_smtpauth', false ); 
 		$SMTPUSERNAME = OC_Config::getValue( 'mail_smtpname', '' ); 
 		$SMTPPASSWORD = OC_Config::getValue( 'mail_smtppassword', '' );  
 
@@ -88,19 +88,8 @@ class OC_Mail {
 
 
 	/**
-	 * sending a mail based on a template
+	 * return the footer for a mail
 	 *
-	 * @param texttemplate $texttemplate
-	 * @param htmltemplate $htmltemplate
-	 * @param data $data
-	 * @param To $toaddress
-	 * @param ToName $toname
-	 * @param Subject $subject
-	 * @param From $fromaddress
-	 * @param FromName $fromname
-	 * @param ccaddress $ccaddress
-	 * @param ccname $ccname
-	 * @param bcc $bcc
 	 */
 	public static function getfooter() {
 

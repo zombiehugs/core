@@ -36,7 +36,8 @@ namespace OCP;
 class App {
 
         /**
-         * @brief makes owncloud aware of this app
+         * @brief Makes owncloud aware of this app
+         * @brief This call is deprecated and not necessary to use.
          * @param $data array with all information
          * @returns true/false
          *
@@ -52,7 +53,6 @@ class App {
          *
          */
         public static function register( $data ){
-		return \OC_App::register( $data );
         }
 
 

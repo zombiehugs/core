@@ -17,7 +17,7 @@
 		<p><label for="ldap_port"><?php echo $l->t('Port');?></label><input type="text" id="ldap_port" name="ldap_port" value="<?php echo $_['ldap_port']; ?>" /></p>
 		<p><label for="ldap_base_users"><?php echo $l->t('Base User Tree');?></label><input type="text" id="ldap_base_users" name="ldap_base_users" value="<?php echo $_['ldap_base_users']; ?>" /></p>
 		<p><label for="ldap_base_groups"><?php echo $l->t('Base Group Tree');?></label><input type="text" id="ldap_base_groups" name="ldap_base_groups" value="<?php echo $_['ldap_base_groups']; ?>" /></p>
-		<p><label for="ldap_group_member_assoc_attribute"><?php echo $l->t('Group-Member association');?></label><select id="ldap_group_member_assoc_attribute" name="ldap_group_member_assoc_attribute"><option value="uniqueMember"<?php if (isset($_['ldap_group_member_assoc_attribute']) && ($_['ldap_group_member_assoc_attribute'] == 'uniqueMember')) echo ' selected'; ?>>uniqueMember</option><option value="memberUid"<?php if (isset($_['ldap_group_member_assoc_attribute']) && ($_['ldap_group_member_assoc_attribute'] == 'memberUid')) echo ' selected'; ?>>memberUid</option><option value="memberUid"<?php if (isset($_['ldap_group_member_assoc_attribute']) && ($_['ldap_group_member_assoc_attribute'] == 'member')) echo ' selected'; ?>>member (AD)</option></select></p>
+		<p><label for="ldap_group_member_assoc_attribute"><?php echo $l->t('Group-Member association');?></label><select id="ldap_group_member_assoc_attribute" name="ldap_group_member_assoc_attribute"><option value="uniqueMember"<?php if (isset($_['ldap_group_member_assoc_attribute']) && ($_['ldap_group_member_assoc_attribute'] == 'uniqueMember')) echo ' selected'; ?>>uniqueMember</option><option value="memberUid"<?php if (isset($_['ldap_group_member_assoc_attribute']) && ($_['ldap_group_member_assoc_attribute'] == 'memberUid')) echo ' selected'; ?>>memberUid</option><option value="member"<?php if (isset($_['ldap_group_member_assoc_attribute']) && ($_['ldap_group_member_assoc_attribute'] == 'member')) echo ' selected'; ?>>member (AD)</option></select></p>
 		<p><input type="checkbox" id="ldap_tls" name="ldap_tls" value="1"<?php if ($_['ldap_tls']) echo ' checked'; ?>><label for="ldap_tls"><?php echo $l->t('Use TLS');?></label></p>
 		<p><input type="checkbox" id="ldap_nocase" name="ldap_nocase" value="1"<?php if (isset($_['ldap_nocase']) && ($_['ldap_nocase'])) echo ' checked'; ?>><label for="ldap_nocase"><?php echo $l->t('Case insensitve LDAP server (Windows)');?></label></p>
 		<p><label for="ldap_display_name"><?php echo $l->t('Display Name Field');?></label><input type="text" id="ldap_display_name" name="ldap_display_name" value="<?php echo $_['ldap_display_name']; ?>" />
@@ -26,7 +26,7 @@
 		<label for="ldap_quota_def">Quota Default</label><input type="text" id="ldap_quota_def" name="ldap_quota_def" value="<?php if (isset($_['ldap_quota_def'])) echo $_['ldap_quota_def']; ?>" />bytes</p>
 		<p><label for="ldap_email_attr">Email Attribute</label><input type="text" id="ldap_email_attr" name="ldap_email_attr" value="<?php echo $_['ldap_email_attr']; ?>" /></p>
 	</fieldset>
-	<input type="submit" value="Save" />
+	<input type="submit" value="Save" /> <a href="http://owncloud.org/support/ldap-backend/" target="_blank"><img src="<?php echo OCP\Util::imagePath('','actions/info.png'); ?>" style="height:1.75ex" /> <?php echo $l->t('Help');?></a>
 	</div>
 
 </form>
