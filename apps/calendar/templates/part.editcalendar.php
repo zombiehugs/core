@@ -8,11 +8,13 @@
  */
 ?>
 <td id="<?php echo $_['new'] ? 'new' : 'edit' ?>calendar_dialog" title="<?php echo $_['new'] ? $l->t("New calendar") : $l->t("Edit calendar"); ?>" colspan="6">
+<br>
 <div id="calendartype" style="text-align:center;">
 <input type="radio" id="calendartype_oc" name="calendartype" /><label for="calendartype_oc">ownCloud Calendar</label>
 <input type="radio" id="calendartype_webcal" name="calendartype" /><label for="calendartype_webcal">Webcal</label>
 <input type="radio" id="calendartype_caldav" name="calendartype" /><label for="calendartype_caldav">CalDAV</label>
-</div><br>
+</div>
+<br>
 <table width="100%" style="border: 0;">
 <tr>
 	<th><?php echo $l->t('Displayname') ?></th>
