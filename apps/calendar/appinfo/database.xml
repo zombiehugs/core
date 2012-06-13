@@ -460,12 +460,6 @@
    </field>
 
    <field>
-    <name>timezone</name>
-    <type>clob</type>
-    <notnull>false</notnull>
-   </field>
-
-   <field>
     <name>url</name>
     <type>text</type>
     <default></default>
