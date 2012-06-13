@@ -10,6 +10,8 @@ class OC_Util {
 	public static $headers=array();
 	private static $rootMounted=false;
 	private static $fsSetup=false;
+	public static $core_styles=array();
+	public static $core_scripts=array();
 
 	// Can be set up
 	public static function setupFS( $user = "", $root = "files" ){// configure the initial filesystem based on the configuration
@@ -28,10 +30,18 @@ class OC_Util {
 			exit;
 		}
 		
+		// Check if apps folder is writable.
+		if(OC_Config::getValue('writable_appsdir', true) && !is_writable(OC::$SERVERROOT."/apps/")) {
+			$tmpl = new OC_Template( '', 'error', 'guest' );
+			$tmpl->assign('errors',array(1=>array('error'=>"Can't write into apps directory 'apps'",'hint'=>"You can usually fix this by giving the webserver user write access to the config directory in owncloud")));
+			$tmpl->printPage();
+			exit;
+		}
+		
 		// Create root dir.
 		if(!is_dir($CONFIG_DATADIRECTORY_ROOT)){
 			$success=@mkdir($CONFIG_DATADIRECTORY_ROOT);
-            if(!$success) {
+			if(!$success) {
 				$tmpl = new OC_Template( '', 'error', 'guest' );
 				$tmpl->assign('errors',array(1=>array('error'=>"Can't create data directory (".$CONFIG_DATADIRECTORY_ROOT.")",'hint'=>"You can usually fix this by giving the webserver write access to the ownCloud directory '".OC::$SERVERROOT."' (in a terminal, use the command 'chown -R www-data:www-data /path/to/your/owncloud/install/data' ")));
 				$tmpl->printPage();
@@ -50,7 +60,6 @@ class OC_Util {
 			self::$rootMounted=true;
 		}
 		if( $user != "" ){ //if we aren't logged in, there is no use to set up the filesystem
-
 			OC::$CONFIG_DATADIRECTORY = $CONFIG_DATADIRECTORY_ROOT."/$user/$root";
 			if( !is_dir( OC::$CONFIG_DATADIRECTORY )){
 				mkdir( OC::$CONFIG_DATADIRECTORY, 0755, true );
@@ -61,6 +70,15 @@ class OC_Util {
 			$quotaProxy=new OC_FileProxy_Quota();
 			OC_FileProxy::register($quotaProxy);
 			self::$fsSetup=true;
+			// Load personal mount config
+			if (is_file($CONFIG_DATADIRECTORY_ROOT.'/'.$user.'/mount.php')) {
+				$mountConfig = include($CONFIG_DATADIRECTORY_ROOT.'/'.$user.'/mount.php');
+				if (isset($mountConfig['user'][$user])) {
+					foreach ($mountConfig['user'][$user] as $mountPoint => $options) {
+						OC_Filesystem::mount($options['class'], $options['options'], $mountPoint);
+					}
+				}
+			}
 		}
 	}
 
@@ -74,7 +92,7 @@ class OC_Util {
 	 * @return array
 	 */
 	public static function getVersion(){
-		return array(3,91,0);
+		return array(4,80,1);
 	}
 
 	/**
@@ -82,7 +100,7 @@ class OC_Util {
 	 * @return string
 	 */
 	public static function getVersionString(){
-		return '4 RC';
+		return '5 pre alpha';
 	}
 
         /**
@@ -256,6 +274,9 @@ class OC_Util {
 		if(floatval(phpversion())<5.3){
 			$errors[]=array('error'=>'PHP 5.3 is required.<br/>','hint'=>'Please ask your server administrator to update PHP to version 5.3 or higher. PHP 5.2 is no longer supported by ownCloud and the PHP community.');
 		}
+		if(!defined('PDO::ATTR_DRIVER_NAME')){
+			$errors[]=array('error'=>'PHP PDO module is not installed.<br/>','hint'=>'Please ask your server administrator to install the module.');
+		}
 
 		return $errors;
 	}
@@ -311,11 +332,99 @@ class OC_Util {
 	* Redirect to the user default page
 	*/
 	public static function redirectToDefaultPage(){
-		if(isset($_REQUEST['redirect_url'])) {
-			header( 'Location: '.htmlentities($_REQUEST['redirect_url']));
+		OC_Log::write('core','redirectToDefaultPage',OC_Log::DEBUG);
+		if(isset($_REQUEST['redirect_url']) && (substr($_REQUEST['redirect_url'], 0, strlen(OC::$WEBROOT)) == OC::$WEBROOT || $_REQUEST['redirect_url'][0] == '/')) {
+			header( 'Location: '.$_REQUEST['redirect_url']);
 		} else {
 			header( 'Location: '.OC::$WEBROOT.'/'.OC_Appconfig::getValue('core', 'defaultpage', '?app=files'));
 		}
 		exit();
 	}
+
+	/**
+	 * get an id unqiue for this instance
+	 * @return string
+	 */
+	public static function getInstanceId(){
+		$id=OC_Config::getValue('instanceid',null);
+		if(is_null($id)){
+			$id=uniqid();
+			OC_Config::setValue('instanceid',$id);
+		}
+		return $id;
+	}
+
+	/**
+	 * Register an get/post call. This is important to prevent CSRF attacks
+	 * Todo: Write howto
+	 */
+	public static function callRegister(){
+		//mamimum time before token exires
+		$maxtime=(60*60);  // 1 hour
+
+		// generate a random token.
+		$token=mt_rand(1000,9000).mt_rand(1000,9000).mt_rand(1000,9000);
+
+		// store the token together with a timestamp in the session.
+		$_SESSION['requesttoken-'.$token]=time();
+
+		// cleanup old tokens garbage collector
+		// only run every 20th time so we don´t waste cpu cycles
+		if(rand(0,20)==0) {  
+			foreach($_SESSION as $key=>$value) {
+				// search all tokens in the session
+				if(substr($key,0,12)=='requesttoken') {
+					if($value+$maxtime<time()){
+						// remove outdated tokens
+						unset($_SESSION[$key]);						
+					}
+				}	
+			}
+		}
+
+
+		// return the token
+		return($token);
+	}
+
+
+	/**
+	 * Check an ajax get/post call if the request token is valid. exit if not.
+	 * Todo: Write howto
+	 */
+	public static function callCheck(){
+		//mamimum time before token exires
+		$maxtime=(60*60);  // 1 hour
+
+		// searches in the get and post arrays for the token.
+		if(isset($_GET['requesttoken'])) {
+			$token=$_GET['requesttoken'];
+		}elseif(isset($_POST['requesttoken'])){
+			$token=$_POST['requesttoken'];
+		}else{
+			//no token found. exiting
+			exit;
+		}
+
+		// check if the token is in the user session and if the timestamp is from the last hour.
+		if(isset($_SESSION['requesttoken-'.$token])) {
+			$timestamp=$_SESSION['requesttoken-'.$token];
+			if($timestamp+$maxtime<time){
+				//token exired. exiting
+				exit;
+
+			}else{
+				//token valid
+				return;
+			}
+		}else{
+			//no token found. exiting
+			exit;
+		}
+	}
+
+
+
+
+
 }

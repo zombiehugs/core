@@ -3,7 +3,7 @@
 * ownCloud
 *
 * @author Frank Karlitschek
-* @copyright 2010 Frank Karlitschek karlitschek@kde.org
+* @copyright 2012 Frank Karlitschek frank@owncloud.org
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -30,6 +30,9 @@
 // This means that they should be used by apps instead of the internal ownCloud classes
 namespace OCP;
 
+/**
+ * This class provides access to the internal filesystem abstraction layer. Use this class exlusively if you want to access files
+ */
 class Files {
 
 
@@ -97,6 +100,15 @@ class Files {
 	 */
 	public static function buildNotExistingFileName( $path, $filename ){
 		return(\OC_Helper::buildNotExistingFileName( $path, $filename ));
+	}
+
+        /**
+         * @param string appid
+         * @param $app app
+         * @return OC_FilesystemView
+         */
+        public static function getStorage( $app ){
+		return \OC_App::getStorage( $app );
 	}
 
 

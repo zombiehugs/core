@@ -3,7 +3,7 @@
  * ownCloud
  *
  * @author Robin Appelman
- * @copyright 2010 Frank Karlitschek karlitschek@kde.org
+ * @copyright 2012 Frank Karlitschek frank@owncloud.org
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -110,7 +110,7 @@ class OC_Installer{
 			//try to find it in a subdir
 			$dh=opendir($extractDir);
 			while($folder=readdir($dh)){
-				if(substr($folder,0,1)!='.' and is_dir($extractDir.'/'.$folder)){
+				if($folder[0]!='.' and is_dir($extractDir.'/'.$folder)){
 					if(is_file($extractDir.'/'.$folder.'/appinfo/info.xml')){
 						$extractDir.='/'.$folder;
 					}
@@ -130,10 +130,19 @@ class OC_Installer{
 
                 // check the code for not allowed calls
                 if(!OC_Installer::checkCode($info['id'],$extractDir)){
+			OC_Log::write('core','App can\'t be installed because of not allowed code in the App',OC_Log::ERROR);
 			OC_Helper::rmdirr($extractDir);
                         return false;
 		}
-		
+
+                // check if the app is compatible with this version of ownCloud
+		$version=OC_Util::getVersion();	
+                if(!isset($info['require']) or ($version[0]>$info['require'])){
+			OC_Log::write('core','App can\'t be installed because it is not compatible with this version of ownCloud',OC_Log::ERROR);
+			OC_Helper::rmdirr($extractDir);
+                        return false;
+		}
+
 		//check if an app with the same id is already installed
 		if(self::isInstalled( $info['id'] )){
 			OC_Log::write('core','App already installed',OC_Log::WARN);
@@ -336,7 +345,7 @@ class OC_Installer{
         public static function checkCode($appname,$folder){
 
 		$blacklist=array(
-			'fopen(',
+			'exec(',
 			'eval('
 			// more evil pattern will go here later
 			// will will also check if an app is using private api once the public api is in place

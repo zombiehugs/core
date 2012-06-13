@@ -45,14 +45,26 @@ class OC_LDAP {
 	static protected $ldapAgentPassword;
 	static protected $ldapTLS;
 	static protected $ldapNoCase;
+	static protected $ldapIgnoreNamingRules;
 	// user and group settings, that are needed in both backends
 	static protected $ldapUserDisplayName;
 	static protected $ldapUserFilter;
 	static protected $ldapGroupDisplayName;
 	static protected $ldapLoginFilter;
 
-	static public function init() {
-		self::readConfiguration();
+	static protected $__d;
+
+	/**
+	 * @brief initializes the LDAP backend
+	 * @param $force read the config settings no matter what
+	 *
+	 * initializes the LDAP backend
+	 */
+	static public function init($force = false) {
+		if(is_null(self::$__d)) {
+			self::$__d = new OC_LDAP_DESTRUCTOR();
+		}
+		self::readConfiguration($force);
 		self::establishConnection();
 	}
 
@@ -251,7 +263,7 @@ class OC_LDAP {
 			$key = self::recursiveArraySearch($knownObjects, $ldapObject['dn']);
 
 			//everything is fine when we know the group
-			if($key) {
+			if($key !== false) {
 				$ownCloudNames[] = $knownObjects[$key]['owncloud_name'];
 				continue;
 			}
@@ -323,30 +335,6 @@ class OC_LDAP {
 	}
 
 	/**
-	 * @brief inserts a new group into the mappings table
-	 * @param $dn the record in question
-	 * @param $ocname the name to use in ownCloud
-	 * @returns true on success, false otherwise
-	 *
-	 * inserts a new group into the mappings table
-	 */
-	static private function mapGroup($dn, $ocname) {
-		return self::mapComponent($dn, $ocname, false);
-	}
-
-	/**
-	 * @brief inserts a new user into the mappings table
-	 * @param $dn the record in question
-	 * @param $ocname the name to use in ownCloud
-	 * @returns true on success, false otherwise
-	 *
-	 * inserts a new user into the mappings table
-	 */
-	static private function mapUser($dn, $ocname) {
-		return self::mapComponent($dn, $ocname, true);
-	}
-
-	/**
 	 * @brief inserts a new user or group into the mappings table
 	 * @param $dn the record in question
 	 * @param $ocname the name to use in ownCloud
@@ -359,21 +347,36 @@ class OC_LDAP {
 		$table = self::getMapTable($isUser);
 		$dn = self::sanitizeDN($dn);
 
-		$sqliteAdjustment = '';
+		$sqlAdjustment = '';
 		$dbtype = OCP\Config::getSystemValue('dbtype');
-		if(($dbtype == 'sqlite') || ($dbtype == 'sqlite3')) {
-			$sqliteAdjustment = 'OR';
+		if($dbtype == 'mysql') {
+			$sqlAdjustment = 'FROM dual';
 		}
 
 		$insert = OCP\DB::prepare('
-			INSERT '.$sqliteAdjustment.' IGNORE INTO '.$table.'
-			(ldap_dn, owncloud_name)
-			VALUES (?,?)
+			INSERT INTO '.$table.' (ldap_dn, owncloud_name)
+				SELECT ?,?
+				'.$sqlAdjustment.'
+				WHERE NOT EXISTS (
+					SELECT 1
+					FROM '.$table.'
+					WHERE ldap_dn = ?
+						OR owncloud_name = ? )
 		');
 
-		$res = $insert->execute(array($dn, $ocname));
+		$res = $insert->execute(array($dn, $ocname, $dn, $ocname));
 
-		return !OCP\DB::isError($res);
+		if(OCP\DB::isError($res)) {
+			return false;
+		}
+
+		$insRows = $res->numRows();
+
+		if($insRows == 0) {
+			return false;
+		}
+
+		return true;
 	}
 
 	static public function fetchListOfUsers($filter, $attr) {
@@ -518,7 +521,7 @@ class OC_LDAP {
 
 	static private function sanitizeDN($dn) {
 		//OID sometimes gives back DNs with whitespace after the comma a la "uid=foo, cn=bar, dn=..." We need to tackle this!
-		$dn = preg_replace('/,\s+/',',',$dn);
+		$dn = preg_replace('/([^\\\]),(\s+)/','\1,',$dn);
 
 		//make comparisons and everything work
 		$dn = strtolower($dn);
@@ -527,6 +530,10 @@ class OC_LDAP {
 	}
 
 	static private function sanitizeUsername($name) {
+		if(self::$ldapIgnoreNamingRules) {
+			return $name;
+		}
+
 		//REPLACEMENTS
 		$name = str_replace(' ', '_', $name);
 
@@ -569,7 +576,7 @@ class OC_LDAP {
 	static private function combineFilter($filters, $operator) {
 		$combinedFilter = '('.$operator;
 		foreach($filters as $filter) {
-		    if(substr($filter,0,1) != '(') {
+		    if($filter[0] != '(') {
 				$filter = '('.$filter.')';
 		    }
 		    $combinedFilter.=$filter;
@@ -594,21 +601,22 @@ class OC_LDAP {
 	/**
 	 * Caches the general LDAP configuration.
 	 */
-	static private function readConfiguration() {
-		if(!self::$configured) {
-			self::$ldapHost             = OCP\Config::getAppValue('user_ldap', 'ldap_host', '');
-			self::$ldapPort             = OCP\Config::getAppValue('user_ldap', 'ldap_port', OC_USER_BACKEND_LDAP_DEFAULT_PORT);
-			self::$ldapAgentName        = OCP\Config::getAppValue('user_ldap', 'ldap_dn','');
-			self::$ldapAgentPassword    = base64_decode(OCP\Config::getAppValue('user_ldap', 'ldap_agent_password',''));
-			self::$ldapBase             = OCP\Config::getAppValue('user_ldap', 'ldap_base', '');
-			self::$ldapBaseUsers        = OCP\Config::getAppValue('user_ldap', 'ldap_base_users',self::$ldapBase);
-			self::$ldapBaseGroups       = OCP\Config::getAppValue('user_ldap', 'ldap_base_groups', self::$ldapBase);
-			self::$ldapTLS              = OCP\Config::getAppValue('user_ldap', 'ldap_tls',0);
-			self::$ldapNoCase           = OCP\Config::getAppValue('user_ldap', 'ldap_nocase', 0);
-			self::$ldapUserDisplayName  = strtolower(OCP\Config::getAppValue('user_ldap', 'ldap_display_name', OC_USER_BACKEND_LDAP_DEFAULT_DISPLAY_NAME));
-			self::$ldapUserFilter       = OCP\Config::getAppValue('user_ldap', 'ldap_userlist_filter','objectClass=person');
-			self::$ldapLoginFilter      = OCP\Config::getAppValue('user_ldap', 'ldap_login_filter', '(uid=%uid)');
-			self::$ldapGroupDisplayName = strtolower(OCP\Config::getAppValue('user_ldap', 'ldap_group_display_name', LDAP_GROUP_DISPLAY_NAME_ATTR));
+	static private function readConfiguration($force = false) {
+		if(!self::$configured || $force) {
+			self::$ldapHost              = OCP\Config::getAppValue('user_ldap', 'ldap_host', '');
+			self::$ldapPort              = OCP\Config::getAppValue('user_ldap', 'ldap_port', 389);
+			self::$ldapAgentName         = OCP\Config::getAppValue('user_ldap', 'ldap_dn','');
+			self::$ldapAgentPassword     = base64_decode(OCP\Config::getAppValue('user_ldap', 'ldap_agent_password',''));
+			self::$ldapBase              = OCP\Config::getAppValue('user_ldap', 'ldap_base', '');
+			self::$ldapBaseUsers         = OCP\Config::getAppValue('user_ldap', 'ldap_base_users',self::$ldapBase);
+			self::$ldapBaseGroups        = OCP\Config::getAppValue('user_ldap', 'ldap_base_groups', self::$ldapBase);
+			self::$ldapTLS               = OCP\Config::getAppValue('user_ldap', 'ldap_tls',0);
+			self::$ldapNoCase            = OCP\Config::getAppValue('user_ldap', 'ldap_nocase', 0);
+			self::$ldapUserDisplayName   = strtolower(OCP\Config::getAppValue('user_ldap', 'ldap_display_name', 'uid'));
+			self::$ldapUserFilter        = OCP\Config::getAppValue('user_ldap', 'ldap_userlist_filter','objectClass=person');
+			self::$ldapLoginFilter       = OCP\Config::getAppValue('user_ldap', 'ldap_login_filter', '(uid=%uid)');
+			self::$ldapGroupDisplayName  = strtolower(OCP\Config::getAppValue('user_ldap', 'ldap_group_display_name', LDAP_GROUP_DISPLAY_NAME_ATTR));
+			self::$ldapIgnoreNamingRules = OCP\Config::getSystemValue('ldapIgnoreNamingRules', false);
 
 			if(empty(self::$ldapBaseUsers)) {
 				OCP\Util::writeLog('ldap', 'Base for Users is empty, using Base DN', OCP\Util::INFO);

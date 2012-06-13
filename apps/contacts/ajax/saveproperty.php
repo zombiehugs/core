@@ -20,9 +20,6 @@
  *
  */
 
-// Init owncloud
- 
-
 // Check if we are a user
 OCP\JSON::checkLoggedIn();
 OCP\JSON::checkAppEnabled('contacts');
@@ -35,21 +32,12 @@ function bailOut($msg) {
 function debug($msg) {
 	OCP\Util::writeLog('contacts','ajax/saveproperty.php: '.$msg, OCP\Util::DEBUG);
 }
-// foreach ($_POST as $key=>$element) {
-// 	debug('_POST: '.$key.'=>'.print_r($element, true));
-// }
 
 $id = isset($_POST['id'])?$_POST['id']:null;
 $name = isset($_POST['name'])?$_POST['name']:null;
 $value = isset($_POST['value'])?$_POST['value']:null;
 $parameters = isset($_POST['parameters'])?$_POST['parameters']:null;
 $checksum = isset($_POST['checksum'])?$_POST['checksum']:null;
-// if(!is_null($parameters)) {
-// 	debug('parameters: '.count($parameters));
-// 	foreach($parameters as $key=>$val ) {
-// 		debug('parameter: '.$key.'=>'.implode('/',$val));
-// 	}
-// }
 
 if(!$name) {
 	bailOut(OC_Contacts_App::$l10n->t('element name is not set.'));
@@ -96,12 +84,9 @@ switch($element) {
 			//$value = getOtherValue();
 		}
 		break;
-	//case 'CATEGORIES':
-		/* multi autocomplete triggers an save with empty value
-		if (!$value) {
-			$value = $vcard->getAsString('CATEGORIES');
-		}
-		break;*/
+	case 'NOTE':
+		$value = str_replace('\n', '\\n', $value);
+		break;
 	case 'EMAIL':
 		$value = strtolower($value);
 		break;
@@ -113,15 +98,6 @@ if(!$value) {
 } else {
 	/* setting value */
 	switch($element) {
-		case 'BDAY':
-		case 'FN':
-		case 'N':
-		case 'ORG':
-		case 'NOTE':
-		case 'NICKNAME':
-			debug('Setting string:'.$name.' '.$value);
-			$vcard->setString($name, $value);
-			break;
 		case 'CATEGORIES':
 			debug('Setting string:'.$name.' '.$value);
 			$vcard->children[$line]->setValue($value);
@@ -142,6 +118,10 @@ if(!$value) {
 					}
 				}
 			}
+			break;
+		default:
+			debug('Setting string:'.$name.' '.$value);
+			$vcard->setString($name, $value);
 			break;
 	}
 	// Do checksum and be happy

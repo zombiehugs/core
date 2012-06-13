@@ -4,7 +4,7 @@
  *
  * @author Frank Karlitschek
  * @author Jakob Sack
- * @copyright 2010 Frank Karlitschek karlitschek@kde.org
+ * @copyright 2012 Frank Karlitschek frank@owncloud.org
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -28,7 +28,6 @@
  */
 class OC_App{
 	static private $init = false;
-	static private $apps = array();
 	static private $activeapp = '';
 	static private $navigation = array();
 	static private $settingsForms = array();
@@ -36,6 +35,7 @@ class OC_App{
 	static private $personalForms = array();
 	static private $appInfo = array();
 	static private $appTypes = array();
+	static private $loadedApps = array();
 
 	/**
 	 * @brief loads all apps
@@ -49,28 +49,31 @@ class OC_App{
 	 * if $types is set, only apps of those types will be loaded
 	 */
 	public static function loadApps($types=null){
-		// Did we already load everything?
-		if( self::$init ){
-			return true;
-		}
-
-		// Our very own core apps are hardcoded
-		foreach( array( 'settings') as $app ){
-			if(is_null($types)){
-				require( $app.'/appinfo/app.php' );
-			}
-		}
-
-		// The rest comes here
+		// Load the enabled apps here
 		$apps = self::getEnabledApps();
+		// prevent app.php from printing output
+		ob_start();
 		foreach( $apps as $app ){
-			if((is_null($types) or self::isType($app,$types))){
+			if((is_null($types) or self::isType($app,$types)) && !in_array($app, self::$loadedApps)){
 				self::loadApp($app);
+				self::$loadedApps[] = $app;
 			}
 		}
+		ob_end_clean();
 
-		self::$init = true;
+		if (!defined('DEBUG') || !DEBUG){
+			if (is_null($types)) {
+				OC_Util::$core_scripts = OC_Util::$scripts;
+				OC_Util::$scripts = array();
+				OC_Util::$core_styles = OC_Util::$styles;
+				OC_Util::$styles = array();
 
+				if (!OC_AppConfig::getValue('core', 'remote_core.css', false)) {
+					OC_AppConfig::setValue('core', 'remote_core.css', '/core/minimizer.php');
+					OC_AppConfig::setValue('core', 'remote_core.js', '/core/minimizer.php');
+				}
+			}
+		}
 		// return
 		return true;
 	}
@@ -114,7 +117,11 @@ class OC_App{
 			self::$appTypes=OC_Appconfig::getValues(false,'types');
 		}
 
-		return explode(',',self::$appTypes[$app]);
+		if(isset(self::$appTypes[$app])){
+			return explode(',',self::$appTypes[$app]);
+		}else{
+			return array();
+		}
 	}
 
 	/**
@@ -122,7 +129,7 @@ class OC_App{
 	 */
 	public static function setAppTypes($app){
 		$appData=self::getAppInfo($app);
-		
+
 		if(isset($appData['types'])){
 			$appTypes=implode(',',$appData['types']);
 		}else{
@@ -155,7 +162,7 @@ class OC_App{
 	 * This function checks whether or not an app is enabled.
 	 */
 	public static function isEnabled( $app ){
-		if( 'yes' == OC_Appconfig::getValue( $app, 'enabled' )){
+		if( 'files'==$app or 'yes' == OC_Appconfig::getValue( $app, 'enabled' )){
 			return true;
 		}
 
@@ -182,8 +189,16 @@ class OC_App{
 			}
 		}
 		if($app!==false){
-			OC_Appconfig::setValue( $app, 'enabled', 'yes' );
-			return true;
+			// check if the app is compatible with this version of ownCloud
+			$info=OC_App::getAppInfo($app);
+			$version=OC_Util::getVersion();
+	                if(!isset($info['require']) or ($version[0]>$info['require'])){
+				OC_Log::write('core','App "'.$info['name'].'" can\'t be installed because it is not compatible with this version of ownCloud',OC_Log::ERROR);
+				return false;
+			}else{
+				OC_Appconfig::setValue( $app, 'enabled', 'yes' );
+				return true;
+			}
 		}else{
 			return false;
 		}
@@ -199,36 +214,6 @@ class OC_App{
 	public static function disable( $app ){
 		// check if app is a shiped app or not. if not delete
 		OC_Appconfig::setValue( $app, 'enabled', 'no' );
-	}
-
-	/**
-	 * @brief makes owncloud aware of this app
-	 * @param $data array with all information
-	 * @returns true/false
-	 *
-	 * This function registers the application. $data is an associative array.
-	 * The following keys are required:
-	 *   - id: id of the application, has to be unique ('addressbook')
-	 *   - name: Human readable name ('Addressbook')
-	 *   - version: array with Version (major, minor, bugfix) ( array(1, 0, 2))
-	 *
-	 * The following keys are optional:
-	 *   - order: integer, that influences the position of your application in
-	 *     a list of applications. Lower values come first.
-	 *
-	 */
-	public static function register( $data ){
-		OC_App::$apps[] = $data;
-	}
-
-	/**
-	 * @brief returns information of all apps
-	 * @return array with all information
-	 *
-	 * This function returns all data it got via register().
-	 */
-	public static function get(){
-		return OC_App::$apps;
 	}
 
 	/**
@@ -484,7 +469,7 @@ class OC_App{
 		$apps=array();
 		$dh=opendir(OC::$APPSROOT.'/apps');
 		while($file=readdir($dh)){
-			if(substr($file,0,1)!='.' and is_file(OC::$APPSROOT.'/apps/'.$file.'/appinfo/app.php')){
+			if($file[0]!='.' and is_file(OC::$APPSROOT.'/apps/'.$file.'/appinfo/app.php')){
 				$apps[]=$file;
 			}
 		}
@@ -495,7 +480,6 @@ class OC_App{
 	 * check if any apps need updating and update those
 	 */
 	public static function updateApps(){
-		// The rest comes here
 		$versions = self::getAppVersions();
 		//ensure files app is installed for upgrades
 		if(!isset($versions['files'])){
@@ -505,11 +489,32 @@ class OC_App{
 			$currentVersion=OC_App::getAppVersion($app);
 			if ($currentVersion) {
 				if (version_compare($currentVersion, $installedVersion, '>')) {
+					OC_Log::write($app,'starting app upgrade from '.$installedVersion.' to '.$currentVersion,OC_Log::DEBUG);
 					OC_App::updateApp($app);
 					OC_Appconfig::setValue($app,'installed_version',OC_App::getAppVersion($app));
 				}
 			}
 		}
+
+		// check if the current enabled apps are compatible with the current ownCloud version. disable them if not.
+		// this is important if you upgrade ownCloud and have non ported 3rd party apps installed
+		$apps =OC_App::getEnabledApps();
+		$version=OC_Util::getVersion();
+		foreach($apps as $app) {
+
+			// check if the app is compatible with this version of ownCloud
+			$info=OC_App::getAppInfo($app);
+			if(!isset($info['require']) or ($version[0]>$info['require'])){
+				OC_Log::write('core','App "'.$info['name'].'" can\'t be used because it is not compatible with this version of ownCloud',OC_Log::ERROR);
+				OC_App::disable( $app );
+			}
+
+
+
+		}
+
+
+
 	}
 
 	/**
@@ -532,6 +537,9 @@ class OC_App{
 	public static function updateApp($appid){
 		if(file_exists(OC::$APPSROOT.'/apps/'.$appid.'/appinfo/database.xml')){
 			OC_DB::updateDbFromStructure(OC::$APPSROOT.'/apps/'.$appid.'/appinfo/database.xml');
+		}
+		if(!self::isEnabled($appid)){
+			return;
 		}
 		if(file_exists(OC::$APPSROOT.'/apps/'.$appid.'/appinfo/update.php')){
 			include OC::$APPSROOT.'/apps/'.$appid.'/appinfo/update.php';

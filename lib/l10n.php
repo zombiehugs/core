@@ -3,7 +3,7 @@
  * ownCloud
  *
  * @author Jakob Sack
- * @copyright 2010 Frank Karlitschek karlitschek@kde.org
+ * @copyright 2012 Frank Karlitschek frank@owncloud.org
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -77,6 +77,10 @@ class OC_L10N{
 	 * language.
 	 */
 	public function __construct($app, $lang = null){
+		$this->init($app, $lang);
+	}
+		
+	protected function init($app, $lang = null){
 		// Find the right language
 		if(is_null($lang)){
 			$lang = self::findLanguage($app);

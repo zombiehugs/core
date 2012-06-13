@@ -3,7 +3,7 @@
 * ownCloud
 *
 * @author Frank Karlitschek
-* @copyright 2010 Frank Karlitschek karlitschek@kde.org
+* @copyright 2012 Frank Karlitschek frank@owncloud.org
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -99,7 +99,7 @@ function html_select_options($options, $selected, $params=array()) {
 
 
 /**
- * This class provides the templates for owncloud.
+ * This class provides the template system for owncloud. You can use it to load specific templates, add data and generate the html code
  */
 class Template extends \OC_Template {
 

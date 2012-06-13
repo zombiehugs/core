@@ -1,28 +1,47 @@
 <?php
 
 /**
-* ownCloud
-*
-* @author Frank Karlitschek
-* @copyright 2010 Frank Karlitschek karlitschek@kde.org
-*
-* This library is free software; you can redistribute it and/or
-* modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
-* License as published by the Free Software Foundation; either
-* version 3 of the License, or any later version.
-*
-* This library is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU AFFERO GENERAL PUBLIC LICENSE for more details.
-*
-* You should have received a copy of the GNU Affero General Public
-* License along with this library.  If not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * ownCloud
+ *
+ * @author Frank Karlitschek
+ * @copyright 2012 Frank Karlitschek frank@owncloud.org
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public
+ * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ * Class to provide access to ownCloud filesystem via a "view", and methods for 
+ * working with files within that view (e.g. read, write, delete, etc.). Each 
+ * view is restricted to a set of directories via a virtual root. The default view 
+ * uses the currently logged in user's data directory as root (parts of 
+ * OC_Filesystem are merely a wrapper for OC_FilesystemView).
+ * 
+ * Apps that need to access files outside of the user data folders (to modify files
+ * belonging to a user other than the one currently logged in, for example) should
+ * use this class directly rather than using OC_Filesystem, or making use of PHP's
+ * built-in file manipulation functions. This will ensure all hooks and proxies 
+ * are triggered correctly.
+ *
+ * Filesystem functions are not called directly; they are passed to the correct 
+ * OC_Filestorage object
+ */
 
 class OC_FilesystemView {
 	private $fakeRoot='';
+	private $internal_path_cache=array();
+	private $storage_cache=array();
 
 	public function __construct($root){
 		$this->fakeRoot=$root;
@@ -32,7 +51,7 @@ class OC_FilesystemView {
 		if(!$path){
 			$path='/';
 		}
-		if(substr($path,0,1)!=='/'){
+		if($path[0]!=='/'){
 			$path='/'.$path;
 		}
 		return $this->fakeRoot.$path;
@@ -67,15 +86,38 @@ class OC_FilesystemView {
 	* @return bool
 	*/
 	public function getInternalPath($path){
-		return OC_Filesystem::getInternalPath($this->getAbsolutePath($path));
+		if (!isset($this->internal_path_cache[$path])) {
+			$this->internal_path_cache[$path] = OC_Filesystem::getInternalPath($this->getAbsolutePath($path));
+		}
+		return $this->internal_path_cache[$path];
 	}
+
+	/**
+	 * get path relative to the root of the view
+	 * @param string path
+	 * @return string
+	 */
+	public function getRelativePath($path){
+		if($this->fakeRoot==''){
+			return $path;
+		}
+		if(strpos($path,$this->fakeRoot)!==0){
+			return null;
+		}else{
+			return substr($path,strlen($this->fakeRoot));
+		}
+	}
+	
 	/**
 	* get the storage object for a path
 	* @param string path
 	* @return OC_Filestorage
 	*/
 	public function getStorage($path){
-		return OC_Filesystem::getStorage($this->getAbsolutePath($path));
+		if (!isset($this->storage_cache[$path])) {
+			$this->storage_cache[$path] = OC_Filesystem::getStorage($this->getAbsolutePath($path));
+		}
+		return $this->storage_cache[$path];
 	}
 
 	/**
@@ -103,7 +145,9 @@ class OC_FilesystemView {
 	}
 
 	/**
-	 * following functions are equivilent to their php buildin equivilents for arguments/return values.
+	 * the following functions operate with arguments and return values identical 
+	 * to those of their PHP built-in equivalents. Mostly they are merely wrappers 
+	 * for OC_Filestorage via basicOperation().
 	 */
 	public function mkdir($path){
 		return $this->basicOperation('mkdir',$path,array('create','write'));
@@ -205,7 +249,14 @@ class OC_FilesystemView {
 		return $this->basicOperation('unlink',$path,array('delete'));
 	}
 	public function rename($path1,$path2){
-		if(OC_FileProxy::runPreProxies('rename',$path1,$path2) and OC_Filesystem::isValidPath($path2)){
+		$absolutePath1=$this->getAbsolutePath($path1);
+		$absolutePath2=$this->getAbsolutePath($path2);
+		if(OC_FileProxy::runPreProxies('rename',$absolutePath1,$absolutePath2) and OC_Filesystem::isValidPath($path2)){
+			$path1=$this->getRelativePath($absolutePath1);
+			$path2=$this->getRelativePath($absolutePath2);
+			if($path1==null or $path2==null){
+				return false;
+			}
 			$run=true;
 			OC_Hook::emit( OC_Filesystem::CLASSNAME, OC_Filesystem::signal_rename, array( OC_Filesystem::signal_param_oldpath => $path1 , OC_Filesystem::signal_param_newpath=>$path2, OC_Filesystem::signal_param_run => &$run));
 			if($run){
@@ -229,7 +280,14 @@ class OC_FilesystemView {
 		}
 	}
 	public function copy($path1,$path2){
-		if(OC_FileProxy::runPreProxies('copy',$path1,$path2) and $this->is_readable($path1) and OC_Filesystem::isValidPath($path2)){
+		$absolutePath1=$this->getAbsolutePath($path1);
+		$absolutePath2=$this->getAbsolutePath($path2);
+		if(OC_FileProxy::runPreProxies('copy',$absolutePath1,$absolutePath2) and OC_Filesystem::isValidPath($path2)){
+			$path1=$this->getRelativePath($absolutePath1);
+			$path2=$this->getRelativePath($absolutePath2);
+			if($path1==null or $path2==null){
+				return false;
+			}
 			$run=true;
 			OC_Hook::emit( OC_Filesystem::CLASSNAME, OC_Filesystem::signal_copy, array( OC_Filesystem::signal_param_oldpath => $path1 , OC_Filesystem::signal_param_newpath=>$path2, OC_Filesystem::signal_param_run => &$run));
 			$exists=$this->file_exists($path2);
@@ -336,16 +394,25 @@ class OC_FilesystemView {
 	}
 
 	/**
-	 * abstraction for running most basic operations
+	 * @brief abstraction layer for basic filesystem functions: wrapper for OC_Filestorage
 	 * @param string $operation
 	 * @param string #path
 	 * @param array (optional) hooks
 	 * @param mixed (optional) $extraParam
 	 * @return mixed
+	 * 
+	 * This method takes requests for basic filesystem functions (e.g. reading & writing 
+	 * files), processes hooks and proxies, sanitises paths, and finally passes them on to 
+	 * OC_Filestorage for delegation to a storage backend for execution
 	 */
 	private function basicOperation($operation,$path,$hooks=array(),$extraParam=null){
-		if(OC_FileProxy::runPreProxies($operation,$path, $extraParam) and OC_Filesystem::isValidPath($path)){
-			$interalPath=$this->getInternalPath($path);
+		$absolutePath=$this->getAbsolutePath($path);
+		if(OC_FileProxy::runPreProxies($operation,$absolutePath, $extraParam) and OC_Filesystem::isValidPath($path)){
+			$path=$this->getRelativePath($absolutePath);
+			if($path==null){
+				return false;
+			}
+			$internalPath=$this->getInternalPath($path);
 			$run=true;
 			if(OC_Filesystem::$loaded and $this->fakeRoot==OC_Filesystem::getRoot()){
 				foreach($hooks as $hook){
@@ -358,11 +425,11 @@ class OC_FilesystemView {
 			}
 			if($run and $storage=$this->getStorage($path)){
 				if(!is_null($extraParam)){
-					$result=$storage->$operation($interalPath,$extraParam);
+					$result=$storage->$operation($internalPath,$extraParam);
 				}else{
-					$result=$storage->$operation($interalPath);
+					$result=$storage->$operation($internalPath);
 				}
-				$result=OC_FileProxy::runPostProxies($operation,$path,$result);
+				$result=OC_FileProxy::runPostProxies($operation,$this->getAbsolutePath($path),$result);
 				if(OC_Filesystem::$loaded and $this->fakeRoot==OC_Filesystem::getRoot()){
 					if($operation!='fopen'){//no post hooks for fopen, the file stream is still open
 						foreach($hooks as $hook){

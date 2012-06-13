@@ -4,7 +4,7 @@
 * ownCloud
 *
 * @author Frank Karlitschek
-* @copyright 2010 Frank Karlitschek karlitschek@kde.org
+* @copyright 2012 Frank Karlitschek frank@owncloud.org
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -92,6 +92,13 @@ abstract class OC_Group_Example {
 	 * Returns a list with all groups
 	 */
 	public static function getGroups(){}
+
+	/**
+	 * check if a group exists
+	 * @param string $gid
+	 * @return bool
+	 */
+	public function groupExists($gid){}
 
 	/**
 	 * @brief get a list of all users in a group

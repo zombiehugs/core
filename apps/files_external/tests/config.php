@@ -29,4 +29,18 @@ return array(
 		'host'=>'localhost:8080/auth',
 		'root'=>'/',
 	),
+	'smb'=>array(
+		'run'=>false,
+		'user'=>'test',
+		'password'=>'test',
+		'host'=>'localhost',
+		'share'=>'/test',
+		'root'=>'/test/',
+	),
+	'amazons3'=>array(
+		'run'=>false,
+		'key'=>'test',
+		'secret'=>'test',
+		'bucket'=>'bucket',
+	),
 );

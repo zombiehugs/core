@@ -3,7 +3,7 @@
 * ownCloud
 *
 * @author Frank Karlitschek
-* @copyright 2010 Frank Karlitschek karlitschek@kde.org
+* @copyright 2012 Frank Karlitschek frank@owncloud.org
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -30,6 +30,9 @@
 // This means that they should be used by apps instead of the internal ownCloud classes
 namespace OCP;
 
+/**
+ * This class provides convinient functions to generate and send JSON data. Usefull for Ajax calls
+ */
 class JSON {
 
 

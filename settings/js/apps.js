@@ -17,7 +17,7 @@ $(document).ready(function(){
 	});
 	$('#leftcontent li').click(function(){
 		var app=$(this).data('app');
-		$('#rightcontent p').show();
+		$('#rightcontent p.license').show();
 		$('#rightcontent span.name').text(app.name);
 		$('#rightcontent small.externalapp').text(app.internallabel);
 		$('#rightcontent span.version').text(app.version);
@@ -31,6 +31,12 @@ $(document).ready(function(){
 		$('#rightcontent input.enable').val((app.active)?t('settings','Disable'):t('settings','Enable'));
 		$('#rightcontent input.enable').data('appid',app.id);
 		$('#rightcontent input.enable').data('active',app.active);
+		if ( app.internal == false ) {
+			$('#rightcontent p.appslink').show();
+			$('#rightcontent a').attr('href','http://apps.owncloud.com/content/show.php?content='+app.id);
+		} else {
+			$('#rightcontent p.appslink').hide();
+		}
 		return false;
 	});
 	$('#rightcontent input.enable').click(function(){
@@ -41,7 +47,7 @@ $(document).ready(function(){
 			if(active){
 				$.post(OC.filePath('settings','ajax','disableapp.php'),{appid:app},function(result){
 					if(!result || result.status!='success'){
-						OC.dialogs.alert('Error','Error while disabling app');
+						OC.dialogs.alert('Error while disabling app','Error');
 					}
 					else {
 						element.data('active',false);
@@ -54,7 +60,7 @@ $(document).ready(function(){
 			}else{
 				$.post(OC.filePath('settings','ajax','enableapp.php'),{appid:app},function(result){
 					if(!result || result.status!='success'){
-						OC.dialogs.alert('Error','Error while enabling app');
+						OC.dialogs.alert('Error while enabling app','Error');
 					}
 					else {
 						element.data('active',true);

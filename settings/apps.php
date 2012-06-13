@@ -4,7 +4,7 @@
 * ownCloud
 *
 * @author Frank Karlitschek
-* @copyright 2010 Frank Karlitschek karlitschek@kde.org
+* @copyright 2012 Frank Karlitschek frank@owncloud.org
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -39,8 +39,13 @@ foreach($registeredApps as $app){
 		$info=OC_App::getAppInfo($app);
 		$active=(OC_Appconfig::getValue($app,'enabled','no')=='yes')?true:false;
 		$info['active']=$active;
-		$info['internal']=true;
-		$info['internallabel']='Internal App';
+		if(isset($info['shipped']) and ($info['shipped']=='true')) {
+			$info['internal']=true;
+			$info['internallabel']='Internal App';
+		}else{
+			$info['internal']=false;
+			$info['internallabel']='3rd Party App';
+		}
 		$info['preview']='trans.png';
 		$apps[]=$info;
 	}
@@ -58,7 +63,8 @@ usort($apps, 'app_sort');
  $catagoryNames=OC_OCSClient::getCategories();
  if(is_array($catagoryNames)){
  	$categories=array_keys($catagoryNames);
- 	$externalApps=OC_OCSClient::getApplications($categories);
+	$page=0;
+ 	$externalApps=OC_OCSClient::getApplications($categories,$page);
  	foreach($externalApps as $app){
 		// show only external apps that are not exist yet
 		$local=false;

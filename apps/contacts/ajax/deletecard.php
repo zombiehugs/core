@@ -25,14 +25,11 @@ function bailOut($msg) {
 	exit();
 }
 
-// Init owncloud
- 
-
 // Check if we are a user
 OCP\JSON::checkLoggedIn();
 OCP\JSON::checkAppEnabled('contacts');
 
-$id = isset($_GET['id'])?$_GET['id']:null;
+$id = isset($_POST['id'])?$_POST['id']:null;
 if(!$id) {
 	bailOut(OC_Contacts_App::$l10n->t('id is not set.'));
 }

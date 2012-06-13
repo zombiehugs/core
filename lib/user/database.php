@@ -4,7 +4,7 @@
  * ownCloud
  *
  * @author Frank Karlitschek
- * @copyright 2010 Frank Karlitschek karlitschek@kde.org
+ * @copyright 2012 Frank Karlitschek frank@owncloud.org
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -69,7 +69,7 @@ class OC_User_Database extends OC_User_Backend {
 			return false;
 		}else{
 			$hasher=$this->getHasher();
-			$hash = $hasher->HashPassword($password);
+			$hash = $hasher->HashPassword($password.OC_Config::getValue('passwordsalt', ''));
 			$query = OC_DB::prepare( "INSERT INTO `*PREFIX*users` ( `uid`, `password` ) VALUES( ?, ? )" );
 			$result = $query->execute( array( $uid, $hash));
 
@@ -102,7 +102,7 @@ class OC_User_Database extends OC_User_Backend {
 	public function setPassword( $uid, $password ){
 		if( $this->userExists($uid) ){
 			$hasher=$this->getHasher();
-			$hash = $hasher->HashPassword($password);
+			$hash = $hasher->HashPassword($password.OC_Config::getValue('passwordsalt', ''));
 			$query = OC_DB::prepare( "UPDATE *PREFIX*users SET password = ? WHERE uid = ?" );
 			$result = $query->execute( array( $hash, $uid ));
 
@@ -129,9 +129,9 @@ class OC_User_Database extends OC_User_Backend {
 		$row=$result->fetchRow();
 		if($row){
 			$storedHash=$row['password'];
-			if (substr($storedHash,0,1)=='$'){//the new phpass based hashing
+			if ($storedHash[0]=='$'){//the new phpass based hashing
 				$hasher=$this->getHasher();
-				if($hasher->CheckPassword($password, $storedHash)){
+				if($hasher->CheckPassword($password.OC_Config::getValue('passwordsalt', ''), $storedHash)){
 					return $row['uid'];
 				}else{
 					return false;

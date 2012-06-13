@@ -3,7 +3,7 @@
 * ownCloud
 *
 * @author Frank Karlitschek
-* @copyright 2010 Frank Karlitschek karlitschek@kde.org
+* @copyright 2012 Frank Karlitschek frank@owncloud.org
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -30,6 +30,9 @@
 // This means that they should be used by apps instead of the internal ownCloud classes
 namespace OCP;
 
+/**
+ * This class provides different helper functions to make the life of a developer easier
+ */
 class Util {
 
 
@@ -166,6 +169,16 @@ class Util {
 	}
 
 	/**
+	 * @brief Returns the server protocol
+	 * @returns the server protocol
+	 *
+	 * Returns the server protocol. It respects reverse proxy servers and load balancers
+	 */
+	public static function getServerProtocol() {
+		return(\OC_Helper::serverProtocol());
+	}
+
+	/**
 	 * @brief Creates path to an image
 	 * @param $app app
 	 * @param $image image name
@@ -233,6 +246,26 @@ class Util {
 	static public function emitHook( $signalclass, $signalname, $params = array()){
 		return(\OC_Hook::emit( $signalclass, $signalname, $params ));
 	}
+
+
+	/**
+ 	 * Register an get/post call. This is important to prevent CSRF attacks
+	 * TODO: write example
+	 */
+	public static function callRegister(){
+		return(\OC_Util::callRegister());
+	}
+
+
+	/**
+	 * Check an ajax get/post call if the request token is valid. exit if not.
+	 * Todo: Write howto
+	 */
+	public static function callCheck(){
+		return(\OC_Util::callCheck());
+	}
+
+
 
 
 }

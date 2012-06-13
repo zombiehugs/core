@@ -38,10 +38,16 @@ foreach($apps as $app){
 }
 
 function loadTests($dir=''){
-	$test=isset($_GET['test'])?$_GET['test']:false;
+	if(OC::$CLI){
+		$reporter='TextReporter';
+		$test=isset($_SERVER['argv'][1])?$_SERVER['argv'][1]:false;
+	}else{
+		$reporter='HtmlReporter';
+		$test=isset($_GET['test'])?$_GET['test']:false;
+	}
 	if($dh=opendir($dir)){
 		while($name=readdir($dh)){
-			if(substr($name,0,1)!='.'){//no hidden files, '.' or '..'
+			if($name[0]!='.'){//no hidden files, '.' or '..'
 				$file=$dir.'/'.$name;
 				if(is_dir($file)){
 					loadTests($file);
@@ -51,7 +57,7 @@ function loadTests($dir=''){
 						$testCase=new TestSuite($name);
 						$testCase->addFile($file);
 						if($testCase->getSize()>0){
-							$testCase->run(new HtmlReporter());
+							$testCase->run(new $reporter());
 						}
 					}
 				}

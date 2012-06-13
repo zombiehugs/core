@@ -3,7 +3,7 @@
 * ownCloud
 *
 * @author Frank Karlitschek
-* @copyright 2010 Frank Karlitschek karlitschek@kde.org
+* @copyright 2012 Frank Karlitschek frank@owncloud.org
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -30,10 +30,14 @@
 // This means that they should be used by apps instead of the internal ownCloud classes
 namespace OCP;
 
+/**
+ * This class provides functions to manage apps in ownCloud
+ */
 class App {
 
         /**
-         * @brief makes owncloud aware of this app
+         * @brief Makes owncloud aware of this app
+         * @brief This call is deprecated and not necessary to use.
          * @param $data array with all information
          * @returns true/false
          *
@@ -49,7 +53,6 @@ class App {
          *
          */
         public static function register( $data ){
-		return \OC_App::register( $data );
         }
 
 
@@ -152,15 +155,6 @@ class App {
 		return \OC_App::getAppVersion( $app );
 	}
 
-
-        /**
-         * @param string appid
-         * @param $app app
-         * @return OC_FilesystemView
-         */
-        public static function getStorage( $app ){
-		return \OC_App::getStorage( $app );
-	}
 
 
 }

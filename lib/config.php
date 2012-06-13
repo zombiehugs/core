@@ -4,7 +4,7 @@
  *
  * @author Frank Karlitschek
  * @author Jakob Sack
- * @copyright 2010 Frank Karlitschek karlitschek@kde.org
+ * @copyright 2012 Frank Karlitschek frank@owncloud.org
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -170,14 +170,18 @@ class OC_Config{
 		}
 		$content .= ");\n?>\n";
 
+		$filename = OC::$SERVERROOT."/config/config.php";
 		// Write the file
-		$result=@file_put_contents( OC::$SERVERROOT."/config/config.php", $content );
+		$result=@file_put_contents( $filename, $content );
 		if(!$result) {
 			$tmpl = new OC_Template( '', 'error', 'guest' );
 			$tmpl->assign('errors',array(1=>array('error'=>"Can't write into config directory 'config'",'hint'=>"You can usually fix this by giving the webserver user write access to the config directory in owncloud")));
 			$tmpl->printPage();
 			exit;
 		}
+		// Prevent others not to read the config
+		@chmod($filename, 0640);
+
 		return true;
 	}
 }

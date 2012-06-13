@@ -49,6 +49,7 @@ Calendar={
 			$( "#event" ).tabs({ selected: 0});
 			$('#event').dialog({
 				width : 500,
+				height: 600,
 				close : function(event, ui) {
 					$(this).dialog('destroy').remove();
 				}
@@ -77,7 +78,7 @@ Calendar={
 				$('#event').dialog('destroy').remove();
 			}else{
 				Calendar.UI.loading(true);
-				$('#dialog_holder').load(OC.filePath('calendar', 'ajax/event', 'edit.form.php') + '?id=' + id, Calendar.UI.startEventDialog);
+				$('#dialog_holder').load(OC.filePath('calendar', 'ajax/event', 'edit.form.php'), {id: id}, Calendar.UI.startEventDialog);
 			}
 		},
 		submitDeleteEventForm:function(url){
@@ -207,6 +208,7 @@ Calendar={
 		},
 		showCalDAVUrl:function(username, calname){
 			$('#caldav_url').val(totalurl + '/' + username + '/' + calname);
+			$('#caldav_url').val(encodeURI($('#caldav_url').val()));
 			$('#caldav_url').show();
 			$("#caldav_url_close").show();
 		},
@@ -412,7 +414,7 @@ Calendar={
 			},
 			edit:function(object, calendarid){
 				var tr = $(document.createElement('tr'))
-					.load(OC.filePath('calendar', 'ajax/calendar', 'edit.form.php') + "?calendarid="+calendarid,
+					.load(OC.filePath('calendar', 'ajax/calendar', 'edit.form.php'), {calendarid: calendarid},
 						function(){Calendar.UI.Calendar.colorPicker(this)});
 				$(object).closest('tr').after(tr).hide();
 			},
@@ -501,15 +503,16 @@ Calendar={
 			currentid: 'false',
 			idtype: '',
 			activation:function(object,owner,id){
-				$.getJSON(OC.filePath('calendar', 'ajax/share', 'activation.php'),{id:id, idtype:'calendar', activation:object.checked?1:0});
+				$.post(OC.filePath('calendar', 'ajax/share', 'activation.php'),{id:id, idtype:'calendar', activation:object.checked?1:0});
 				$('#calendar_holder').fullCalendar('refetchEvents');
 			},
 			dropdown:function(userid, calid){
 				$('.calendar_share_dropdown').remove();
-				$('<div class="calendar_share_dropdown"></div>').appendTo('#'+userid+'_'+calid);
-				$.get(OC.filePath('calendar', 'ajax/share', 'dropdown.php') + '?calid=' + calid, function(data){
-					$('#'+userid+'_'+calid+' > .calendar_share_dropdown').html(data);
-					$('#'+userid+'_'+calid+' > .calendar_share_dropdown').show('blind');
+				var element = document.getElementById(userid+'_'+calid);
+				$('<div class="calendar_share_dropdown"></div>').appendTo(element);
+				$.post(OC.filePath('calendar', 'ajax/share', 'dropdown.php'), {calid: calid}, function(data){
+					$('.calendar_share_dropdown').html(data);
+					$('.calendar_share_dropdown').show('blind');
 					$('#share_user').chosen();
 					$('#share_group').chosen();
 				});
@@ -517,7 +520,7 @@ Calendar={
 				Calendar.UI.Share.idtype = 'calendar';
 			},
 			share:function(id, idtype, sharewith, sharetype){
-				$.getJSON(OC.filePath('calendar', 'ajax/share', 'share.php'),{id:id, idtype:idtype, sharewith:sharewith, sharetype:sharetype}, function(data){
+				$.post(OC.filePath('calendar', 'ajax/share', 'share.php'),{id:id, idtype:idtype, sharewith:sharewith, sharetype:sharetype}, function(data){
 					if(sharetype == 'public'){
 						$('#public_token').val(parent.location.protocol+'//'+location.host+OC.linkTo('', 'public.php')+'?service=calendar&t='+data.message);
 						$('#public_token').css('display', 'block');
@@ -525,7 +528,7 @@ Calendar={
 				});
 			},
 			unshare:function(id, idtype, sharewith, sharetype){
-				$.getJSON(OC.filePath('calendar', 'ajax/share', 'unshare.php'),{id:id, idtype:idtype, sharewith:sharewith, sharetype:sharetype}, function(){
+				$.post(OC.filePath('calendar', 'ajax/share', 'unshare.php'),{id:id, idtype:idtype, sharewith:sharewith, sharetype:sharetype}, function(){
 					if(sharetype == 'public'){
 						$('#public_token').val('');
 						$('#public_token').css('display', 'none');
@@ -533,7 +536,7 @@ Calendar={
 				});
 			},
 			changepermission:function(id, idtype, sharewith, sharetype, permission){
-				$.getJSON(OC.filePath('calendar', 'ajax/share', 'changepermission.php'),{id:id, idtype:idtype, sharewith: sharewith, sharetype:sharetype, permission: (permission?1:0)});
+				$.post(OC.filePath('calendar', 'ajax/share', 'changepermission.php'),{id:id, idtype:idtype, sharewith: sharewith, sharetype:sharetype, permission: (permission?1:0)});
 			},
 			init:function(){
 				$('.calendar_share_dropdown').live('mouseleave', function(){
@@ -614,7 +617,51 @@ Calendar={
 				
 			},
 			activation:function(){
-				
+
+			},
+		},
+		Drop:{
+			init:function(){
+				if (typeof window.FileReader === 'undefined') {
+					console.log('The drop-import feature is not supported in your browser :(');
+					return false;
+				}
+				droparea = document.getElementById('calendar_holder');
+				droparea.ondrop = function(e){
+					e.preventDefault();
+					Calendar.UI.Drop.drop(e);
+				}
+				console.log('Drop initialized successfully');
+			},
+			drop:function(e){
+				var files = e.dataTransfer.files;
+				for(var i = 0;i < files.length;i++){
+					var file = files[i]
+					reader = new FileReader();
+					reader.onload = function(event){
+						if(file.type != 'text/calendar'){
+							$('#notification').html('At least one file don\'t seems to be a calendar file. File skipped.');
+							$('#notification').slideDown();
+							window.setTimeout(function(){$('#notification').slideUp();}, 5000);
+							return false;
+						}else{
+							Calendar.UI.Drop.import(event.target.result);
+							$('#calendar_holder').fullCalendar('refetchEvents');
+						}
+					}
+					reader.readAsDataURL(file);
+				}
+			},
+			import:function(data){
+				$.post(OC.filePath('calendar', 'ajax/import', 'dropimport.php'), {'data':data},function(result) {
+					if(result.status == 'success'){
+						return true;
+					}else{
+						$('#notification').html('ownCloud wasn\'t able to import at least one file. File skipped.');
+						$('#notification').slideDown();
+						window.setTimeout(function(){$('#notification').slideUp();}, 5000);
+					}
+				});
 			}
 		}
 	}
@@ -814,7 +861,7 @@ $(document).ready(function(){
 		viewDisplay: function(view) {
 			$('#datecontrol_date').html(view.title);
 			if (view.name != defaultView) {
-				$.get(OC.filePath('calendar', 'ajax', 'changeview.php') + "?v="+view.name);
+				$.post(OC.filePath('calendar', 'ajax', 'changeview.php'), {v:view.name});
 				defaultView = view.name;
 			}
 			Calendar.UI.setViewActive(view.name);
@@ -873,4 +920,5 @@ $(document).ready(function(){
 		$('#calendar_holder').fullCalendar('next');
 	});
 	Calendar.UI.Share.init();
+	Calendar.UI.Drop.init();
 });

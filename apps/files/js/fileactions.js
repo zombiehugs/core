@@ -51,7 +51,7 @@ FileActions={
 		var actions=this.get(mime,type);
 		return actions[name];
 	},
-	display:function(parent){
+	display:function(parent, filename, type){
 		FileActions.currentFile=parent;
 		$('#fileList span.fileactions, #fileList td.date a.action').remove();
 		var actions=FileActions.get(FileActions.getCurrentMimeType(),FileActions.getCurrentType());
@@ -62,6 +62,8 @@ FileActions={
 		parent.children('a.name').append('<span class="fileactions" />');
 		var defaultAction=FileActions.getDefault(FileActions.getCurrentMimeType(),FileActions.getCurrentType());
 		for(name in actions){
+			// no rename and share action for the 'Shared' dir
+			if((name=='Rename' || name =='Share') && type=='dir' && filename=='Shared') { continue; }
 			if((name=='Download' || actions[name]!=defaultAction) && name!='Delete'){
 				var img=FileActions.icons[name];
 				if(img.call){
@@ -69,7 +71,7 @@ FileActions={
 				}
 				var html='<a href="#" class="action" style="display:none">';
 				if(img) { html+='<img src="'+img+'"/> '; }
-				html += name+'</a>';
+				html += t('files', name) +'</a>';
 				var element=$(html);
 				element.data('action',name);
 				element.click(function(event){
@@ -84,12 +86,16 @@ FileActions={
 				parent.find('a.name>span.fileactions').append(element);
 			}
 		}
-		if(actions['Delete']){
+		if(actions['Delete'] && (type!='dir' || filename != 'Shared')){ // no delete action for the 'Shared' dir
 			var img=FileActions.icons['Delete'];
 			if(img.call){
 				img=img(file);
 			}
-			var html='<a href="#" original-title="Delete" class="action delete" style="display:none" />';
+			if ($('#dir').val().indexOf('Shared') != -1) {
+				var html='<a href="#" original-title="' + t('files', 'Unshare') + '" class="action delete" style="display:none" />';
+			} else  {
+				var html='<a href="#" original-title="' + t('files', 'Delete') + '" class="action delete" style="display:none" />';
+			}
 			var element=$(html);
 			if(img){
 				element.append($('<img src="'+img+'"/>'));
@@ -161,7 +167,7 @@ FileActions.register('all','Rename',function(){return OC.imagePath('core','actio
 });
 
 FileActions.register('dir','Open','',function(filename){
-	window.location='index.php?dir='+encodeURIComponent($('#dir').val()).replace(/%2F/g, '/')+'/'+encodeURIComponent(filename);
+	window.location=OC.linkTo('files', 'index.php') + '&dir='+encodeURIComponent($('#dir').val()).replace(/%2F/g, '/')+'/'+encodeURIComponent(filename);
 });
 
 FileActions.setDefault('dir','Open');

@@ -4,7 +4,7 @@
  *
  * @author Frank Karlitschek
  * @author Jakob Sack
- * @copyright 2010 Frank Karlitschek karlitschek@kde.org
+ * @copyright 2012 Frank Karlitschek frank@owncloud.org
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -35,12 +35,7 @@ class OC_OCSClient{
 	 * This function returns the url of the OCS AppStore server. It´s possible to set it in the config file or it will fallback to the default
 	 */
 	private static function getAppStoreURL(){
-		$configurl=OC_Config::getValue('appstoreurl', '');
-		if($configurl<>'') {
-			$url=$configurl;
-		}else{
-			$url='http://api.apps.owncloud.com/v1';
-		}
+		$url = OC_Config::getValue('appstoreurl', 'http://api.apps.owncloud.com/v1');
 		return($url);
 	}
 
@@ -50,12 +45,7 @@ class OC_OCSClient{
          * This function returns the url of the OCS knowledge base server. It´s possible to set it in the config file or it will fallback to the default
          */
         private static function getKBURL(){
-                $configurl=OC_Config::getValue('knowledgebaseurl', '');
-                if($configurl<>'') {
-                        $url=$configurl;
-                }else{
-                        $url='http://api.apps.owncloud.com/v1';
-                }
+                $url = OC_Config::getValue('knowledgebaseurl', 'http://api.apps.owncloud.com/v1');
                 return($url);
         }
 
@@ -95,7 +85,7 @@ class OC_OCSClient{
 	 *
 	 * This function returns a list of all the applications on the OCS server
 	 */
-	public static function getApplications($categories){
+	public static function getApplications($categories,$page){
 		if(OC_Config::getValue('appstoreenabled', true)==false){
 			return(array());
 		}
@@ -105,7 +95,7 @@ class OC_OCSClient{
 		}else{
 			$categoriesstring=$categories;
 		}
-		$url=OC_OCSClient::getAppStoreURL().'/content/data?categories='.urlencode($categoriesstring).'&sortmode=new&page=0&pagesize=10';
+		$url=OC_OCSClient::getAppStoreURL().'/content/data?categories='.urlencode($categoriesstring).'&sortmode=new&page='.urlencode($page).'&pagesize=100';
 		$apps=array();
 		$xml=@file_get_contents($url);
 		if($xml==FALSE){

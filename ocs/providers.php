@@ -4,7 +4,7 @@
 * ownCloud
 *
 * @author Frank Karlitschek 
-* @copyright 2010 Frank Karlitschek karlitschek@kde.org 
+* @copyright 2012 Frank Karlitschek frank@owncloud.org 
 * 
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -23,7 +23,7 @@
 
 require_once('../lib/base.php');
 
-$url='http://'.substr($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'],0,-17).'ocs/v1.php/';
+$url='http://'.substr(OCP\Util::getServerHost().$_SERVER['REQUEST_URI'],0,-17).'ocs/v1.php/';
 
 echo('
 <providers>

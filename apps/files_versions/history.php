@@ -4,7 +4,7 @@
  * ownCloud - History page of the Versions App
  *
  * @author Frank Karlitschek
- * @copyright 2011 Frank Karlitschek karlitschek@kde.org
+ * @copyright 2012 Frank Karlitschek frank@owncloud.org
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -54,7 +54,7 @@ if ( isset( $_GET['path'] ) ) {
         if( OCA_Versions\Storage::isversioned( $path ) ) {
 	
 		$count = 999; //show the newest revisions
-	        $versions = OCA_Versions\Storage::getversions( $path, $count );
+	        $versions = OCA_Versions\Storage::getVersions( $path, $count);
 
 		$tmpl->assign( 'versions', array_reverse( $versions ) );
 		

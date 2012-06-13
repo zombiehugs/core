@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2010 Frank Karlitschek karlitschek@kde.org
+ * Copyright (c) 2012 Frank Karlitschek frank@owncloud.org
  * This file is licensed under the Affero General Public License version 3 or
  * later.
  * See the COPYING-README file.
@@ -22,8 +22,7 @@ if (isset($_POST['user'])) {
 			$tmpl->assign('link', $link);
 			$msg = $tmpl->fetchPage();
 			$l = OC_L10N::get('core');
-			$from = 'lostpassword-noreply@' . $_SERVER['HTTP_HOST'];
-			$r=mail($email, $l->t('Owncloud password reset'), $msg, 'From:' . $from);
+			$from = 'lostpassword-noreply@' . OCP\Util::getServerHost();
 			OC_MAIL::send($email,$_POST['user'],$l->t('ownCloud password reset'),$msg,$from,'ownCloud');
 			echo('sent');
 

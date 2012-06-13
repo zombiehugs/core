@@ -28,18 +28,14 @@ function bailOut($msg) {
 	OCP\Util::writeLog('contacts','ajax/uploadimport.php: '.$msg, OCP\Util::ERROR);
 	exit();
 }
-function debug($msg) {
-	OCP\Util::writeLog('contacts','ajax/uploadimport.php: '.$msg, OCP\Util::DEBUG);
-}
 
-$view = OCP\App::getStorage('contacts');
+$view = OCP\Files::getStorage('contacts');
 $tmpfile = md5(rand());
 
 // If it is a Drag'n'Drop transfer it's handled here.
 $fn = (isset($_SERVER['HTTP_X_FILE_NAME']) ? $_SERVER['HTTP_X_FILE_NAME'] : false);
 if($fn) {
 	if($view->file_put_contents('/'.$tmpfile, file_get_contents('php://input'))) {
-		debug($fn.' uploaded');
 		OCP\JSON::success(array('data' => array('path'=>'', 'file'=>$tmpfile)));
 		exit();
 	} else {
@@ -67,10 +63,9 @@ if($error !== UPLOAD_ERR_OK) {
 }
 $file=$_FILES['importfile'];
 
-$tmpfname = tempnam("/tmp", "occOrig");
+$tmpfname = tempnam(get_temp_dir(), "occOrig");
 if(file_exists($file['tmp_name'])) {
 	if($view->file_put_contents('/'.$tmpfile, file_get_contents($file['tmp_name']))) {
-		debug($fn.' uploaded');
 		OCP\JSON::success(array('data' => array('path'=>'', 'file'=>$tmpfile)));
 	} else {
 		bailOut(OC_Contacts_App::$l10n->t('Error uploading contacts to storage.'));

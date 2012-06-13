@@ -188,6 +188,10 @@ class OC_Contacts_VCard{
 			if($upgrade && in_array($property->name, $stringprops)) {
 				self::decodeProperty($property);
 			}
+			$property->value = str_replace("\r\n", "\n", iconv(mb_detect_encoding($property->value, 'UTF-8, ISO-8859-1'), 'utf-8', $property->value));
+			if(in_array($property->name, $stringprops)) {
+				$property->value = strip_tags($property->value);
+			}
 			// Fix format of type parameters.
 			if($upgrade && in_array($property->name, $typeprops)) {
 				OCP\Util::writeLog('contacts','OC_Contacts_VCard::updateValuesFromAdd. before: '.$property->serialize(),OCP\Util::DEBUG);
@@ -224,7 +228,7 @@ class OC_Contacts_VCard{
 			$vcard->setString('FN', $fn);
 			OCP\Util::writeLog('contacts','OC_Contacts_VCard::updateValuesFromAdd. Added missing \'FN\' field: '.$fn,OCP\Util::DEBUG);
 		}
-		if(!$n || $n = ';;;;'){ // Fix missing 'N' field. Ugly hack ahead ;-)
+		if(!$n || $n == ';;;;'){ // Fix missing 'N' field. Ugly hack ahead ;-)
 			$slice = array_reverse(array_slice(explode(' ', $fn), 0, 2)); // Take 2 first name parts of 'FN' and reverse.
 			if(count($slice) < 2) { // If not enought, add one more...
 				$slice[] = "";
@@ -370,6 +374,10 @@ class OC_Contacts_VCard{
 	public static function editFromDAVData($aid,$uri,$data){
 		$oldcard = self::findWhereDAVDataIs($aid,$uri);
 		$card = OC_VObject::parse($data);
+		if(!$card) {
+			OCP\Util::writeLog('contacts','OC_Contacts_VCard::editFromDAVData. Unable to parse VCARD, uri: '.$uri,OCP\Util::ERROR);
+			return false;
+		}
 		return self::edit($oldcard['id'], $card);
 	}
 

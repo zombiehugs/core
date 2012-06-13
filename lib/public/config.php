@@ -3,7 +3,7 @@
 * ownCloud
 *
 * @author Frank Karlitschek
-* @copyright 2010 Frank Karlitschek karlitschek@kde.org
+* @copyright 2012 Frank Karlitschek frank@owncloud.org
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -34,6 +34,9 @@
  */
 namespace OCP;
 
+/**
+ * This class provides functions to read and write configuration data. configuration can be on a system, application or user level
+ */
 class Config {
 
 

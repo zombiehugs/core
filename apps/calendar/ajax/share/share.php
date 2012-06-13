@@ -6,14 +6,14 @@
  * See the COPYING-README file.
  */
  
-$id = strip_tags($_GET['id']);
-$idtype = strip_tags($_GET['idtype']);
+$id = strip_tags($_POST['id']);
+$idtype = strip_tags($_POST['idtype']);
 switch($idtype){
 	case 'calendar':
 	case 'event':
 		break;
 	default:
-		OCP\JSON::error(array('message'=>'unexspected parameter'));
+		OCP\JSON::error(array('message'=>'unexpected parameter'));
 		exit;
 }
 if($idtype == 'calendar' && !OC_Calendar_App::getCalendar($id)){
@@ -24,15 +24,15 @@ if($idtype == 'event' && !OC_Calendar_App::getEventObject($id)){
 	OCP\JSON::error(array('message'=>'permission denied'));
 	exit;
 }
-$sharewith = $_GET['sharewith'];
-$sharetype = strip_tags($_GET['sharetype']);
+$sharewith = $_POST['sharewith'];
+$sharetype = strip_tags($_POST['sharetype']);
 switch($sharetype){
 	case 'user':
 	case 'group':
 	case 'public':
 		break;
 	default:
-		OCP\JSON::error(array('message'=>'unexspected parameter'));
+		OCP\JSON::error(array('message'=>'unexpected parameter'));
 		exit;
 }
 if($sharetype == 'user' && !OCP\User::userExists($sharewith)){
@@ -44,7 +44,7 @@ if($sharetype == 'group' && !OC_Group::groupExists($sharewith)){
 	exit;
 }
 if($sharetype == 'user' && OCP\USER::getUser() == $sharewith){
-	OCP\JSON::error(array('meesage'=>'you can not share with yourself'));
+	OCP\JSON::error(array('message'=>'you can not share with yourself'));
 }
 $success = OC_Calendar_Share::share(OCP\USER::getUser(), $sharewith, $sharetype, $id, (($idtype=='calendar') ? OC_Calendar_Share::CALENDAR : OC_Calendar_Share::EVENT));
 if($success){

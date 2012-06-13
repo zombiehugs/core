@@ -4,7 +4,7 @@
 * ownCloud
 *
 * @author Frank Karlitschek
-* @copyright 2010 Frank Karlitschek karlitschek@kde.org
+* @copyright 2012 Frank Karlitschek frank@owncloud.org
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -21,7 +21,7 @@
 */
 
 /**
- * Privde a common interface to all different storage options
+ * Provde a common interface to all different storage options
  */
 abstract class OC_Filestorage{
 	public function __construct($parameters){}

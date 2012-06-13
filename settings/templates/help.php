@@ -1,5 +1,5 @@
 <?php /**
- * Copyright (c) 2011, Frank Karlitschek karlitschek@kde.org
+ * 2012 Frank Karlitschek frank@owncloud.org
  * This file is licensed under the Affero General Public License version 3 or later.
  * See the COPYING-README file.
  */?>
@@ -26,9 +26,9 @@
 	<?php foreach($_["kbe"] as $kb): ?>
 	<div class="helpblock">
 		<?php if($kb["preview1"] <> "") { echo('<img class="preview" src="'.$kb["preview1"].'" />'); } ?>
-		<?php if($kb['detailpage']<>'') echo('<p><a target="_blank" href="'.$kb['detailpage'].'"><strong>'.$kb["name"].'</strong></a></p>');?>
-		<p><?php echo $kb['description'];?></p>
-		<?php if($kb['answer']<>'') echo('<p><strong>'.$l->t('Answer').':</strong><p>'.$kb['answer'].'</p>');?>
+		<?php if($kb['detailpage']<>'') echo('<p><a target="_blank" href="'.$kb['detailpage'].'"><strong>'.htmlentities($kb["name"]).'</strong></a></p>');?>
+		<p><?php echo htmlentities($kb['description']);?></p>
+		<?php if($kb['answer']<>'') echo('<p><strong>'.$l->t('Answer').':</strong><p>'.htmlentities($kb['answer']).'</p>');?>
 	</div>
 	<?php endforeach;
 endif?>
