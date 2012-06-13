@@ -415,7 +415,7 @@ Calendar={
 			edit:function(object, calendarid){
 				var tr = $(document.createElement('tr'))
 					.load(OC.filePath('calendar', 'ajax/calendar', 'edit.form.php'), {calendarid: calendarid},
-						function(){Calendar.UI.Calendar.colorPicker(this)});
+						function(){Calendar.UI.Calendar.colorPicker(this);$('#calendartype').buttonset();});
 				$(object).closest('tr').after(tr).hide();
 			},
 			deleteCalendar:function(calid){
