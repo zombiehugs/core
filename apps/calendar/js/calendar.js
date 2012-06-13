@@ -409,7 +409,7 @@ Calendar={
 			newCalendar:function(object){
 				var tr = $(document.createElement('tr'))
 					.load(OC.filePath('calendar', 'ajax/calendar', 'new.form.php'),
-						function(){Calendar.UI.Calendar.colorPicker(this)});
+						function(){Calendar.UI.Calendar.colorPicker(this);$('#calendartype').buttonset();});
 				$(object).closest('tr').after(tr).hide();
 			},
 			edit:function(object, calendarid){

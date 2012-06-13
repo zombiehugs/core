@@ -1,12 +1,20 @@
 <?php
 /**
  * Copyright (c) 2011 Bart Visscher <bartv@thisnet.nl>
+ * Copyright (c) 2012 Georg Ehrke <ownclouddev at georgswebsite dot de>
  * This file is licensed under the Affero General Public License version 3 or
  * later.
  * See the COPYING-README file.
  */
 ?>
 <td id="<?php echo $_['new'] ? 'new' : 'edit' ?>calendar_dialog" title="<?php echo $_['new'] ? $l->t("New calendar") : $l->t("Edit calendar"); ?>" colspan="6">
+<form>
+<div id="calendartype">
+<input type="radio" id="calendartype_oc" name="calendartype" /><label for="radio1">ownCloud Calendar</label>
+<input type="radio" id="calendartype_webcal" name="calendartype" /><label for="radio2">Webcal</label>
+<input type="radio" id="calendartype_caldav" name="calendartype" /><label for="radio3">CalDAV</label>
+</div>
+</form>
 <table width="100%" style="border: 0;">
 <tr>
 	<th><?php echo $l->t('Displayname') ?></th>
