@@ -3,6 +3,7 @@ $id = isset($_['id']) ? $_['id'] : '';
 ?>
 <div id="card">
 	<form class="float" id="file_upload_form" action="<?php echo OCP\Util::linkTo('contacts', 'ajax/uploadphoto.php'); ?>" method="post" enctype="multipart/form-data" target="file_upload_target">
+		<input type="hidden" name="requesttoken" value="<?php echo $_['requesttoken'] ?>">
 		<input type="hidden" name="id" value="<?php echo $_['id'] ?>">
 		<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $_['uploadMaxFilesize'] ?>" id="max_upload">
 		<input type="hidden" class="max_human_file_size" value="(max <?php echo $_['uploadMaxHumanFilesize']; ?>)">
@@ -23,6 +24,7 @@ $id = isset($_['id']) ? $_['id'] : '';
 	<div id="contact_identity" class="contactsection">
 	<form method="post">
 	<input type="hidden" name="id" value="<?php echo $_['id'] ?>">
+	<input type="hidden" name="requesttoken" value="<?php echo $_['requesttoken'] ?>">
 	<fieldset id="ident" class="contactpart">
 	<span class="propertycontainer" data-element="N"><input type="hidden" id="n" class="contacts_property" name="value" value="" /></span>
 	<span id="name" class="propertycontainer" data-element="FN">
@@ -31,13 +33,15 @@ $id = isset($_['id']) ? $_['id'] : '';
 	</span>
 	<dl id="identityprops" class="form">
 		<dt class="hidden" id="org_label" data-element="ORG"><label for="org"><?php echo $l->t('Organization'); ?></label></dt>
-		<dd class="propertycontainer hidden" id="org_value" data-element="ORG"><input id="org" required="required" name="value[ORG]" type="text" class="contacts_property big" name="value" value="" placeholder="<?php echo $l->t('Organization'); ?>" /><a role="button" class="action delete" title="<?php echo $l->t('Delete'); ?>"></a></dd>
+		<dd class="propertycontainer hidden" id="org_value" data-element="ORG"><input id="org" required="required" type="text" class="contacts_property big" name="value" value="" placeholder="<?php echo $l->t('Organization'); ?>" /><a role="button" class="action delete" title="<?php echo $l->t('Delete'); ?>"></a></dd>
 		<dt class="hidden" id="nickname_label" data-element="NICKNAME"><label for="nickname"><?php echo $l->t('Nickname'); ?></label></dt>
-		<dd class="propertycontainer hidden" id="nickname_value" data-element="NICKNAME"><input id="nickname" required="required" name="value[NICKNAME]" type="text" class="contacts_property big" name="value" value="" placeholder="<?php echo $l->t('Enter nickname'); ?>" /><a role="button" class="action delete" title="<?php echo $l->t('Delete'); ?>"></a></dd>
+		<dd class="propertycontainer hidden" id="nickname_value" data-element="NICKNAME"><input id="nickname" required="required" type="text" class="contacts_property big" name="value" value="" placeholder="<?php echo $l->t('Enter nickname'); ?>" /><a role="button" class="action delete" title="<?php echo $l->t('Delete'); ?>"></a></dd>
+		<dt class="hidden" id="url_label" data-element="URL"><label for="url"><?php echo $l->t('Web site'); ?></label></dt>
+		<dd class="propertycontainer hidden" id="url_value" data-element="URL"><input id="url" required="required" type="url" class="contacts_property big" name="value" value="" placeholder="<?php echo $l->t('http://www.somesite.com'); ?>" /><a role="button" class="action globe" title="<?php echo $l->t('Go to web site'); ?>"><a role="button" class="action delete" title="<?php echo $l->t('Delete'); ?>"></a></dd>
 		<dt class="hidden" id="bday_label" data-element="BDAY"><label for="bday"><?php echo $l->t('Birthday'); ?></label></dt>
 		<dd class="propertycontainer hidden" id="bday_value" data-element="BDAY"><input id="bday"  required="required" name="value" type="text" class="contacts_property big" value="" placeholder="<?php echo $l->t('dd-mm-yyyy'); ?>" /><a role="button" class="action delete" title="<?php echo $l->t('Delete'); ?>"></a></dd>
 		<dt class="hidden" id="categories_label" data-element="CATEGORIES"><label for="categories"><?php echo $l->t('Groups'); ?></label></dt>
-		<dd class="propertycontainer hidden" id="categories_value" data-element="CATEGORIES"><input id="categories" required="required" name="value[CATEGORIES]" type="text" class="contacts_property bold" name="value" value="" placeholder="
+		<dd class="propertycontainer hidden" id="categories_value" data-element="CATEGORIES"><input id="categories" required="required" type="text" class="contacts_property bold" name="value" value="" placeholder="
 <?php echo $l->t('Separate groups with commas'); ?>" />
 		<a role="button" class="action delete" title="<?php echo $l->t('Delete'); ?>"></a><a role="button" class="action edit" title="<?php echo $l->t('Edit groups'); ?>"></a></dd>
 	</dl>
@@ -116,19 +120,3 @@ $id = isset($_['id']) ? $_['id'] : '';
 <div id="edit_photo_dialog" title="Edit photo">
 		<div id="edit_photo_dialog_img"></div>
 </div>
-<script language="Javascript">
-$(document).ready(function(){
-	if('<?php echo $id; ?>'!='') {
-		$.getJSON(OC.filePath('contacts', 'ajax', 'contactdetails.php'),{'id':'<?php echo $id; ?>'},function(jsondata){
-			if(jsondata.status == 'success'){
-				$('#leftcontent li[data-id="<?php echo $id; ?>"]').addClass('active');
-				Contacts.UI.Card.loadContact(jsondata.data);
-				Contacts.UI.loadHandlers();
-			}
-			else{
-				OC.dialogs.alert(jsondata.data.message, t('contacts', 'Error'));
-			}
-		});
-	}
-});
-</script>

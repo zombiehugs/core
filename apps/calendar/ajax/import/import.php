@@ -11,11 +11,18 @@ OCP\JSON::checkLoggedIn();
 OCP\App::checkAppEnabled('calendar');
 $nl="\r\n";
 $comps = array('VEVENT'=>true, 'VTODO'=>true, 'VJOURNAL'=>true);
-$progressfile = 'import_tmp/' . md5(session_id()) . '.txt';
-if(is_writable('import_tmp/')){
-	$progressfopen = fopen($progressfile, 'w');
-	fwrite($progressfopen, '10');
-	fclose($progressfopen);
+
+global $progresskey;
+$progresskey = 'calendar.import-' . $_POST['progresskey'];
+
+if (isset($_POST['progress']) && $_POST['progress']) {
+	echo OC_Cache::get($progresskey);
+	die;
+}
+
+function writeProgress($pct) {
+	global $progresskey;
+	OC_Cache::set($progresskey, $pct, 300);
 }
 $file = OC_Filesystem::file_get_contents($_POST['path'] . '/' . $_POST['file']);
 if($_POST['method'] == 'new'){
@@ -123,7 +130,5 @@ if(is_writable('import_tmp/')){
 	fclose($progressfopen);
 }
 sleep(3);
-if(is_writable('import_tmp/')){
-	unlink($progressfile);
-}
+OC_Cache::remove($progresskey);
 OCP\JSON::success();

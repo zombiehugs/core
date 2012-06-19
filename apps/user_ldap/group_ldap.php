@@ -149,9 +149,14 @@ class OC_GROUP_LDAP extends OC_Group_Backend {
 	 * Returns a list with all groups
 	 */
 	public function getGroups() {
-		$ldap_groups = OC_LDAP::fetchListOfGroups($this->ldapGroupFilter, array(OC_LDAP::conf('ldapGroupDisplayName'), 'dn'));
-		$groups = OC_LDAP::ownCloudGroupNames($ldap_groups);
-		return $groups;
+		if(!$this->configured) {
+			return array();
+		}
+		if(empty($this->_groups)) {
+			$ldap_groups = OC_LDAP::fetchListOfGroups($this->ldapGroupFilter, array(OC_LDAP::conf('ldapGroupDisplayName'), 'dn'));
+			$this->_groups = OC_LDAP::ownCloudGroupNames($ldap_groups);
+		}
+		return $this->_groups;
 	}
 
 	/**

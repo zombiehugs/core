@@ -31,8 +31,9 @@ if($id) {
 			$name = OC_Contacts_VCard::structureProperty($property);
 		}
 	}
-	$tmpl->assign('name',$name);
-	$tmpl->assign('id',$id);
+	$name = array_map('htmlspecialchars', $name['value']);
+	$tmpl->assign('name',$name, false);
+	$tmpl->assign('id',$id, false);
 } else {
 	bailOut(OC_Contacts_App::$l10n->t('Contact ID is missing.'));
 	//$addressbooks = OC_Contacts_Addressbook::active(OCP\USER::getUser());

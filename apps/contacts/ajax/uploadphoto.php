@@ -23,6 +23,10 @@
  
 
 // Check if we are a user
+OCP\JSON::checkLoggedIn();
+OCP\JSON::checkAppEnabled('contacts');
+OCP\JSON::callCheck();
+
 // Firefox and Konqueror tries to download application/json for me.  --Arthur
 OCP\JSON::setContentTypeHeader('text/plain');
 OCP\JSON::checkLoggedIn();
@@ -64,7 +68,7 @@ if ($fn) {
 			bailOut('Couldn\'t save temporary image: '.$tmpfname);
 		}
 	} else {
-		bailOut('Couldn\'t load temporary image: '.$file['tmp_name']);
+		bailOut(OC_Contacts_App::$l10n->t('Couldn\'t load temporary image: ').$tmpkey);
 	}
 }
 

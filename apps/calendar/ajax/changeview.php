@@ -7,7 +7,7 @@
  */
 OCP\JSON::checkLoggedIn();
 OCP\JSON::checkAppEnabled('calendar');
-$view = $_GET['v'];
+$view = $_POST['v'];
 switch($view){
 	case 'agendaWeek':
 	case 'month';
@@ -19,4 +19,3 @@ switch($view){
 }
 OCP\Config::setUserValue(OCP\USER::getUser(), 'calendar', 'currentview', $view);
 OCP\JSON::success();
-?>

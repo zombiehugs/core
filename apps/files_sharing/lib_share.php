@@ -104,11 +104,6 @@ class OC_Share {
 						$counter++;
 					}
 				}
-				OCP\Util::sendUserNotification("files_sharing", $uid, "{owner} shared a file with you!", array("owner" => $uid_owner), OCP\Util::linkTo("files", "index.php") . "?dir=/Shared");
-				if (isset($gid)) {
-					$uid = $uid."@".$gid;
-				}
-				$query->execute(array($uid_owner, $uid, $source, $target, $permissions));
 				// Update mtime of shared folder to invoke a file cache rescan
 				$rootView=new OC_FilesystemView('/');
 				if (!$rootView->is_dir($sharedFolder)) {
@@ -120,6 +115,10 @@ class OC_Share {
 					$rootView->mkdir($sharedFolder);
 				}
 				$rootView->touch($sharedFolder);
+				if (isset($gid)) {
+					$uid = $uid."@".$gid;
+				}
+				$query->execute(array($uid_owner, $uid, $source, $target, $permissions));
 			}
 		}
 	}
@@ -277,7 +276,7 @@ class OC_Share {
 		$userDirectory = substr($target, 0, strpos($target, "files") + 5);
 		$target = dirname($target);
 		$result = array();
-		while ($target != "" && $target != "/" && $target != "." && $target != $userDirectory) {
+		while ($target != "" && $target != "/" && $target != "." && $target != $userDirectory && $target != "\\") {
 			// Check if the parent directory of this target location is shared
 			$result = $query->execute(array($target))->fetchAll();
 			if (count($result) > 0) {
@@ -496,7 +495,7 @@ class OC_Share {
 		$result = $query->execute(array($gid))->fetchAll();
 		if (count($result) > 0) {
 			$lastSource = '';
-			for ($i = 0; $i < count($result) - 1; $i++) {
+			for ($i = 0; $i < count($result); $i++) {
 				if ($result[$i]['source'] != $lastSource) {
 					new OC_Share($result[$i]['source'], $arguments['gid'], $result[$i]['permissions']);
 					$lastSource = $result[$i]['source'];

@@ -103,36 +103,10 @@ class OC{
 		}
 	}
 
-	/**
-	 * autodetects the formfactor of the used device
-	 * default -> the normal desktop browser interface
-	 * mobile -> interface for smartphones
-	 * tablet -> interface for tablets
-	 * standalone -> the default interface but without header, footer and sidebar. just the application. useful to ue just a specific app on the desktop in a standalone window.
-	 */
-	public static function detectFormfactor(){
-		// please add more useragent strings for other devices
-		if(isset($_SERVER['HTTP_USER_AGENT'])){
-			if(stripos($_SERVER['HTTP_USER_AGENT'],'ipad')>0) {
-				$mode='tablet';
-			}elseif(stripos($_SERVER['HTTP_USER_AGENT'],'iphone')>0){
-				$mode='mobile';
-			}elseif((stripos($_SERVER['HTTP_USER_AGENT'],'N9')>0) and (stripos($_SERVER['HTTP_USER_AGENT'],'nokia')>0)){
-				$mode='mobile';
-			}else{
-				$mode='default';
-			}
-		}else{
-			$mode='default';
-		}
-		return($mode);
-	}
-
 	public static function initPaths(){
-		// calculate the documentroot
-		OC::$DOCUMENTROOT=realpath($_SERVER['DOCUMENT_ROOT']);
+		// calculate the root directories
 		OC::$SERVERROOT=str_replace("\\",'/',substr(__FILE__,0,-13));
-		OC::$SUBURI=substr(realpath($_SERVER["SCRIPT_FILENAME"]),strlen(OC::$SERVERROOT));
+		OC::$SUBURI= str_replace("\\","/",substr(realpath($_SERVER["SCRIPT_FILENAME"]),strlen(OC::$SERVERROOT)));
 		$scriptName=$_SERVER["SCRIPT_NAME"];
 		if(substr($scriptName,-1)=='/'){
 			$scriptName.='index.php';
@@ -145,9 +119,6 @@ class OC{
 			}
 		}
                 OC::$WEBROOT=substr($scriptName,0,strlen($scriptName)-strlen(OC::$SUBURI));
-		// try a new way to detect the WEBROOT which is simpler and also works with the app directory outside the owncloud folder. let´s see if this works for everybody
-//		OC::$WEBROOT=substr(OC::$SERVERROOT,strlen(OC::$DOCUMENTROOT));
-
 
 		if(OC::$WEBROOT!='' and OC::$WEBROOT[0]!=='/'){
 			OC::$WEBROOT='/'.OC::$WEBROOT;
@@ -241,6 +212,7 @@ class OC{
 				}
 
 				OC_Config::setValue('version',implode('.',OC_Util::getVersion()));
+				OC_App::checkAppsRequirements();
 			}
 
 			OC_App::updateApps();
@@ -248,15 +220,6 @@ class OC{
 	}
 
 	public static function initTemplateEngine() {
-		// if the formfactor is not yet autodetected do the autodetection now. For possible forfactors check the detectFormfactor documentation
-		if(!isset($_SESSION['formfactor'])){
-			$_SESSION['formfactor']=OC::detectFormfactor();
-		}
-		// allow manual override via GET parameter
-		if(isset($_GET['formfactor'])){
-			$_SESSION['formfactor']=$_GET['formfactor'];
-		}
-
 		// Add the stuff we need always
 		OC_Util::addScript( "jquery-1.7.2.min" );
 		OC_Util::addScript( "jquery-ui-1.8.16.custom.min" );
@@ -291,18 +254,9 @@ class OC{
 	public static function loadfile(){
 		if(file_exists(OC::$APPSROOT . '/apps/' . OC::$REQUESTEDAPP . '/' . OC::$REQUESTEDFILE)){
 			if(substr(OC::$REQUESTEDFILE, -3) == 'css'){
-				$appswebroot = (string) OC::$APPSWEBROOT;
-				$webroot = (string) OC::$WEBROOT;
-				$filepath = OC::$APPSROOT . '/apps/' . OC::$REQUESTEDAPP . '/' . OC::$REQUESTEDFILE;
-				header('Content-Type: text/css');
-				OC_Response::enableCaching();
-				OC_Response::setLastModifiedHeader(filemtime($filepath));
-				$cssfile = file_get_contents($filepath);
-				$cssfile = str_replace('%appswebroot%', $appswebroot, $cssfile);
-				$cssfile = str_replace('%webroot%', $webroot, $cssfile);
-				OC_Response::setETagHeader(md5($cssfile));
-				header('Content-Length: '.strlen($cssfile));
-				echo $cssfile;
+				$file = 'apps/' . OC::$REQUESTEDAPP . '/' . OC::$REQUESTEDFILE;
+				$minimizer = new OC_Minimizer_CSS();
+				$minimizer->output(array(array(OC::$APPSROOT, OC::$APPSWEBROOT, $file)), $file);
 				exit;
 			}elseif(substr(OC::$REQUESTEDFILE, -3) == 'php'){
 				require_once(OC::$APPSROOT . '/apps/' . OC::$REQUESTEDAPP . '/' . OC::$REQUESTEDFILE);
@@ -437,7 +391,7 @@ class OC{
 		register_shutdown_function(array('OC_Helper','cleanTmp'));
 		
 		//parse the given parameters
-		self::$REQUESTEDAPP = (isset($_GET['app'])?str_replace('\0', '', strip_tags($_GET['app'])):OC_Config::getValue('defaultapp', 'files'));
+		self::$REQUESTEDAPP = (isset($_GET['app']) && trim($_GET['app']) != '' && !is_null($_GET['app'])?str_replace(array('\0', '/', '\\', '..'), '', strip_tags($_GET['app'])):OC_Config::getValue('defaultapp', 'files'));
 		if(substr_count(self::$REQUESTEDAPP, '?') != 0){
 			$app = substr(self::$REQUESTEDAPP, 0, strpos(self::$REQUESTEDAPP, '?'));
 			$param = substr(self::$REQUESTEDAPP, strpos(self::$REQUESTEDAPP, '?') + 1);

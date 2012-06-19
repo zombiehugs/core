@@ -145,15 +145,15 @@ class Util {
 	}
 
 
-        /**
-         * @brief Creates an url
-         * @param $app app
-         * @param $file file
-         * @returns the url
-         *
-         * Returns a url to the given app and file.
-         */
-        public static function linkTo( $app, $file ){
+	/**
+	* @brief Creates an url
+	* @param $app app
+	* @param $file file
+	* @returns the url
+	*
+	* Returns a url to the given app and file.
+	*/
+	public static function linkTo( $app, $file ){
 		return(\OC_Helper::linkTo( $app, $file ));
 	}
 
@@ -237,47 +237,22 @@ class Util {
 		return(\OC_Hook::emit( $signalclass, $signalname, $params ));
 	}
 
+
 	/**
-	 * @brief send a new notification to the given user
-	 * @param $appid app which sends the notification
-	 * @param $uid receiving user
-	 * @param $message message, can contain HTML (<a>, <b>, <i>, <strong>, <em>, <span>) and placeholders (e.g. {name}) for parameters
-	 * @param $params keys and values for placeholders in $message
-	 * @param $href target URL, relative or absolute
-	 * @param $img image URL, relative or absolute
-	 * @return id of the inserted notification, null if unsuccessful
-     */
-    public static function sendUserNotification( $appid, $uid, $message, $params = array(), $href = null, $img = null ){
-		if(!isset(\OC::$CLASSPATH["OC_Notify"])) {
-			if(\OC_App::isEnabled("notify")) {
-				\OC::$CLASSPATH['OC_Notify'] = 'apps/notify/lib/notify.php';
-			}
-		}
-		if(!class_exists("OC_Notify")) {
-			// not implemented
-			return null;
-		} else {
-			return(\OC_Notify::sendUserNotification( $appid, $uid, $message, $params, $href, $img ));
-		}
+ 	 * Register an get/post call. This is important to prevent CSRF attacks
+	 * TODO: write example
+	 */
+	public static function callRegister(){
+		return(\OC_Util::callRegister());
 	}
-	
+
+
 	/**
-     * @brief mark one or more notifications of the logged in user as read
-     * @param $id either notification id returned by sendUserNotification, app id or null
-     * @return true if the operation was successful, otherwise false
-     */
-	public static function setUserNotificationRead( $id = null, $read = true ){
-		if(!isset(\OC::$CLASSPATH["OC_Notify"])) {
-			if(\OC_App::isEnabled("notify")) {
-				\OC::$CLASSPATH['OC_Notify'] = 'apps/notify/lib/notify.php';
-			}
-		}
-		if(!class_exists("OC_Notify")) {
-			// not implemented
-			return null;
-		} else {
-			return(\OC_Notify::markRead( $id, $read ));
-		}
+	 * Check an ajax get/post call if the request token is valid. exit if not.
+	 * Todo: Write howto
+	 */
+	public static function callCheck(){
+		return(\OC_Util::callCheck());
 	}
 }
 

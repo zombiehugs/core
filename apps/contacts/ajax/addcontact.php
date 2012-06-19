@@ -34,6 +34,7 @@ function debug($msg) {
 // Check if we are a user
 OCP\JSON::checkLoggedIn();
 OCP\JSON::checkAppEnabled('contacts');
+OCP\JSON::callCheck();
 
 foreach ($_POST as $key=>$element) {
 	debug('_POST: '.$key.'=>'.$element);

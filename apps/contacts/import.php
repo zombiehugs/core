@@ -11,7 +11,14 @@ ob_start();
 OCP\JSON::checkLoggedIn();
 OCP\App::checkAppEnabled('contacts');
 $nl = "\n";
-$progressfile = 'import_tmp/' . md5(session_id()) . '.txt';
+
+global $progresskey;
+$progresskey = 'contacts.import-' . (isset($_GET['progresskey'])?$_GET['progresskey']:'');
+
+if (isset($_GET['progress']) && $_GET['progress']) {
+	echo OC_Cache::get($progresskey);
+	die;
+}
 
 function writeProgress($pct) {
 	if(is_writable('import_tmp/')){

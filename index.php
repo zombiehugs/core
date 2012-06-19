@@ -69,10 +69,11 @@ elseif(OC_User::isLoggedIn()) {
 
 // For all others cases, we display the guest page :
 } else {
-	OC_App::loadApps();
+	OC_App::loadApps(array('prelogin'));
 	$error = false;
 	// remember was checked after last login
 	if(isset($_COOKIE["oc_remember_login"]) && isset($_COOKIE["oc_token"]) && isset($_COOKIE["oc_username"]) && $_COOKIE["oc_remember_login"]) {
+		OC_App::loadApps(array('authentication'));
 		if(defined("DEBUG") && DEBUG) {
 			OC_Log::write('core','Trying to login from cookie',OC_Log::DEBUG);
 		}
@@ -88,6 +89,7 @@ elseif(OC_User::isLoggedIn()) {
 
 	// Someone wants to log in :
 	} elseif(isset($_POST["user"]) and isset($_POST['password']) and isset($_SESSION['sectoken']) and isset($_POST['sectoken']) and ($_SESSION['sectoken']==$_POST['sectoken']) ) {
+		OC_App::loadApps();
 		if(OC_User::login($_POST["user"], $_POST["password"])) {
 			if(!empty($_POST["remember_login"])){
 				if(defined("DEBUG") && DEBUG) {
@@ -107,9 +109,11 @@ elseif(OC_User::isLoggedIn()) {
 	
 	// The user is already authenticated using Apaches AuthType Basic... very usable in combination with LDAP
 	} elseif(isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"])){
+		OC_App::loadApps(array('authentication'));
 		if (OC_User::login($_SERVER["PHP_AUTH_USER"],$_SERVER["PHP_AUTH_PW"]))	{
 			//OC_Log::write('core',"Logged in with HTTP Authentication",OC_Log::DEBUG);
 			OC_User::unsetMagicInCookie();
+			$_REQUEST['redirect_url'] = (isset($_SERVER['REQUEST_URI'])?$_SERVER['REQUEST_URI']:'');
 			OC_Util::redirectToDefaultPage();
 		}else{
 			$error = true;
@@ -118,7 +122,7 @@ elseif(OC_User::isLoggedIn()) {
 	if(!array_key_exists('sectoken', $_SESSION) || (array_key_exists('sectoken', $_SESSION) && is_null(OC::$REQUESTEDFILE)) || substr(OC::$REQUESTEDFILE, -3) == 'php'){
 		$sectoken=rand(1000000,9999999);
 		$_SESSION['sectoken']=$sectoken;
-		$redirect_url = (isset($_REQUEST['redirect_url'])) ? $_REQUEST['redirect_url'] : $_SERVER['REQUEST_URI'];
+		$redirect_url = (isset($_REQUEST['redirect_url'])) ? strip_tags($_REQUEST['redirect_url']) : $_SERVER['REQUEST_URI'];
 		OC_Template::printGuestPage('', 'login', array('error' => $error, 'sectoken' => $sectoken, 'redirect' => $redirect_url));
 	}
 }

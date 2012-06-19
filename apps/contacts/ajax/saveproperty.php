@@ -20,13 +20,6 @@
  *
  */
 
-// Init owncloud
- 
-
-// Check if we are a user
-OCP\JSON::checkLoggedIn();
-OCP\JSON::checkAppEnabled('contacts');
-
 function bailOut($msg) {
 	OCP\JSON::error(array('data' => array('message' => $msg)));
 	OCP\Util::writeLog('contacts','ajax/saveproperty.php: '.$msg, OCP\Util::DEBUG);
@@ -38,6 +31,11 @@ function debug($msg) {
 // foreach ($_POST as $key=>$element) {
 // 	debug('_POST: '.$key.'=>'.print_r($element, true));
 // }
+
+// Check if we are a user
+OCP\JSON::checkLoggedIn();
+OCP\JSON::checkAppEnabled('contacts');
+OCP\JSON::callCheck();
 
 $id = isset($_POST['id'])?$_POST['id']:null;
 $name = isset($_POST['name'])?$_POST['name']:null;

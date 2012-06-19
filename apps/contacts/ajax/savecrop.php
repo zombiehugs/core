@@ -28,6 +28,7 @@ OCP\Util::writeLog('contacts','ajax/savecrop.php: Huzzah!!!', OCP\Util::DEBUG);
 // Check if we are a user
 OCP\JSON::checkLoggedIn();
 OCP\JSON::checkAppEnabled('contacts');
+OCP\JSON::callCheck();
 
 // foreach ($_POST as $key=>$element) {
 // 	OCP\Util::writeLog('contacts','ajax/savecrop.php: '.$key.'=>'.$element, OCP\Util::DEBUG);

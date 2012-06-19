@@ -24,27 +24,25 @@
 				echo '/>';
 			?>
 		<?php endforeach; ?>
+		<script type="text/javascript">
+			$(function() {
+				requesttoken = '<?php echo $_['requesttoken']; ?>';
+				$(document).bind('ajaxSend', function(elm, xhr, s){
+					if(requesttoken) {
+						xhr.setRequestHeader('requesttoken', requesttoken);
+					}
+				});
+			});
+		</script>
 	</head>
 
 	<body id="<?php echo $_['bodyid'];?>">
 		<header><div id="header">
 			<a href="<?php echo link_to('', 'index.php'); ?>" title="" id="owncloud"><img class="svg" src="<?php echo image_path('', 'logo-wide.svg'); ?>" alt="ownCloud" /></a>
-            <?php if(OCP\User::isLoggedIn() and OCP\App::isEnabled('notify')): ?>
-            <?php
-                $unreadNumber = OC_Notify::getUnreadNumber();
-                $notifications = OC_Notify::getNotifications();
-            ?>
-            <a id="notify-icon" href="#" title="<?php echo $l->t('Notifications');?>"><img class="svg" alt="<?php echo $l->t('Notifications');?>" src="<?php echo image_path('', 'actions/mail.svg'); ?>" /><span id="notify-counter" data-count="<?php echo $unreadNumber; ?>"><?php echo $unreadNumber; ?></span></a>
-            <div id="notify-list" class="hidden"><ul>
-                <?php foreach($notifications as $n): ?>
-                <li><a href="<?php echo $n["href"]; ?>"><div data-notify-id="<?php echo $n["id"]; ?>" class="notification<?php echo ($n["read"] ? " read" : " unread"); ?>" title="<?php echo /*OCP\relative_modified_date(strtotime(*/$n["moment"]/*))*/; ?>"><?php echo $n["content"]; ?></div></a></li>
-                <?php endforeach; ?>
-            </ul></div>
-            <?php endif; ?>
-			<form class="searchbox" action="#" method="post">
+			<a class="header-right header-action" id="logout" href="<?php echo link_to('', 'index.php'); ?>?logout=true"><img class="svg" alt="<?php echo $l->t('Log out');?>" title="<?php echo $l->t('Log out');?>" src="<?php echo image_path('', 'actions/logout.svg'); ?>" /></a>
+			<form class="searchbox header-right" action="#" method="post">
 				<input id="searchbox" class="svg" type="search" name="query" value="<?php if(isset($_POST['query'])){echo htmlentities($_POST['query']);};?>" autocomplete="off" />
 			</form>
-			<a id="logout" href="<?php echo link_to('', 'index.php'); ?>?logout=true"><img class="svg" alt="<?php echo $l->t('Log out');?>" title="<?php echo $l->t('Log out');?>" src="<?php echo image_path('', 'actions/logout.svg'); ?>" /></a>
 		</div></header>
 
 		<nav><div id="navigation">

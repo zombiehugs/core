@@ -12,8 +12,8 @@ OCP\JSON::checkAppEnabled('calendar');
 
 $l = OC_L10N::get('calendar');
 
-$lat = $_GET['lat'];
-$lng = $_GET['long'];
+$lat = $_POST['lat'];
+$lng = $_POST['lng'];
 
 $timezone =  OC_Geo::timezone($lat, $lng);
 
@@ -24,4 +24,3 @@ if($timezone == OCP\Config::getUserValue(OCP\USER::getUser(), 'calendar', 'timez
 OCP\Config::setUserValue(OCP\USER::getUser(), 'calendar', 'timezone', $timezone);
 $message = array('message'=> $l->t('New Timezone:') . $timezone);
 OCP\JSON::success($message);
-?>
