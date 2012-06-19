@@ -11,7 +11,7 @@ if(isset($_POST["read"])) {
 } else {
 	$read = true;
 }
-if(OCP\Util::setUserNotificationRead($id, $read)) {
+if(OC_Notify::markRead(null, $id, $read)) {
 	OCP\JSON::success(array("unread" => OC_Notify::getUnreadNumber()));
 } else {
 	OCP\JSON::error();
