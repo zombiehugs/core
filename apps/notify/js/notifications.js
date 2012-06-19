@@ -1,4 +1,12 @@
 OC.notify = {
+	dom: {
+		icon: $('<a id="notify-icon" class="header-right header-action" href="#" title=""><img class="svg" alt="" src="" /></a>'),
+		counter: $('<span id="notify-counter" data-count="0">0</span>'),
+		listContainer: $('<div id="notify-list" class="hidden"></div>'),
+		list: $('<ul></ul>')
+	},
+	notificationTemplate: $('<li class="notification"><a href="#"></a></li>'),
+	notifications: [],
     unreadNumber: 0,
     lastUpdateTime: 0,
     autoRefresh: true,
@@ -9,11 +17,11 @@ OC.notify = {
 		if(count < 0) {
 			count = 0;
 		}
-		$("#notify-counter").attr("data-count", count).text(count);
+		OC.notify.dom.counter.attr("data-count", count).text(count);
 		OC.notify.setDocTitle();
 	},
 	changeCount: function(diff) {
-		var count = parseInt($("#notify-counter").attr("data-count"));
+		var count = parseInt(OC.notify.dom.counter.attr("data-count"));
 		OC.notify.setCount(count + diff);
 	},
 	originalDocTitle: document.title,
@@ -21,7 +29,7 @@ OC.notify = {
 		if(!document.title.match(/^\([0-9]+\) /)) {
 			OC.notify.originalDocTitle = document.title;
 		}
-		var count = parseInt($("#notify-counter").attr("data-count"));
+		var count = parseInt(OC.notify.dom.counter.attr("data-count"));
 		if(count > 0) {
 			document.title = "(" + count + ") " + OC.notify.originalDocTitle;
 		} else {
@@ -56,7 +64,7 @@ OC.notify = {
 		}
 	},
 	getCount: function() {
-		var current = parseInt($("#notify-counter").attr("data-count"));
+		var current = parseInt(OC.notify.dom.counter.attr("data-count"));
 		$.post(
 			OC.filePath('notify','ajax','getCount.php'),
 			null,
@@ -75,16 +83,18 @@ OC.notify = {
 };
 
 $(document).ready(function() {
-    $("#notify-icon").click(function(event) {
-        $("#notify-list").slideToggle();
-        event.preventDefault();
-        event.stopPropagation();
-    });
-    $("#notify-list").click(function(event) {
+	OC.notify.dom.icon.append(OC.notify.dom.counter).click(function(event) {
+		OC.notify.dom.listContainer.slideToggle();
+		event.preventDefault();
+		event.stopPropagation();
+	}).attr('title', t('notify', 'Notifications'))
+		.children('img').attr('alt', t('notify', 'Notifications')).attr('src', OC.imagePath('notify', 'headerIcon.svg'));
+    OC.notify.dom.listContainer.click(function(event) {
 		event.stopPropagation();
 	});
     $(window).click(function() {
-        $("#notify-list").slideUp();
+        OC.notify.dom.listContainer.slideUp();
     });
+    $(OC.notify.dom.icon, OC.notify.dom.listContainer).appendTo('#header');
     OC.notify.setDocTitle();
 });
