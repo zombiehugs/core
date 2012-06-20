@@ -5,7 +5,7 @@ OC.notify = {
 		listContainer: $('<div id="notify-list" class="hidden"></div>'),
 		list: $('<ul></ul>')
 	},
-	notificationTemplate: $('<li class="notification"><a href="#"></a></li>'),
+	notificationTemplate: $('<li class="notification"><a href="#"></a><span class="readicon"></span></li>'),
 	notifications: [],
 	Notification: function(arg) {
 		if(typeof(arg) == "string") {
@@ -17,20 +17,31 @@ OC.notify = {
 		this.id = 0;
 		this.element = OC.notify.notificationTemplate.clone().get(0);
 		this.setRead = function(flag) {
-			this.read = flag;
-			if(this.read) {
-				$(this.element).removeClass('unread').addClass('read');
+			if(typeof(flag) == 'undefined') {
+				console.log("toggle", this.read);
+				this.read = !this.read;
 			} else {
-				$(this.element).removeClass('read').addClass('unread');
+				this.read = flag;
+			}
+			if(this.read) {
+				$(this.element).removeClass('unread').addClass('read').children('.readicon').attr('title', t('notify', 'Mark as unread'));
+				OC.notify.changeCount(-1);
+			} else {
+				$(this.element).removeClass('read').addClass('unread').children('.readicon').attr('title', t('notify', 'Mark as read'));
+				OC.notify.changeCount(1);
 			}
 		};
 		$(this.element).addClass('unread').children('a').text(this.text);
+		$(this.element).children('.readicon').attr('title', t('notify', 'Mark as read')).click(function(e) {
+			console.log("toggle read", this);
+			OC.notify.notifications[parseInt($(this).parent().attr('data-notify-id'))].setRead();
+		});
 		return this;
 	},
 	addNotification: function(notification) {
 		OC.notify.notifications[notification.id] = notification;
 		$(notification.element).attr('data-notify-id', notification.id).prependTo(OC.notify.dom.list);
-		if(!notification.read) OC.notify.changeCount(1);
+		//if(!notification.read) OC.notify.changeCount(1);
 	},
     unreadNumber: 0,
     lastUpdateTime: 0,
@@ -125,17 +136,21 @@ $(document).ready(function() {
 			OC.notify.notifications[n].setRead(true);
 		}
 		OC.notify.setCount(0);
+		OC.notify.dom.icon.click();
 	}).appendTo(OC.notify.dom.listContainer);
     OC.notify.dom.icon.appendTo('#header').after(OC.notify.dom.listContainer);
     OC.notify.setDocTitle();
-    var n = new OC.notify.Notification("Test 1");
-    n.id = 1;
-    OC.notify.addNotification(n);
-    n = new OC.notify.Notification("Test 2");
-    n.id = 2;
-    n.setRead(true);
-    OC.notify.addNotification(n);
-    n = new OC.notify.Notification("Test 3");
-    n.id = 3;
-    OC.notify.addNotification(n);
+    // a small test:
+    var n;
+    for(var i = 1; i < 11; i++) {
+		n = new OC.notify.Notification("Test " + i);
+		n.id = i;
+		if(i % 2 == 1) {
+			n.setRead(true);
+		} else {
+			n.setRead(false);
+		}
+		OC.notify.addNotification(n);
+	}
+	OC.notify.setCount(5);
 });

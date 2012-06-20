@@ -7,3 +7,6 @@
 #notify-list .notification.read { background: #afa; }
 #notify-list .notification.unread:hover { background: #f55; }
 #notify-list .notification.read:hover { background: #5f5; }
+#notify-list .notification .readicon { width:16px; height:16px; float:right; }
+#notify-list .notification.read .readicon, #notify-list .notification.unread .readicon:hover { background:url('%appswebroot%/apps/notify/img/readicons.svg') no-repeat -16px 0; }
+#notify-list .notification.unread .readicon, #notify-list .notification.read .readicon:hover { background:url('%appswebroot%/apps/notify/img/readicons.svg') no-repeat 0 0; }
