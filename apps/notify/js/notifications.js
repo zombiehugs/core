@@ -6,13 +6,14 @@ OC.notify = {
 		counter: $('<span id="notify-counter" data-count="0">0</span>'),
 		listContainer: $('<div id="notify-list" class="hidden"><strong>' + t('notify', 'Notifications') + '</strong></div>'),
 		list: $('<ul></ul>'),
-		stretchContainer: false,
 		fitContainerSize: function() {
 			if(OC.notify.dom.listContainer.is(':hidden')) {
 				return;
 			}
-			if(parseInt(OC.notify.dom.listContainer.css('bottom', 'auto').css('bottom')) < 0) {
-				OC.notify.dom.listContainer.css('bottom', 0);
+			//the following line doesn't work in webkit (css('bottom') doesnt return the calculated position but 'auto'), so we'll have to do some more calculations ...
+			//if(parseInt(OC.notify.dom.listContainer.css('bottom', 'auto').css('bottom')) < 0) {
+			if(window.innerHeight - OC.notify.dom.listContainer.get(0).offsetTop - OC.notify.dom.listContainer.css('bottom', 'auto').height() < 16) {
+				OC.notify.dom.listContainer.css('bottom', '16px');
 			}
 		}
 	},
