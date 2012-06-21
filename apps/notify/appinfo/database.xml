@@ -27,6 +27,13 @@
     <notnull>false</notnull>
     <length>255</length>
    </field>
+   
+   <field>
+    <name>class</name>
+    <type>text</type>
+    <notnull>false</notnull>
+    <length>64</length>
+   </field>
 
    <field>
     <name>uid</name>
@@ -102,6 +109,37 @@
     <default></default>
     <notnull>true</notnull>
     <length>255</length>
+   </field>
+
+  </declaration>
+
+ </table>
+ 
+ <table>
+
+  <name>*dbprefix*notification_blacklist</name>
+
+  <declaration>
+
+   <field>
+    <name>uid</name>
+    <type>text</type>
+    <notnull>true</notnull>
+    <length>64</length>
+   </field>
+
+   <field>
+    <name>name</name>
+    <type>text</type>
+    <notnull>true</notnull>
+    <length>255</length>
+   </field>
+
+   <field>
+    <name>is_class</name>
+    <type>boolean</type>
+    <default>true</default>
+    <notnull>true</notnull>
    </field>
 
   </declaration>
