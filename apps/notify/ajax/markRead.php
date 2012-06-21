@@ -7,9 +7,7 @@ if(isset($_POST["id"])) {
 	OCP\JSON::error();
 }
 if(isset($_POST["read"])) {
-	$read = ($_POST["read"] == "true");
-} else {
-	$read = true;
+	$read = (bool)$_POST["read"];
 }
 if(OC_Notify::markRead(null, $id, $read)) {
 	OCP\JSON::success(array("unread" => OC_Notify::getUnreadNumber()));
