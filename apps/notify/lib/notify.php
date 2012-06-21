@@ -112,17 +112,16 @@ class OC_Notify {
      * @param $uid user id
      * @param $id either notification id returned by sendUserNotification, app id or null
      * @param $read the (boolean) value to set the read column to
-     * @return true if the operation was successful, otherwise false
+     * @return number of affected rows
      */
     public static function markRead($uid = null, $id = null, $read = true) {
 		if(is_null($uid)) {
 			if(OCP\User::isLoggedIn()) {
 				$uid = OCP\User::getUser();
 			} else {
-				return false;
+				return 0;
 			}
 		}
-		OCP\Util::writeLog("notify", "(int) \$read = " . (int)$read, OCP\Util::DEBUG);
 		if(is_null($id)) {
 			// update all user notifications
 			$stmt = OCP\DB::prepare("UPDATE *PREFIX*notifications SET read = ? WHERE uid = ?");
@@ -131,16 +130,46 @@ class OC_Notify {
 			// update the user notification with the given id
 			$stmt = OCP\DB::prepare("UPDATE *PREFIX*notifications SET read = ? WHERE id = ? AND uid = ?");
 			$stmt->execute(array((int) $read, $id, $uid));
-			if(!$stmt->numRows()) {
-				return false;
-			}
 		} else if(is_string($id)) {
 			// update all user notifications of the given app
 			$stmt = OCP\DB::prepare("UPDATE *PREFIX*notifications SET read = ? WHERE uid = ? AND appid = ?");
 			$stmt->execute(array((int) $read, $uid, $id));
 		} else {
-			return false;
+			return 0;
 		}
-		return true;
+		return $stmt->numRows();
+	}
+	
+	/**
+     * @brief delete one or more notifications from the database
+     * @param $uid user id
+     * @param $id either notification id returned by sendUserNotification, app id or null
+     * @return number of affected rows
+     * @fixme also delete assigned notification_params!!
+     */
+    public static function delete($uid = null, $id = null) {
+		if(is_null($uid)) {
+			if(OCP\User::isLoggedIn()) {
+				$uid = OCP\User::getUser();
+			} else {
+				throw new Exception("Not authorized!");
+			}
+		}
+		if(is_null($id)) {
+			// delete all user notifications
+			$stmt = OCP\DB::prepare("DELETE FROM *PREFIX*notifications WHERE uid = ?");
+			$stmt->execute(array($uid));
+		} else if(is_numeric($id)) {
+			// delete the user notification with the given id
+			$stmt = OCP\DB::prepare("DELETE FROM *PREFIX*notifications WHERE id = ? AND uid = ?");
+			$stmt->execute(array($id, $uid));
+		} else if(is_string($id)) {
+			// delete all user notifications of the given app
+			$stmt = OCP\DB::prepare("DELETE FROM *PREFIX*notifications WHERE uid = ? AND appid = ?");
+			$stmt->execute(array($uid, $id));
+		} else {
+			throw new Exception("Invalid argument!");
+		}
+		return $stmt->numRows();
 	}
 }

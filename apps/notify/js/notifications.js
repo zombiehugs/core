@@ -7,7 +7,7 @@ OC.notify = {
 		listContainer: $('<div id="notify-list" class="hidden"><strong>' + t('notify', 'Notifications') + '</strong></div>'),
 		list: $('<ul></ul>')
 	},
-	notificationTemplate: $('<li class="notification"><a class="content" href="#"></a><span class="readicon read" title="' + t('notify', 'Mark as unread') + '"></span><span class="readicon unread" title="' + t('notify', 'Mark as read') + '"></span></li>'),
+	notificationTemplate: $('<li class="notification"><a class="content" href="#"></a><div class="actionicons"><span class="readicon read" title="' + t('notify', 'Mark as unread') + '">read</span><span class="readicon unread" title="' + t('notify', 'Mark as read') + '">unread</span><span class="deleteicon" title="' + t('notify', 'Delete this notification') + '">delete</span></div></li>'),
 	notifications: [],
 	addNotification: function(notification) {
 		OC.notify.notifications[parseInt(notification.id)] = notification;
@@ -75,6 +75,7 @@ OC.notify = {
 		);
 	},
 	markRead: function(id, read) {
+		console.log("markRead", id, read);
 		var notify = $('.notification[data-id="' + id + '"]');
 		if(typeof(read) == "undefined") {
 			read = (notify.attr('data-read') == '0');
@@ -86,6 +87,23 @@ OC.notify = {
 				if(data.status == "success") {
 					notify.attr('data-read', read ? 1 : 0);
 					OC.notify.setCount(data.unread);
+				}
+			}
+		);
+	},
+	delete: function(id) {
+		console.log("delete", id);
+		var notify = $('.notification[data-id="' + id + '"]');
+		return $.post(
+			OC.filePath('notify', 'ajax', 'delete.php'),
+			{id: id},
+			function(data) {
+				if(data.status == "success" && parseInt(data.num)) {
+					if(notify.attr('data-read') == "0") {
+						OC.notify.changeCount(-1);
+					}
+					notify.fadeOut('slow', function() { $(this).remove(); });
+					delete OC.notify.notifications[parseInt(id)];
 				}
 			}
 		);
@@ -131,7 +149,10 @@ $(document).ready(function() {
 	}).attr('title', t('notify', 'Notifications'))
 		.children('img').attr('alt', t('notify', 'Notifications')).attr('src', OC.imagePath('notify', 'headerIcon.svg'));
     OC.notify.dom.listContainer.append(OC.notify.dom.list).click(false).on('click', '.readicon', function(e) {
-		OC.notify.markRead($(this).parent('.notification').attr('data-id'), $(this).hasClass('unread'));
+		OC.notify.markRead($(this).parentsUntil('.notification').parent().attr('data-id'), $(this).hasClass('unread'));
+		return false;
+	}).on('click', '.deleteicon', function(e) {
+		OC.notify.delete($(this).parentsUntil('.notification').parent().attr('data-id'));
 		return false;
 	});
     $(window).click(function(e) {

@@ -1,9 +1,13 @@
 #notify-icon { position:relative; }
 #notify-counter { line-height:10px; background:#ba2626; color:#fff; position:absolute; top:-0.25em; right:-0.25em; padding:0.25em; border-radius:0.4em; font-weight:bold; white-space:nowrap; }
 #notify-counter[data-count="0"] { display: none; }
-#notify-list { background:#fff; position:fixed; top:3.5em; right:18em; width:24em; box-shadow:0 0 10px #000; border-radius:0 0 0.4em 0.4em; }
+#notify-list { background:#fff; position:fixed; top:3.5em; bottom:2em; right:6em; width:24em; box-shadow:0 0 10px #000; border-radius:0 0 1em 1em; overflow:auto; }
 #notify-list .notification { margin:0.25em; display:block; padding:0.5em; }
-#notify-list .notification .readicon { width:16px; height:16px; float:right; background-image:url('%appswebroot%/apps/notify/img/readicons.svg'); background-repeat:no-repeat; }
+#notify-list .notification .actionicons { width:16px; height:32px; float:right; position:relative; padding:0; display:none; }
+#notify-list .notification:hover .actionicons { display:block; }
+#notify-list .notification .actionicons span { width:16px; height:16px; background-repeat:no-repeat; position:absolute; left:0; text-indent:-9000px }
+#notify-list .notification .readicon { top:0; background-image:url('%appswebroot%/apps/notify/img/readicons.svg'); }
+#notify-list .notification .deleteicon { top:16px; background-image:url('%webroot%/core/img/actions/delete.svg'); }
 #notify-list .notification .readicon.unread, #notify-list .notification .readicon.read:hover { background-position:0 0; }
 #notify-list .notification .readicon.read, #notify-list .notification .readicon.unread:hover { background-position:-16px 0; }
 /* unread notifications: */
