@@ -5,7 +5,16 @@ OC.notify = {
 		icon: $('<a id="notify-icon" class="header-right header-action" href="#" title=""><img class="svg" alt="" src="" /></a>'),
 		counter: $('<span id="notify-counter" data-count="0">0</span>'),
 		listContainer: $('<div id="notify-list" class="hidden"><strong>' + t('notify', 'Notifications') + '</strong></div>'),
-		list: $('<ul></ul>')
+		list: $('<ul></ul>'),
+		stretchContainer: false,
+		fitContainerSize: function() {
+			if(OC.notify.dom.listContainer.is(':hidden')) {
+				return;
+			}
+			if(parseInt(OC.notify.dom.listContainer.css('bottom', 'auto').css('bottom')) < 0) {
+				OC.notify.dom.listContainer.css('bottom', 0);
+			}
+		}
 	},
 	notificationTemplate: $('<li class="notification"><a class="content" href="#"></a><div class="actionicons"><span class="readicon read" title="' + t('notify', 'Mark as unread') + '">read</span><span class="readicon unread" title="' + t('notify', 'Mark as read') + '">unread</span><span class="deleteicon" title="' + t('notify', 'Delete this notification') + '">delete</span></div></li>'),
 	notifications: [],
@@ -16,6 +25,7 @@ OC.notify = {
 			'title': notification.moment,
 			'data-read': notification.read
 		}).appendTo(OC.notify.dom.list).find('a.content').attr('href', notification.href).html(notification.content);
+		OC.notify.dom.fitContainerSize();
 	},
     timeoutId: null,
 	loaded: false,
@@ -102,7 +112,7 @@ OC.notify = {
 					if(notify.attr('data-read') == "0") {
 						OC.notify.changeCount(-1);
 					}
-					notify.fadeOut('slow', function() { $(this).remove(); });
+					notify.fadeOut('slow', function() { $(this).remove(); OC.notify.dom.fitContainerSize(); });
 					delete OC.notify.notifications[parseInt(id)];
 				}
 			}
@@ -134,6 +144,7 @@ OC.notify = {
 				});
 				OC.notify.loaded = true;
 				OC.notify.updated = false;
+				//FIXME: trigger custom events!!
 			}
 		);
 	}
@@ -144,7 +155,7 @@ $(document).ready(function() {
 		if(!OC.notify.loaded || OC.notify.updated) {
 			OC.notify.getNotifications();
 		}
-		OC.notify.dom.listContainer.slideToggle();
+		OC.notify.dom.listContainer.slideToggle('slow', OC.notify.dom.fitContainerSize);
 		return false;
 	}).attr('title', t('notify', 'Notifications'))
 		.children('img').attr('alt', t('notify', 'Notifications')).attr('src', OC.imagePath('notify', 'headerIcon.svg'));
@@ -157,8 +168,9 @@ $(document).ready(function() {
 	});
     $(window).click(function(e) {
         OC.notify.dom.listContainer.slideUp();
-    });
-    $('<span id="readAllNotifications">mark all as read</span>').click(OC.notify.markAllRead).appendTo(OC.notify.dom.listContainer);
+    }).resize(OC.notify.dom.fitContainerSize);
+    $('<span id="readAllNotifications">mark all as read</span>').click(OC.notify.markAllRead).appendTo(OC.notify.dom.listContainer).after(' | ');
+    $('<span id="refreshNotificationList">refresh the list</span>').click(OC.notify.getNotifications).appendTo(OC.notify.dom.listContainer);
     OC.notify.dom.icon.appendTo('#header').after(OC.notify.dom.listContainer);
     OC.notify.setDocTitle();
     OC.notify.getCount().success(function() {
