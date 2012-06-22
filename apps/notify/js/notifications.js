@@ -4,7 +4,7 @@ OC.notify = {
 	dom: {
 		icon: $('<a id="notify-icon" class="header-right header-action" href="#" title=""><img class="svg" alt="" src="" /></a>'),
 		counter: $('<span id="notify-counter" data-count="0">0</span>'),
-		listContainer: $('<div id="notify-list" class="hidden"><strong>' + t('notify', 'Notifications') + '</strong></div>'),
+		listContainer: $('<div id="notify-list" class="hidden"><strong>' + t('notify', 'Notifications') + '</strong><div id="notify-loading"></div></div>'),
 		list: $('<ul></ul>'),
 		fitContainerSize: function() {
 			if(OC.notify.dom.listContainer.is(':hidden')) {
@@ -148,13 +148,20 @@ OC.notify = {
 				//FIXME: trigger custom events!!
 			}
 		);
+	},
+	loadNotifications: function() {
+		$('#notify-loading').fadeIn(function() {
+			OC.notify.getNotifications().complete(function() {
+				$('#notify-loading').fadeOut();
+			});
+		});
 	}
 };
 
 $(document).ready(function() {
 	OC.notify.dom.icon.append(OC.notify.dom.counter).click(function(event) {
 		if(!OC.notify.loaded || OC.notify.updated) {
-			OC.notify.getNotifications();
+			OC.notify.loadNotifications();
 		}
 		OC.notify.dom.listContainer.slideToggle('slow', OC.notify.dom.fitContainerSize);
 		return false;
@@ -171,7 +178,7 @@ $(document).ready(function() {
         OC.notify.dom.listContainer.slideUp();
     }).resize(OC.notify.dom.fitContainerSize);
     $('<span id="readAllNotifications">mark all as read</span>').click(OC.notify.markAllRead).appendTo(OC.notify.dom.listContainer).after(' | ');
-    $('<span id="refreshNotificationList">refresh the list</span>').click(OC.notify.getNotifications).appendTo(OC.notify.dom.listContainer);
+    $('<span id="refreshNotificationList">refresh the list</span>').click(OC.notify.loadNotifications).appendTo(OC.notify.dom.listContainer);
     OC.notify.dom.icon.appendTo('#header').after(OC.notify.dom.listContainer);
     OC.notify.setDocTitle();
     OC.notify.getCount().success(function() {
