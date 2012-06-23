@@ -1,27 +1,26 @@
 OC.notify = {
+	//TODO don't hardcode these!!
     autoRefresh: true,
     refreshInterval: 30,
 	dom: {
-		icon: $('<a id="notify-icon" class="header-right header-action" href="#" title=""><img class="svg" alt="" src="" /></a>'),
+		icon: $('<a id="notify-icon" class="header-right header-action" href="#" title="' + t('notify', 'Notifications') + '"><img class="svg" alt="' + t('notify', 'Notifications') + '" src="' + OC.imagePath('notify', 'headerIcon.svg') + '" /></a>'),
 		counter: $('<span id="notify-counter" data-count="0">0</span>'),
-		listContainer: $('<div id="notify-list" class="hidden"><strong>' + t('notify', 'Notifications') + '</strong><div id="notify-loading"></div></div>'),
+		listContainer: $('<div id="notify-list"><div id="notify-loading"></div><div id="notify-headline"><span id="notify-title">' + t('notify', 'Notifications') + '</span><div class="actionicons"><span id="notify-config" title="' + t('notify', 'Preferences') + '">' + t('notify', 'Preferences') + '</span><span class="notify-autorefresh start" title="' + t('notify', 'Start auto refresh') + '">' + t('notify', 'Start auto refresh') + '</span><span class="notify-autorefresh stop" title="' + t('notify', 'Stop auto refresh') + '">' + t('notify', 'Stop auto refresh') + '</span><span id="notify-refresh" title="' + t('notify', 'Refresh') + '">' + t('notify', 'Refresh') + '</span><span id="notify-readall" title="' + t('notify', 'Mark all as read') + '">' + t('notify', 'Mark all as read') + '</span><span id="notify-deleteread" title="' + t('notify', 'Delete all read notifications') + '">' + t('notify', 'Delete all read notifications') + '</span></div></div>'),
 		list: $('<ul></ul>'),
+		notificationTemplate: $('<li class="notification"><a class="content" href="#"></a><div class="actionicons"><span class="readicon read" title="' + t('notify', 'Mark as unread') + '">read</span><span class="readicon unread" title="' + t('notify', 'Mark as read') + '">unread</span><span class="deleteicon" title="' + t('notify', 'Delete this notification') + '">delete</span></div></li>'),
 		fitContainerSize: function() {
 			if(OC.notify.dom.listContainer.is(':hidden')) {
 				return;
 			}
-			//the following line doesn't work in webkit (css('bottom') doesnt return the calculated position but 'auto'), so we'll have to do some more calculations ...
-			//if(parseInt(OC.notify.dom.listContainer.css('bottom', 'auto').css('bottom')) < 0) {
-			if(window.innerHeight - OC.notify.dom.listContainer.get(0).offsetTop - OC.notify.dom.listContainer.css('bottom', 'auto').height() < 16) {
-				OC.notify.dom.listContainer.css('bottom', '16px');
+			if(window.innerHeight - OC.notify.dom.listContainer.get(0).offsetTop - OC.notify.dom.listContainer.removeClass('full-height').height() < 16) {
+				OC.notify.dom.listContainer.addClass('full-height');
 			}
 		}
 	},
-	notificationTemplate: $('<li class="notification"><a class="content" href="#"></a><div class="actionicons"><span class="readicon read" title="' + t('notify', 'Mark as unread') + '">read</span><span class="readicon unread" title="' + t('notify', 'Mark as read') + '">unread</span><span class="deleteicon" title="' + t('notify', 'Delete this notification') + '">delete</span></div></li>'),
 	notifications: [],
 	addNotification: function(notification) {
 		OC.notify.notifications[parseInt(notification.id)] = notification;
-		OC.notify.notificationTemplate.clone().attr({
+		OC.notify.dom.notificationTemplate.clone().attr({
 			'data-id': parseInt(notification.id),
 			'title': notification.moment,
 			'data-read': notification.read
@@ -72,18 +71,18 @@ OC.notify = {
 			OC.notify.timeoutId = null;
 		}
 	},
-	markAllRead: function() {
-		return $.post(
-			OC.filePath('notify', 'ajax', 'markAllRead.php'),
-			null,
-			function(data) {
-				if(data.status == 'success') {
-					$('.notification').attr('data-read', 1);
-					OC.notify.setCount(0);
-					OC.notify.dom.icon.click();
-				}
+	toggleRefresh: function(sw) {
+		if(typeof(sw) != 'boolean') {
+			OC.notify.toggleRefresh(!OC.notify.autoRefresh);
+		} else {
+			OC.notify.autoRefresh = sw;
+			OC.notify.dom.listContainer.toggleClass('autorefresh', sw);
+			if(sw) {
+				OC.notify.startRefresh();
+			} else {
+				OC.notify.stopRefresh();
 			}
-		);
+		}
 	},
 	markRead: function(id, read) {
 		console.log("markRead", id, read);
@@ -98,6 +97,19 @@ OC.notify = {
 				if(data.status == "success") {
 					notify.attr('data-read', read ? 1 : 0);
 					OC.notify.setCount(data.unread);
+				}
+			}
+		);
+	},
+	markAllRead: function() {
+		return $.post(
+			OC.filePath('notify', 'ajax', 'markAllRead.php'),
+			null,
+			function(data) {
+				if(data.status == 'success') {
+					$('.notification').attr('data-read', 1);
+					OC.notify.setCount(0);
+					OC.notify.dom.listContainer.slideUp();
 				}
 			}
 		);
@@ -119,6 +131,24 @@ OC.notify = {
 			}
 		);
 	},
+	deleteRead: function() {
+		return $.post(
+			OC.filePath('notify', 'ajax', 'deleteRead.php'),
+			{read: true},
+			function(data) {
+				if(data.status == "success") {
+					$('.notification[data-read="1"]').fadeOut('slow', function() {
+						$(this).remove();
+					}).each(function(i, e) {
+						delete OC.notify.notifications[$(e).attr('data-id')];
+					});
+					if(OC.notify.notifications.length == 0) {
+						OC.notify.dom.listContainer.slideUp();
+					}
+				}
+			}
+		);
+	},
 	getCount: function() {
 		var current = parseInt(OC.notify.dom.counter.attr("data-count"));
 		return $.post(
@@ -129,6 +159,9 @@ OC.notify = {
 				if(count != current) {
 					OC.notify.setCount(parseInt(data));
 					OC.notify.updated = true;
+					if(!OC.notify.dom.listContainer.is(':hidden')) {
+						OC.notify.loadNotifications();
+					}
 				}
 			}
 		);
@@ -145,7 +178,7 @@ OC.notify = {
 				});
 				OC.notify.loaded = true;
 				OC.notify.updated = false;
-				//FIXME: trigger custom events!!
+				//TODO: trigger custom events!!
 			}
 		);
 	},
@@ -177,13 +210,13 @@ $(document).ready(function() {
     $(window).click(function(e) {
         OC.notify.dom.listContainer.slideUp();
     }).resize(OC.notify.dom.fitContainerSize);
-    $('<span id="readAllNotifications">mark all as read</span>').click(OC.notify.markAllRead).appendTo(OC.notify.dom.listContainer).after(' | ');
-    $('<span id="refreshNotificationList">refresh the list</span>').click(OC.notify.loadNotifications).appendTo(OC.notify.dom.listContainer);
+    OC.notify.dom.listContainer.find('#notify-refresh').click(OC.notify.loadNotifications);
+    OC.notify.dom.listContainer.find('#notify-readall').click(OC.notify.markAllRead);
+    OC.notify.dom.listContainer.find('#notify-deleteread').click(OC.notify.deleteRead);
+    OC.notify.dom.listContainer.find('.notify-autorefresh').click(OC.notify.toggleRefresh);
     OC.notify.dom.icon.appendTo('#header').after(OC.notify.dom.listContainer);
     OC.notify.setDocTitle();
     OC.notify.getCount().success(function() {
-		if(OC.notify.autoRefresh) {
-			OC.notify.startRefresh();
-		}
+		OC.notify.toggleRefresh(OC.notify.autoRefresh);
 	});
 });

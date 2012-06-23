@@ -143,7 +143,7 @@ class OC_Notify {
 	/**
      * @brief delete one or more notifications from the database
      * @param $uid user id
-     * @param $id either notification id returned by sendUserNotification, app id or null
+     * @param $id either notification id returned by sendUserNotification, app id, boolean or null
      * @return number of affected rows
      * @fixme also delete assigned notification_params!!
      */
@@ -155,21 +155,47 @@ class OC_Notify {
 				throw new Exception("Not authorized!");
 			}
 		}
-		if(is_null($id)) {
-			// delete all user notifications
-			$stmt = OCP\DB::prepare("DELETE FROM *PREFIX*notifications WHERE uid = ?");
-			$stmt->execute(array($uid));
-		} else if(is_numeric($id)) {
+		$deleteParams = OCP\DB::prepare("DELETE FROM *PREFIX*notification_params WHERE nid = ?");
+		if(is_numeric($id)) {
 			// delete the user notification with the given id
 			$stmt = OCP\DB::prepare("DELETE FROM *PREFIX*notifications WHERE id = ? AND uid = ?");
 			$stmt->execute(array($id, $uid));
-		} else if(is_string($id)) {
-			// delete all user notifications of the given app
-			$stmt = OCP\DB::prepare("DELETE FROM *PREFIX*notifications WHERE uid = ? AND appid = ?");
-			$stmt->execute(array($uid, $id));
+			if($stmt->numRows()) {
+				$deleteParams->execute(array($id));
+				return 1;
+			}
+			return 0;
 		} else {
-			throw new Exception("Invalid argument!");
+			if(is_null($id)) {
+				// delete all user notifications
+				$stmt = OCP\DB::prepare("SELECT id FROM *PREFIX*notifications WHERE uid = ?");
+				$deleteNotifyStmt = OCP\DB::prepare("DELETE FROM *PREFIX*notifications WHERE uid = ?");
+				$notifyStmtParams = array($uid);
+			} else if(is_string($id)) {
+				// delete all user notifications of the given app
+				$stmt = OCP\DB::prepare("SELECT id FROM *PREFIX*notifications WHERE uid = ? AND appid = ?");
+				$deleteNotifyStmt = OCP\DB::prepare("DELETE FROM *PREFIX*notifications WHERE uid = ? AND appid = ?");
+				$notifyStmtParams = array($uid, $id);
+			} else if(is_bool($id)) {
+				// delete all user notifications with read = $id
+				$stmt = OCP\DB::prepare("SELECT id FROM *PREFIX*notifications WHERE uid = ? AND read = ?");
+				$deleteNotifyStmt = OCP\DB::prepare("DELETE FROM *PREFIX*notifications WHERE uid = ? AND read = ?");
+				$notifyStmtParams = array($uid, $id);
+			} else {
+				throw new Exception("Invalid argument!");
+			}
+			$result = $stmt->execute($notifyStmtParams);
+			if($result) {
+				while($row = $result->fetchRow()) {
+					$deleteParams->execute(array($row->id));
+				}
+			}
+			$deleteNotifyStmt->execute($notifyStmtParams);
+			return $deleteNotifyStmt->numRows();
 		}
-		return $stmt->numRows();
 	}
+	
+	/**
+	 * @brief Add an app or notification class to the blacklist
+	 */
 }
