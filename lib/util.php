@@ -14,14 +14,9 @@ class OC_Util {
 	public static $core_scripts=array();
 
 	// Can be set up
-	public static function setupFS( $user = "", $root = "files" ){// configure the initial filesystem based on the configuration
+	public static function setupFS( $user = '' ){// configure the initial filesystem based on the configuration
 		if(self::$fsSetup){//setting up the filesystem twice can only lead to trouble
 			return false;
-		}
-
-		// If we are not forced to load a specific user we load the one that is logged in
-		if( $user == "" && OC_User::isLoggedIn()){
-			$user = OC_User::getUser();
 		}
 
 		$CONFIG_DATADIRECTORY = OC_Config::getValue( "datadirectory", OC::$SERVERROOT."/data" );
@@ -30,14 +25,21 @@ class OC_Util {
 			OC_Filesystem::mount('OC_Filestorage_Local',array('datadir'=>$CONFIG_DATADIRECTORY),'/');
 			self::$rootMounted=true;
 		}
+
+		// If we are not forced to load a specific user we load the one that is logged in
+		if( $user == "" && OC_User::isLoggedIn()){
+			$user = OC_User::getUser();
+		}
+
 		if( $user != "" ){ //if we aren't logged in, there is no use to set up the filesystem
-			$userdirectory = $CONFIG_DATADIRECTORY."/$user/$root";
+			$user_dir = '/'.$user.'/files';
+			$userdirectory = $CONFIG_DATADIRECTORY.$user_dir;
 			if( !is_dir( $userdirectory )){
 				mkdir( $userdirectory, 0755, true );
 			}
 
 			//jail the user into his "home" directory
-			OC_Filesystem::init('/'.$user.'/'.$root);
+			OC_Filesystem::init($user_dir);
 			$quotaProxy=new OC_FileProxy_Quota();
 			OC_FileProxy::register($quotaProxy);
 			self::$fsSetup=true;
@@ -50,6 +52,7 @@ class OC_Util {
 					}
 				}
 			}
+			OC_Hook::emit('OC_Filesystem', 'setup', array('user' => $user, 'user_dir' => $user_dir));
 		}
 	}
 
@@ -197,9 +200,12 @@ class OC_Util {
 			$errors[]=array('error'=>"Can't write into config directory 'config'",'hint'=>"You can usually fix this by giving the webserver user write access to the config directory in owncloud");
 		}
 
-		// Check if apps folder is writable.
-		if(OC_Config::getValue('writable_appsdir', true) && !is_writable(OC::$SERVERROOT."/apps/")) {
-			$errors[]=array('error'=>"Can't write into apps directory 'apps'",'hint'=>"You can usually fix this by giving the webserver user write access to the config directory in owncloud");
+		// Check if there is a writable install folder.
+		if(OC_Config::getValue('appstoreenabled', true)) {
+			if( OC_App::getInstallPath() === null  || !is_writable(OC_App::getInstallPath())) {
+				$errors[]=array('error'=>"Can't write into apps directory",'hint'=>"You can usually fix this by giving the webserver user write access to the apps directory 
+				in owncloud or disabling the appstore in the config file.");
+			}
 		}
 
 		$CONFIG_DATADIRECTORY = OC_Config::getValue( "datadirectory", OC::$SERVERROOT."/data" );
@@ -321,7 +327,11 @@ class OC_Util {
 		OC_Log::write('core','redirectToDefaultPage',OC_Log::DEBUG);
 		if(isset($_REQUEST['redirect_url']) && (substr($_REQUEST['redirect_url'], 0, strlen(OC::$WEBROOT)) == OC::$WEBROOT || $_REQUEST['redirect_url'][0] == '/')) {
 			header( 'Location: '.$_REQUEST['redirect_url']);
-		} else {
+		}
+		else if (isset(OC::$REQUESTEDAPP) && !empty(OC::$REQUESTEDAPP)) {
+			header( 'Location: '.OC::$WEBROOT.'/?app='.OC::$REQUESTEDAPP );
+		}
+		else {
 			header( 'Location: '.OC::$WEBROOT.'/'.OC_Appconfig::getValue('core', 'defaultpage', '?app=files'));
 		}
 		exit();
@@ -416,15 +426,55 @@ class OC_Util {
 	/**
 	 * @brief Public function to sanitize HTML
 	 *
-	 * This function is used to sanitize HTML and should be applied on any string or array of strings before displaying it on a web page.
+	 * This function is used to sanitize HTML and should be applied on any
+	 * string or array of strings before displaying it on a web page.
 	 * 
 	 * @param string or array of strings
-	 * @return array with sanitized strings or a single sinitized string, depends on the input parameter.
+	 * @return array with sanitized strings or a single sanitized string, depends on the input parameter.
 	 */
 	public static function sanitizeHTML( &$value ){
 		if (is_array($value) || is_object($value)) array_walk_recursive($value,'OC_Util::sanitizeHTML');
 		else $value = htmlentities($value, ENT_QUOTES, 'UTF-8'); //Specify encoding for PHP<5.4
 		return $value;
 	}
+
+
+        /**
+         * Check if the htaccess file is working by creating a test file in the data directory and trying to access via http
+         */
+        public static function ishtaccessworking() {
+
+		// testdata
+		$filename='/htaccesstest.txt';
+		$testcontent='testcontent';
+
+		// creating a test file
+                $testfile = OC_Config::getValue( "datadirectory", OC::$SERVERROOT."/data" ).'/'.$filename;
+                $fp = @fopen($testfile, 'w');
+                @fwrite($fp, $testcontent);
+                @fclose($fp);
+
+		// accessing the file via http
+                $url = OC_Helper::serverProtocol(). '://'  . OC_Helper::serverHost() . OC::$WEBROOT.'/data'.$filename;
+                $fp = @fopen($url, 'r');
+                $content=@fread($fp, 2048);
+                @fclose($fp);
+
+		// cleanup
+		@unlink($testfile);
+
+		// does it work ?
+		if($content==$testcontent) {
+			return(false);
+		}else{
+			return(true);
+
+		}
+
+        }
+
+
+
+
 
 }

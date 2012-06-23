@@ -77,7 +77,7 @@ Contacts={
 			}
 		},
 		showCardDAVUrl:function(username, bookname){
-			$('#carddav_url').val(totalurl + '/' + username + '/' + bookname);
+			$('#carddav_url').val(totalurl + '/' + username + '/' + decodeURIComponent(bookname));
 			$('#carddav_url').show();
 			$('#carddav_url_close').show();
 		},
@@ -174,7 +174,7 @@ Contacts={
 			// TODO: Take addressbook into account
 			$('#fn').change(function(){
 				var name = $('#fn').val().strip_tags();
-				var item = $('.contacts [data-id="'+Contacts.UI.Card.id+'"]');
+				var item = $('.contacts li[data-id="'+Contacts.UI.Card.id+'"]');
 				$(item).find('a').html(name);
 				Contacts.UI.Card.fn = name;
 				var added = false;
@@ -186,7 +186,7 @@ Contacts={
 					}
 				});
 				if(!added) {
-					$('#leftcontent ul[data-id="'+Contacts.UI.Card.bookid+'"]').append(item);
+					$('#contacts ul[data-id="'+Contacts.UI.Card.bookid+'"]').append(item);
 				}
 				Contacts.UI.Contacts.scrollTo(Contacts.UI.Card.id);
 			});
@@ -250,16 +250,20 @@ Contacts={
 				var newid, firstitem;
 				if(!id) {
 					firstitem = $('#contacts:first-child li:first-child');
-					newid = firstitem.data('id');
-					bookid = firstitem.data('bookid');
+					if(firstitem.length > 0) {
+						newid = firstitem.data('id');
+						bookid = firstitem.data('bookid');
+					}
 				} else {
 					newid = id;
+					bookid = bookid?bookid:$('#contacts li[data-id="'+newid+'"]').data('bookid');
 				}
 				var localLoadContact = function(newid, bookid) {
 					if($('.contacts li').length > 0) {
-						firstitem.addClass('active');
+						$('#contacts li[data-id="'+newid+'"]').addClass('active');
 						$.getJSON(OC.filePath('contacts', 'ajax', 'contactdetails.php'),{'id':newid},function(jsondata){
 							if(jsondata.status == 'success'){
+								$('#contacts h3[data-id="'+bookid+'"]').trigger('click');
 								Contacts.UI.Card.loadContact(jsondata.data, bookid);
 							} else {
 								OC.dialogs.alert(jsondata.data.message, t('contacts', 'Error'));
@@ -269,7 +273,7 @@ Contacts={
 				}
 				
 				// Make sure proper DOM is loaded.
-				if(!$('#card')[0]) {
+				if(!$('#card')[0] && newid) {
 					$.getJSON(OC.filePath('contacts', 'ajax', 'loadcard.php'),{},function(jsondata){
 						if(jsondata.status == 'success'){
 							$('#rightcontent').html(jsondata.data.page).ready(function() {
@@ -281,7 +285,7 @@ Contacts={
 						}
 					});
 				}
-				else if($('.contacts li').length == 0) {
+				else if(!newid) {
 					// load intro page
 					$.getJSON(OC.filePath('contacts', 'ajax', 'loadintro.php'),{},function(jsondata){
 						if(jsondata.status == 'success'){
@@ -316,13 +320,14 @@ Contacts={
 						if (jsondata.status == 'success'){
 							$('#rightcontent').data('id',jsondata.data.id);
 							var id = jsondata.data.id;
+							var aid = jsondata.data.aid;
 							$.getJSON(OC.filePath('contacts', 'ajax', 'contactdetails.php'),{'id':id},function(jsondata){
 								if(jsondata.status == 'success'){
 									Contacts.UI.Card.loadContact(jsondata.data, aid);
-									$('#leftcontent .active').removeClass('active');
+									$('#contacts .active').removeClass('active');
 									var item = $('<li data-id="'+jsondata.data.id+'" class="active"><a href="index.php?id='+jsondata.data.id+'" style="background: url('+OC.filePath('contacts', '', 'thumbnail.php')+'?id='+jsondata.data.id+') no-repeat scroll 0% 0% transparent;">'+Contacts.UI.Card.fn+'</a></li>');
 									var added = false;
-									$('#leftcontent ul li').each(function(){
+									$('#contacts ul[data-id="'+aid+'"] li').each(function(){
 										if ($(this).text().toLowerCase() > Contacts.UI.Card.fn.toLowerCase()) {
 											$(this).before(item).fadeIn('fast');
 											added = true;
@@ -330,7 +335,7 @@ Contacts={
 										}
 									});
 									if(!added) {
-										$('#leftcontent ul').append(item);
+										$('#contacts ul[data-id="'+aid+'"]').append(item);
 									}
 									if(isnew) { // add some default properties
 										Contacts.UI.Card.addProperty('EMAIL');
@@ -374,7 +379,7 @@ Contacts={
 						$.post(OC.filePath('contacts', 'ajax', 'deletecard.php'),{'id':Contacts.UI.Card.id},function(jsondata){
 							if(jsondata.status == 'success'){
 								var newid = '', bookid;
-								var curlistitem = $('#leftcontent [data-id="'+jsondata.data.id+'"]');
+								var curlistitem = $('#contacts li[data-id="'+jsondata.data.id+'"]');
 								var newlistitem = curlistitem.prev();
 								if(newlistitem == undefined) {
 									newlistitem = curlistitem.next();
@@ -1500,7 +1505,7 @@ Contacts={
 		},
 		Contacts:{
 			// Reload the contacts list.
-			update:function(){
+			update:function(id){
 				$.getJSON(OC.filePath('contacts', 'ajax', 'contacts.php'),{},function(jsondata){
 					if(jsondata.status == 'success'){
 						$('#contacts').html(jsondata.data.page).ready(function() {
@@ -1515,7 +1520,7 @@ Contacts={
 								})}, 100);
 							setTimeout(Contacts.UI.Contacts.lazyupdate, 500);*/
 						});
-						Contacts.UI.Card.update();
+						Contacts.UI.Card.update(id);
 					}
 					else{
 						OC.dialogs.alert(jsondata.data.message, t('contacts', 'Error'));
@@ -1541,13 +1546,16 @@ Contacts={
 				});
 			},
 			refreshThumbnail:function(id){
-				var item = $('.contacts [data-id="'+id+'"]').find('a');
+				var item = $('.contacts li[data-id="'+id+'"]').find('a');
 				item.html(Contacts.UI.Card.fn);
 				item.css('background','url('+OC.filePath('contacts', '', 'thumbnail.php')+'?id='+id+'&refresh=1'+Math.random()+') no-repeat');
 			},
 			scrollTo:function(id){
-				$('.contacts').animate({
-					scrollTop: $('#leftcontent li[data-id="'+id+'"]').offset().top-20}, 'slow','swing');
+				var item = $('#contacts li[data-id="'+id+'"]');
+				if(item) {
+					$('.contacts').animate({
+						scrollTop: $('#contacts li[data-id="'+id+'"]').offset().top-20}, 'slow','swing');
+				}
 			}
 		}
 	}
@@ -1701,5 +1709,5 @@ $(document).ready(function(){
 	$('#contacts_propertymenu_dropdown a').keydown(propertyMenuItem);
 
 	Contacts.UI.loadHandlers();
-	Contacts.UI.Contacts.update();
+	Contacts.UI.Contacts.update(id);
 });
