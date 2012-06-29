@@ -38,13 +38,10 @@ class OC_Helper {
 	 */
 	public static function linkTo( $app, $file ){
 		if( $app != '' ){
-			$app .= '/';
+			$app_path = OC_App::getAppPath($app);
 			// Check if the app is in the app folder
-			if( file_exists( OC_App::getAppPath($app).'/'.$file )){
+			if( $app_path && file_exists( $app_path.'/'.$file )){
 				if(substr($file, -3) == 'php' || substr($file, -3) == 'css'){	
-					if(substr($app, -1, 1) == '/'){
-						$app = substr($app, 0, strlen($app) - 1);
-					}
 					$urlLinkTo =  OC::$WEBROOT . '/?app=' . $app;
 					$urlLinkTo .= ($file!='index.php')?'&getfile=' . urlencode($file):'';
 				}else{
@@ -52,7 +49,7 @@ class OC_Helper {
 				}
 			}
 			else{
-				$urlLinkTo =  OC::$WEBROOT . '/' . $app . $file;
+				$urlLinkTo =  OC::$WEBROOT . '/' . $app . '/' . $file;
 			}
 		}
 		else{
@@ -75,6 +72,9 @@ class OC_Helper {
 	 * reverse proxies
 	 */
 	public static function serverHost() {
+		if(OC::$CLI){
+			return 'localhost';
+		}
 		if (isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
 			if (strpos($_SERVER['HTTP_X_FORWARDED_HOST'], ",") !== false) {
 				$host = trim(array_pop(explode(",", $_SERVER['HTTP_X_FORWARDED_HOST'])));

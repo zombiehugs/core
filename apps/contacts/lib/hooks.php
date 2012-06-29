@@ -21,9 +21,28 @@
  */
 
 /**
+ * The following signals are being emitted:
+ * 
+ * OC_Contacts_VCard::post_moveToAddressbook(array('aid' => $aid, 'id' => $id))
+ * OC_Contacts_VCard::pre_deleteVCard(array('aid' => $aid, 'id' => $id, 'uri' = $uri)); (NOTE: the values can be null depending on which method emits them)
+ * OC_Contacts_VCard::post_updateVCard($id)
+ * OC_Contacts_VCard::post_createVCard($newid)
+ */
+
+/**
  * This class contains all hooks.
  */
 class OC_Contacts_Hooks{
+	/**
+	 * @brief Add default Addressbooks of a certain user
+	 * @param paramters parameters from postDeleteUser-Hook
+	 * @return array
+	 */
+	static public function createUser($parameters) {
+		OC_Contacts_Addressbook::addDefault($parameters['uid'],'default','Default Address Book');
+		return true;
+	}
+	
 	/**
 	 * @brief Deletes all Addressbooks of a certain user
 	 * @param paramters parameters from postDeleteUser-Hook
@@ -71,9 +90,10 @@ class OC_Contacts_Hooks{
 			if ($birthday) {
 				$date = new DateTime($birthday);
 				$vevent = new OC_VObject('VEVENT');
-				$vevent->setDateTime('LAST-MODIFIED', new DateTime($vcard->REV));
+				//$vevent->setDateTime('LAST-MODIFIED', new DateTime($vcard->REV));
 				$vevent->setDateTime('DTSTART', $date, Sabre_VObject_Element_DateTime::DATE);
 				$vevent->setString('DURATION', 'P1D');
+				$vevent->setString('UID', substr(md5(rand().time()),0,10));
 				// DESCRIPTION?
 				$vevent->setString('RRULE', 'FREQ=YEARLY');
 				$title = str_replace('{name}', $vcard->getAsString('FN'), OC_Contacts_App::$l10n->t('{name}\'s Birthday'));
@@ -82,6 +102,7 @@ class OC_Contacts_Hooks{
 					'vevent' => $vevent,
 					'repeating' => true,
 					'summary' => $title,
+					'calendardata' => "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:ownCloud Contacts " . OCP\App::getAppVersion('contacts') . "\n" . $vevent->serialize() .  "END:VCALENDAR"
 					);
 			}
 		}

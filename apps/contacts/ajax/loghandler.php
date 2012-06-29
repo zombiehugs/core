@@ -2,8 +2,8 @@
 /**
  * ownCloud - Addressbook
  *
- * @author Jakob Sack
- * @copyright 2011 Jakob Sack mail@jakobsack.de
+ * @author Thomas Tanghus
+ * @copyright 2012 Thomas Tanghus <thomas@tanghus.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -20,26 +20,21 @@
  *
  */
 
-// Check if we are a user
-OCP\JSON::checkLoggedIn();
-OCP\JSON::checkAppEnabled('contacts');
-OCP\JSON::callCheck();
-require_once('loghandler.php');
-
-$id = $_POST['id'];
-$checksum = $_POST['checksum'];
-
-$vcard = OC_Contacts_App::getContactVCard( $id );
-$line = OC_Contacts_App::getPropertyLineByChecksum($vcard, $checksum);
-if(is_null($line)){
-	bailOut(OC_Contacts_App::$l10n->t('Information about vCard is incorrect. Please reload the page.'));
+function bailOut($msg, $tracelevel=1, $debuglevel=OCP\Util::ERROR) {
+	OCP\JSON::error(array('data' => array('message' => $msg)));
+	debug($msg, $tracelevel, $debuglevel);
 	exit();
 }
 
-unset($vcard->children[$line]);
-
-if(!OC_Contacts_VCard::edit($id,$vcard)) {
-	bailOut(OC_Contacts_App::$l10n->t('Error deleting contact property.'));
+function debug($msg, $tracelevel=0, $debuglevel=OCP\Util::DEBUG) {
+	if(PHP_VERSION >= "5.4") {
+		$call = debug_backtrace(false, $tracelevel+1);
+	} else {
+		$call = debug_backtrace(false);
+	}
+	error_log('trace: '.print_r($call, true));
+	$call = $call[$tracelevel];
+	if($debuglevel !== false) {
+		OCP\Util::writeLog('contacts', $call['file'].'. Line: '.$call['line'].': '.$msg, $debuglevel);
+	}
 }
-
-OCP\JSON::success(array('data' => array( 'id' => $id )));

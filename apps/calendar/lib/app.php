@@ -194,6 +194,9 @@ class OC_Calendar_App{
 		} else
 		if (isset($calendar->VTODO)) {
 			$object = $calendar->VTODO;
+		} else
+		if (isset($calendar->VJOURNAL)) {
+			$object = $calendar->VJOURNAL;
 		}
 		if ($object) {
 			self::getVCategories()->loadFromVObject($object, true);
@@ -365,12 +368,14 @@ class OC_Calendar_App{
 	 * @return (array) $output - readable output
 	 */
 	public static function generateEventOutput($event, $start, $end){
-		if(isset($event['calendardata'])){
-			$object = OC_VObject::parse($event['calendardata']);
-			$vevent = $object->VEVENT;
-		}else{
-			$vevent = $event['vevent'];
+		if(!isset($event['calendardata']) && !isset($event['vevent'])){
+			return false;
 		}
+		if(!isset($event['calendardata']) && isset($event['vevent'])){
+			$event['calendardata'] = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:ownCloud's Internal iCal System\n" . $event['vevent']->serialize() .  "END:VCALENDAR";
+		}
+		$object = OC_VObject::parse($event['calendardata']);
+		$vevent = $object->VEVENT;
 		$return = array();
 		$id = $event['id'];
 		$allday = ($vevent->DTSTART->getDateType() == Sabre_VObject_Element_DateTime::DATE)?true:false;
@@ -401,7 +406,7 @@ class OC_Calendar_App{
 				$return[] = array_merge($staticoutput, $dynamicoutput);
 			}
 		}else{
-			if(OC_Calendar_Object::isrepeating($id)){
+			if(OC_Calendar_Object::isrepeating($id) || $event['repeating'] == 1){
 				$object->expand($start, $end);
 			}
 			foreach($object->getComponents() as $singleevent){
@@ -409,7 +414,7 @@ class OC_Calendar_App{
 					continue;
 				}
 				$dynamicoutput = OC_Calendar_Object::generateStartEndDate($singleevent->DTSTART, OC_Calendar_Object::getDTEndFromVEvent($singleevent), $allday, self::$tz);
-				$return[] = array_merge($staticoutput, $dynamicoutput);
+				$return[] = array_merge($staticoutput, $dynamicoutput);			
 			}
 		}
 		return $return;

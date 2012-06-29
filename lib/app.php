@@ -36,6 +36,7 @@ class OC_App{
 	static private $appInfo = array();
 	static private $appTypes = array();
 	static private $loadedApps = array();
+	static private $checkedApps = array();
 
 	/**
 	 * @brief loads all apps
@@ -84,6 +85,7 @@ class OC_App{
 	 */
 	public static function loadApp($app){
 		if(is_file(self::getAppPath($app).'/appinfo/app.php')){
+			self::checkUpgrade($app);
 			require_once( $app.'/appinfo/app.php' );
 		}
 	}
@@ -348,9 +350,13 @@ class OC_App{
 
 
 	protected static function findAppInDirectories($appid) {
+		static $app_dir = array();
+		if (isset($app_dir[$appid])) {
+			return $app_dir[$appid];
+		}
 		foreach(OC::$APPSROOTS as $dir) {
 			if(file_exists($dir['path'].'/'.$appid)) {
-				return $dir;
+				return $app_dir[$appid]=$dir;
 			}
 		}
 	}
@@ -381,7 +387,7 @@ class OC_App{
 		$file= self::getAppPath($appid).'/appinfo/version';
 		$version=@file_get_contents($file);
 		if($version){
-			return $version;
+			return trim($version);
 		}else{
 			$appData=self::getAppInfo($appid);
 			return $appData['version'];
@@ -526,22 +532,21 @@ class OC_App{
 	}
 
 	/**
-	 * check if any apps need updating and update those
+	 * check if the app need updating and update when needed
 	 */
-	public static function updateApps(){
-		$versions = self::getAppVersions();
-		//ensure files app is installed for upgrades
-		if(!isset($versions['files'])){
-			$versions['files']='0';
+	public static function checkUpgrade($app) {
+		if (in_array($app, self::$checkedApps)) {
+			return;
 		}
-		foreach( $versions as $app=>$installedVersion ){
-			$currentVersion=OC_App::getAppVersion($app);
-			if ($currentVersion) {
-				if (version_compare($currentVersion, $installedVersion, '>')) {
-					OC_Log::write($app, 'starting app upgrade from '.$installedVersion.' to '.$currentVersion,OC_Log::DEBUG);
-					OC_App::updateApp($app);
-					OC_Appconfig::setValue($app, 'installed_version', OC_App::getAppVersion($app));
-				}
+		self::$checkedApps[] = $app;
+		$versions = self::getAppVersions();
+		$currentVersion=OC_App::getAppVersion($app);
+		if ($currentVersion) {
+			$installedVersion = $versions[$app];
+			if (version_compare($currentVersion, $installedVersion, '>')) {
+				OC_Log::write($app, 'starting app upgrade from '.$installedVersion.' to '.$currentVersion,OC_Log::DEBUG);
+				OC_App::updateApp($app);
+				OC_Appconfig::setValue($app, 'installed_version', OC_App::getAppVersion($app));
 			}
 		}
 	}
@@ -568,9 +573,13 @@ class OC_App{
 	}
 
 	/**
-	 * get the installed version of all papps
+	 * get the installed version of all apps
 	 */
 	public static function getAppVersions(){
+		static $versions;
+		if (isset($versions)) {   // simple cache, needs to be fixed
+			return $versions; // when function is used besides in checkUpgrade
+		}
 		$versions=array();
 		$query = OC_DB::prepare( 'SELECT appid, configvalue FROM *PREFIX*appconfig WHERE configkey = \'installed_version\'' );
 		$result = $query->execute();

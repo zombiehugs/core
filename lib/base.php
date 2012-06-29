@@ -136,14 +136,16 @@ class OC{
 		$config_paths = OC_Config::getValue('apps_paths', array());
 		if(! empty($config_paths)){
 			foreach($config_paths as $paths) {
-				if( isset($paths['url']) && isset($paths['path']))
-					OC::$APPSROOTS[] = $paths;	
+				if( isset($paths['url']) && isset($paths['path'])) {
+					$paths['url'] = rtrim($paths['url'],'/');
+					$paths['path'] = rtrim($paths['path'],'/');
+					OC::$APPSROOTS[] = $paths;
+				}
 			}
 		}elseif(file_exists(OC::$SERVERROOT.'/apps')){
-			OC::$APPSROOTS[] = array('path'=> OC::$SERVERROOT.'/apps', 'url' => '/apps/', 'writable' => true);
+			OC::$APPSROOTS[] = array('path'=> OC::$SERVERROOT.'/apps', 'url' => '/apps', 'writable' => true);
 		}elseif(file_exists(OC::$SERVERROOT.'/../apps')){
-			OC::$APPSROOTS[] = array('path'=> rtrim(dirname(OC::$SERVERROOT), '/').'/apps', 'url' => '/apps/', 'writable' => true);
-			OC::$APPSROOT=rtrim(dirname(OC::$SERVERROOT), '/');
+			OC::$APPSROOTS[] = array('path'=> rtrim(dirname(OC::$SERVERROOT), '/').'/apps', 'url' => '/apps', 'writable' => true);
 		}
 
 		if(empty(OC::$APPSROOTS)){
@@ -168,8 +170,10 @@ class OC{
 	public static function checkInstalled() {
 		// Redirect to installer if not installed
 		if (!OC_Config::getValue('installed', false) && OC::$SUBURI != '/index.php') {
-			$url = 'http://'.$_SERVER['SERVER_NAME'].OC::$WEBROOT.'/index.php';
-			header("Location: $url");
+			if(!OC::$CLI){
+				$url = 'http://'.$_SERVER['SERVER_NAME'].OC::$WEBROOT.'/index.php';
+				header("Location: $url");
+			}
 			exit();
 		}
 	}
@@ -178,7 +182,7 @@ class OC{
 		// redirect to https site if configured
 		if( OC_Config::getValue( "forcessl", false )){
 			ini_set("session.cookie_secure", "on");
-			if(OC_Helper::serverProtocol()<>'https') {
+			if(OC_Helper::serverProtocol()<>'https' and !OC::$CLI) {
 				$url = "https://". OC_Helper::serverHost() . $_SERVER['REQUEST_URI'];
 				header("Location: $url");
 				exit();
@@ -206,9 +210,9 @@ class OC{
 
 				OC_Config::setValue('version',implode('.',OC_Util::getVersion()));
 				OC_App::checkAppsRequirements();
+				// load all apps to also upgrade enabled apps
+				OC_App::loadApps();
 			}
-
-			OC_App::updateApps();
 		}
 	}
 

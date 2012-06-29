@@ -15,6 +15,9 @@ OCP\App::checkAppEnabled('contacts');
 // Get active address books. This creates a default one if none exists.
 $ids = OC_Contacts_Addressbook::activeIds(OCP\USER::getUser());
 $contacts = OC_Contacts_VCard::all($ids);
+if($contacts === false) {
+	OCP\Util::writeLog('contacts','index.html: No contacts found.',OCP\Util::DEBUG);
+}
 
 $addressbooks = OC_Contacts_Addressbook::active(OCP\USER::getUser());
 
@@ -28,6 +31,7 @@ $details = array();
 if(is_null($id) && count($contacts) > 0) {
 	$id = $contacts[0]['id'];
 }
+unset($contacts);
 if(!is_null($id)) {
 	$vcard = OC_Contacts_App::getContactVCard($id);
 	$details = OC_Contacts_VCard::structureContact($vcard);
@@ -66,7 +70,6 @@ $tmpl->assign('phone_types', $phone_types);
 $tmpl->assign('email_types', $email_types);
 $tmpl->assign('categories', $categories);
 $tmpl->assign('addressbooks', $addressbooks);
-$tmpl->assign('contacts', $contacts, false);
 $tmpl->assign('details', $details );
 $tmpl->assign('id',$id);
 $tmpl->printPage();

@@ -24,11 +24,7 @@
 OCP\JSON::checkLoggedIn();
 OCP\JSON::checkAppEnabled('contacts');
 
-function bailOut($msg) {
-	OCP\JSON::error(array('data' => array('message' => $msg)));
-	OCP\Util::writeLog('contacts','ajax/loadphoto.php: '.$msg, OCP\Util::DEBUG);
-	exit();
-}
+require_once('loghandler.php');
 
 $id = isset($_GET['id']) ? $_GET['id'] : '';
 $refresh = isset($_GET['refresh']) ? true : false;
@@ -46,11 +42,5 @@ foreach($vcard->children as $property){
 	}
 }
 
-$tmpl = new OCP\Template("contacts", "part.contactphoto");
-$tmpl->assign('id', $id);
-if($refresh) {
-	$tmpl->assign('refresh', 1);
-}
-$page = $tmpl->fetchPage();
-OCP\JSON::success(array('data' => array('page'=>$page, 'checksum'=>$checksum)));
-?>
+OCP\JSON::success(array('data' => array('checksum'=>$checksum)));
+
