@@ -73,7 +73,7 @@ OC.notify = {
 	},
 	toggleRefresh: function(sw) {
 		if(typeof(sw) != 'boolean') {
-			OC.notify.toggleRefresh(!OC.notify.autoRefresh);
+			return OC.notify.toggleRefresh(!OC.notify.autoRefresh);
 		} else {
 			OC.notify.autoRefresh = sw;
 			OC.notify.dom.listContainer.toggleClass('autorefresh', sw);
@@ -82,6 +82,10 @@ OC.notify = {
 			} else {
 				OC.notify.stopRefresh();
 			}
+			return $.post(
+				OC.filePath('notify', 'ajax', 'setAutoRefresh.php'),
+				{flag: sw ? 1 : 0}
+			);
 		}
 	},
 	markRead: function(id, read) {
@@ -216,7 +220,15 @@ $(document).ready(function() {
     OC.notify.dom.listContainer.find('.notify-autorefresh').click(OC.notify.toggleRefresh);
     OC.notify.dom.icon.appendTo('#header').after(OC.notify.dom.listContainer);
     OC.notify.setDocTitle();
-    OC.notify.getCount().success(function() {
-		OC.notify.toggleRefresh(OC.notify.autoRefresh);
+    OC.notify.getCount();
+    $.post(OC.filePath('notify', 'ajax', 'getAutoRefresh.php'), null, function(response) {
+		if(response) {
+			OC.notify.startRefresh();
+			OC.notify.autoRefresh = true;
+		} else {
+			OC.notify.stopRefresh();
+			OC.notify.autoRefresh = false;
+		}
+		OC.notify.dom.listContainer.toggleClass('autorefresh', OC.notify.autoRefresh);
 	});
 });

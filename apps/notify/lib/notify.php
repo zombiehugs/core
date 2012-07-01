@@ -24,6 +24,59 @@
  * Public class for notifications
  */
 class OC_Notify {
+	private static $classIdStmt = null;
+	private static $classInsertStmt = null;
+	private static $notifyStmt = null;
+	private static $paramStmt = null;
+	/**
+	 * @brief get the class id of a given app/class name pair
+	 * @param $app app id
+	 * @param $class class name defined in the app's info.xml
+	 * @return id or false, if the class doesn't exist
+	 */
+	private static function getClassId($app, $class) {
+		if(is_null(self::$classIdStmt)) {
+			self::$classIdStmt = OCP\DB::prepare("SELECT id FROM *PREFIX*notification_classes WHERE appid = ? AND name = ?");
+		}
+		$result = self::$classIdStmt->execute(array($app, $class));
+		$id = $result->fetchOne();
+		if($id !== false and is_int($id)) {
+			return $id;
+		}
+		return self::readAppNotifications($app, $class);
+	}
+	
+	/**
+	 * @brief parse the info.xml of the given app and save its notification templates to database
+	 * @param $app application id
+	 * @param $class optional name of the class to get its ID
+	 * @return class id if a name is given and the class exists
+	 */
+	public static function readAppNotifications($app, $class = null) {
+		if(is_null(self::$classInsertStmt)) {
+			self::$classInsertStmt = OCP\DB::prepare("INSERT INTO *PREFIX*notification_classes (appid, name, content) VALUES (?, ?, ?)");
+		}
+		$appInfo = new SimpleXMLElement(OC::getAppPath($app) . '/appinfo/info.xml');
+		$templates = $appInfo->xpath('notifications/template');
+		$return = false;
+		foreach($templates as $template) {
+			$name = $template->attributes->id;
+			$content = strip_tags((string)$template, "<a><b><i><strong><em><span>");
+			if(empty($name) or empty($content)) {
+				continue;
+			}
+			self::$classInsertStmt->execute(array($app, $name, $content));
+			if($class == $name and $return !== false) {
+				$return = OCP\DB::insertid("*PREFIX*notification_classes");
+			}
+		}
+		if($class) {
+			return $return;
+		} else {
+			return true;
+		}
+	}
+	
     /**
      * @brief get the number of unread notifications for the logged in user
      * @param $uid user id
@@ -46,20 +99,26 @@ class OC_Notify {
      * @brief send a new notification to the given user
      * @param $appid app which sends the notification
      * @param $uid receiving user
-     * @param $msg message, can contain HTML (<a>, <b>, <i>, <strong>, <em>, <span>) and placeholders (e.g. {name}) for parameters
-     * @param $params keys and values for placeholders in $msg
-     * @param $href target URL, relative or absolute
-     * @param $img image URL, relative or absolute
+     * @param $class id relating to a template in the app's info.xml
+     * @param $params keys and values for placeholders in the template and href/img
      * @return id of the inserted notification, null if unsuccessful
      */
-    public static function sendUserNotification($appid, $uid, $msg, $params = array(), $href = null, $img = null) {
+    public static function sendUserNotification($appid, $uid, $class, $params = array()) {
         try {
+			$classId = getClassId($appid, $class);
+			if($classId === false) {
+				throw new Exception("Notification template $appid/$class not found");
+			}
             OCP\DB::beginTransaction();
-            $notifyStmt = OCP\DB::prepare("INSERT INTO *PREFIX*notifications (appid, uid, href, icon, content, moment) VALUES (?, ?, ?, ?, ?, NOW())");
-            $notifyStmt->execute(array($appid, $uid, $href, $img, strip_tags($msg, "<a><b><i><strong><em><span>")));
+            if(is_null(self::$notifyStmt)) {
+				self::$notifyStmt = OCP\DB::prepare("INSERT INTO *PREFIX*notifications (class, uid, moment) VALUES (?, ?, NOW())");
+			}
+            $notifyStmt->execute(array($classId, $uid));
             $id = OCP\DB::insertid("*PREFIX*notifications");
             if(count($params)) {
-                $paramStmt = OCP\DB::prepare("INSERT INTO *PREFIX*notification_params (nid, key, value) VALUES (" . $id . ", ?, ?)");
+				if(is_null(self::$notifyStmt)) {
+					self::$paramStmt = OCP\DB::prepare("INSERT INTO *PREFIX*notification_params (nid, key, value) VALUES ($id, ?, ?)");
+				}
                 foreach($params as $key => $value) {
                     $paramStmt->execute(array($key, $value));
                     OCP\DB::insertid("*PREFIX*notification_params");

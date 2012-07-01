@@ -16,23 +16,15 @@
     <name>id</name>
 	<autoincrement>true</autoincrement>
 	<type>integer</type>
-	<default>0</default>
 	<notnull>true</notnull>
 	<length>4</length>
    </field>
 
    <field>
-    <name>appid</name>
-    <type>text</type>
-    <notnull>false</notnull>
-    <length>255</length>
-   </field>
-   
-   <field>
     <name>class</name>
-    <type>text</type>
-    <notnull>false</notnull>
-    <length>64</length>
+    <type>integer</type>
+    <notnull>true</notnull>
+    <length>4</length>
    </field>
 
    <field>
@@ -40,28 +32,6 @@
     <type>text</type>
     <notnull>true</notnull>
     <length>64</length>
-   </field>
-
-   <field>
-    <name>href</name>
-    <type>text</type>
-    <notnull>false</notnull>
-    <length>255</length>
-   </field>
-   
-   <field>
-    <name>icon</name>
-    <type>text</type>
-    <notnull>false</notnull>
-    <length>255</length>
-   </field>
-
-   <field>
-    <name>content</name>
-    <type>text</type>
-    <default></default>
-    <notnull>true</notnull>
-    <length>255</length>
    </field>
 
    <field>
@@ -117,6 +87,46 @@
  
  <table>
 
+  <name>*dbprefix*notification_classes</name>
+
+  <declaration>
+
+   <field>
+    <name>id</name>
+	<autoincrement>true</autoincrement>
+	<type>integer</type>
+	<notnull>true</notnull>
+	<length>4</length>
+   </field>
+
+   <field>
+    <name>appid</name>
+    <type>text</type>
+    <notnull>false</notnull>
+    <length>255</length>
+   </field>
+
+   <field>
+    <name>name</name>
+    <type>text</type>
+    <notnull>true</notnull>
+    <length>64</length>
+   </field>
+
+   <field>
+    <name>content</name>
+    <type>text</type>
+    <default></default>
+    <notnull>true</notnull>
+    <length>255</length>
+   </field>
+
+  </declaration>
+
+ </table>
+ 
+ <table>
+ 
   <name>*dbprefix*notification_blacklist</name>
 
   <declaration>
@@ -129,21 +139,13 @@
    </field>
 
    <field>
-    <name>name</name>
-    <type>text</type>
+    <name>class</name>
+    <type>integer</type>
     <notnull>true</notnull>
-    <length>255</length>
-   </field>
-
-   <field>
-    <name>is_class</name>
-    <type>boolean</type>
-    <default>true</default>
-    <notnull>true</notnull>
+    <length>4</length>
    </field>
 
   </declaration>
 
  </table>
- 
 </database>
