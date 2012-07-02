@@ -120,6 +120,17 @@
     <notnull>true</notnull>
     <length>255</length>
    </field>
+   
+   <index>
+    <name>app_class</name>
+    <unique>true</unique>
+    <field>
+     <name>appid</name>
+    </field>
+    <field>
+	 <name>name</name>
+    </field>
+   </index>
 
   </declaration>
 

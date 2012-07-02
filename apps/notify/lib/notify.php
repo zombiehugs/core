@@ -38,10 +38,11 @@ class OC_Notify {
 		if(is_null(self::$classIdStmt)) {
 			self::$classIdStmt = OCP\DB::prepare("SELECT id FROM *PREFIX*notification_classes WHERE appid = ? AND name = ?");
 		}
+		OCP\Util::writeLog("notify", "foo", OCP\Util::DEBUG);
 		$result = self::$classIdStmt->execute(array($app, $class));
 		$id = $result->fetchOne();
-		if($id !== false and is_int($id)) {
-			return $id;
+		if($id !== false and is_numeric($id)) {
+			return (int)$id;
 		}
 		return self::readAppNotifications($app, $class);
 	}
@@ -56,16 +57,25 @@ class OC_Notify {
 		if(is_null(self::$classInsertStmt)) {
 			self::$classInsertStmt = OCP\DB::prepare("INSERT INTO *PREFIX*notification_classes (appid, name, content) VALUES (?, ?, ?)");
 		}
-		$appInfo = new SimpleXMLElement(OC::getAppPath($app) . '/appinfo/info.xml');
-		$templates = $appInfo->xpath('notifications/template');
+		$appInfo = @file_get_contents(OC_App::getAppPath($app) . '/appinfo/info.xml');
+		if($appInfo) {
+			$xml = new SimpleXMLElement($appInfo);
+		} else {
+			return false;
+		}
+		$templates = $xml->xpath('notifications/template');
 		$return = false;
 		foreach($templates as $template) {
-			$name = $template->attributes->id;
+			$name = $template->attributes()->id;
 			$content = strip_tags((string)$template, "<a><b><i><strong><em><span>");
 			if(empty($name) or empty($content)) {
 				continue;
 			}
-			self::$classInsertStmt->execute(array($app, $name, $content));
+			try {
+				self::$classInsertStmt->execute(array($app, $name, $content));
+			} catch(Exception $e) {
+				//most likely a database conflict
+			}
 			if($class == $name and $return !== false) {
 				$return = OCP\DB::insertid("*PREFIX*notification_classes");
 			}
@@ -98,14 +108,14 @@ class OC_Notify {
     /**
      * @brief send a new notification to the given user
      * @param $appid app which sends the notification
-     * @param $uid receiving user
      * @param $class id relating to a template in the app's info.xml
+     * @param $uid receiving user
      * @param $params keys and values for placeholders in the template and href/img
      * @return id of the inserted notification, null if unsuccessful
      */
-    public static function sendUserNotification($appid, $uid, $class, $params = array()) {
+    public static function sendUserNotification($appid, $class, $uid, $params = array()) {
         try {
-			$classId = getClassId($appid, $class);
+			$classId = self::getClassId($appid, $class);
 			if($classId === false) {
 				throw new Exception("Notification template $appid/$class not found");
 			}
@@ -113,14 +123,14 @@ class OC_Notify {
             if(is_null(self::$notifyStmt)) {
 				self::$notifyStmt = OCP\DB::prepare("INSERT INTO *PREFIX*notifications (class, uid, moment) VALUES (?, ?, NOW())");
 			}
-            $notifyStmt->execute(array($classId, $uid));
+            self::$notifyStmt->execute(array($classId, $uid));
             $id = OCP\DB::insertid("*PREFIX*notifications");
             if(count($params)) {
-				if(is_null(self::$notifyStmt)) {
+				if(is_null(self::$paramStmt)) {
 					self::$paramStmt = OCP\DB::prepare("INSERT INTO *PREFIX*notification_params (nid, key, value) VALUES ($id, ?, ?)");
 				}
                 foreach($params as $key => $value) {
-                    $paramStmt->execute(array($key, $value));
+                    self::$paramStmt->execute(array($key, $value));
                     OCP\DB::insertid("*PREFIX*notification_params");
                 }
             }
@@ -147,10 +157,10 @@ class OC_Notify {
 			}
 		}
         if(!$count) {
-			$notifyStmt = OCP\DB::prepare("SELECT * FROM *PREFIX*notifications WHERE uid = ? ORDER BY read ASC, moment DESC");
+			$notifyStmt = OCP\DB::prepare("SELECT n.id, n.uid, n.read, n.moment, c.appid, c.name, c.content FROM *PREFIX*notifications AS n INNER JOIN *PREFIX*notification_classes AS c ON n.class = c.id WHERE n.uid = ? ORDER BY n.read ASC, n.moment DESC");
 			$result = $notifyStmt->execute(array($uid));
 		} else {
-			$notifyStmt = OCP\DB::prepare("SELECT * FROM *PREFIX*notifications WHERE uid = ? ORDER BY read ASC, moment DESC LIMIT ?");
+			$notifyStmt = OCP\DB::prepare("SELECT n.id, n.uid, n.read, n.moment, c.appid, c.name AS class, c.content FROM *PREFIX*notifications AS n INNER JOIN *PREFIX*notification_classes AS c ON n.class = c.id WHERE n.uid = ? ORDER BY n.read ASC, n.moment DESC LIMIT ?");
 			$result = $notifyStmt->execute(array($uid, $count));
 		}
         $notifications = $result->fetchAll();
@@ -160,7 +170,13 @@ class OC_Notify {
             $notifications[$i]["content"] = $l->t($n["content"]);
             $result = $paramStmt->execute(array($n["id"]));
             while($param = $result->fetchRow()) {
-                $notifications[$i]["content"] = str_replace("{{$param["key"]}}", $param["value"], $notifications[$i]["content"]);
+				if(in_array($param["key"], array('href', 'img'))) {
+					$notifications[$i][$param["key"]] = $param["value"];
+				} elseif(strpos($notifications[$i]["content"], "{{$param["key"]}}") !== false) {
+					$notifications[$i]["content"] = str_replace("{{$param["key"]}}", $param["value"], $notifications[$i]["content"]);
+				} else {
+					$notifications[$i]["params"][$param["key"]] = $param["value"];
+				}
             }
         }
         return $notifications;
