@@ -17,8 +17,8 @@
 #notify-refresh { background-image:url('%webroot%/core/img/actions/history.svg'); }
 #notify-readall { background-image:url('%appswebroot%/notify/img/readicons.svg'); background-position:-16px 0; }
 #notify-deleteread { background-image:url('%webroot%/core/img/actions/delete.svg'); }
-#notify-list .notification { margin:0.25em; display:block; padding:0.5em; }
-#notify-list .notification .content { padding-right:16px; }
+#notify-list .notification { margin:0.25em; display:block; padding:0.5em; position:relative; }
+#notify-list .notification .content { /*padding-right:16px;*/ }
 #notify-list .notification div.actionicons { width:16px; height:32px; float:right; position:relative; padding:0; visibility:hidden; }
 #notify-list .notification:hover div.actionicons { visibility:visible; }
 #notify-list .notification div.actionicons span { width:16px; height:16px; background-repeat:no-repeat; position:absolute; left:0; text-indent:-9000px; }

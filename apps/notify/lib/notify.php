@@ -24,38 +24,52 @@
  * Public class for notifications
  */
 class OC_Notify {
-	private static $classIdStmt = null;
-	private static $classInsertStmt = null;
-	private static $notifyStmt = null;
-	private static $paramStmt = null;
+	// reusable prepared statements:
+	private static $classIdStmt, $classIdsStmt, $classInsertStmt, $notifyStmt, $paramStmt, $readByIdStmt, $readByUserStmt, $readByClassIdStmt, $deleteByIdStmt, $deleteByUserStmt, $deleteByClassIdStmt, $deleteByReadStmt, $deleteParamsByIdStmt, $deleteParamsByUserStmt, $deleteParamsByClassIdStmt, $deleteParamsByReadStmt;
+	
 	/**
 	 * @brief get the class id of a given app/class name pair
 	 * @param $app app id
-	 * @param $class class name defined in the app's info.xml
-	 * @return id or false, if the class doesn't exist
+	 * @param $class class name defined in the app's info.xml or null to fetch all class IDs of the given app
+	 * @return id, array or false, if the class doesn't exist
 	 */
-	private static function getClassId($app, $class) {
-		if(is_null(self::$classIdStmt)) {
-			self::$classIdStmt = OCP\DB::prepare("SELECT id FROM *PREFIX*notification_classes WHERE appid = ? AND name = ?");
+	private static function getClassId($app, $class = null) {
+		OCP\Util::writeLog("notify", "getClassId($app, $class)", OCP\Util::DEBUG);
+		$return = array();
+		if($class == null) {
+			// get all classes of $app
+			if(!isset(self::$classIdsStmt)) {
+				self::$classIdsStmt = OCP\DB::prepare("SELECT id FROM *PREFIX*notification_classes WHERE appid = ?");
+			}
+			$result = self::$classIdsStmt->execute(array($app));
+			while(($row = $result->fetchOne()) !== false) {
+				$return[] = (int)$row;
+			}
+		} else {
+			if(!isset(self::$classIdStmt)) {
+				self::$classIdStmt = OCP\DB::prepare("SELECT id FROM *PREFIX*notification_classes WHERE appid = ? AND name = ?");
+			}
+			$result = self::$classIdStmt->execute(array($app, $class));
+			if(($row = $result->fetchOne()) !== false) {
+				$return = (int)$row;
+			}
 		}
-		OCP\Util::writeLog("notify", "foo", OCP\Util::DEBUG);
-		$result = self::$classIdStmt->execute(array($app, $class));
-		$id = $result->fetchOne();
-		if($id !== false and is_numeric($id)) {
-			return (int)$id;
+		OCP\Util::writeLog("notify", "return classId: " . print_r($return, true), OCP\Util::DEBUG);
+		if(!count($return)) {
+			return self::parseAppNotifications($app, $class);
 		}
-		return self::readAppNotifications($app, $class);
+		return $return;
 	}
 	
 	/**
 	 * @brief parse the info.xml of the given app and save its notification templates to database
 	 * @param $app application id
 	 * @param $class optional name of the class to get its ID
-	 * @return class id if a name is given and the class exists
+	 * @return class id if a name is given and the class exists, array of class IDs if only the app is given
 	 */
-	public static function readAppNotifications($app, $class = null) {
-		if(is_null(self::$classInsertStmt)) {
-			self::$classInsertStmt = OCP\DB::prepare("INSERT INTO *PREFIX*notification_classes (appid, name, content) VALUES (?, ?, ?)");
+	public static function parseAppNotifications($app, $class = null) {
+		if(!isset(self::$classInsertStmt)) {
+			self::$classInsertStmt = OCP\DB::prepare("INSERT INTO *PREFIX*notification_classes (appid, name, summary, content) VALUES (?, ?, ?, ?)");
 		}
 		$appInfo = @file_get_contents(OC_App::getAppPath($app) . '/appinfo/info.xml');
 		if($appInfo) {
@@ -64,26 +78,34 @@ class OC_Notify {
 			return false;
 		}
 		$templates = $xml->xpath('notifications/template');
-		$return = false;
+		$return = array();
 		foreach($templates as $template) {
-			$name = $template->attributes()->id;
+			$attr = $template->attributes();
+			$name = $attr->id;
+			$summary = substr(strip_tags(trim($attr->summary)), 0, 64);
 			$content = strip_tags((string)$template, "<a><b><i><strong><em><span>");
 			if(empty($name) or empty($content)) {
+				//FIXME also require summary??
 				continue;
 			}
 			try {
-				self::$classInsertStmt->execute(array($app, $name, $content));
+				self::$classInsertStmt->execute(array($app, $name, $summary, $content));
+				$id = OCP\DB::insertid("*PREFIX*notification_classes");
+				if($class == null) {
+					$return[] = (int)$id;
+				} else {
+					if($class == $name) {
+						$return = (int)$id;
+					}
+				}
 			} catch(Exception $e) {
 				//most likely a database conflict
 			}
-			if($class == $name and $return !== false) {
-				$return = OCP\DB::insertid("*PREFIX*notification_classes");
-			}
 		}
-		if($class) {
+		if($class == null or is_int($return)) {
 			return $return;
 		} else {
-			return true;
+			return false;
 		}
 	}
 	
@@ -120,13 +142,13 @@ class OC_Notify {
 				throw new Exception("Notification template $appid/$class not found");
 			}
             OCP\DB::beginTransaction();
-            if(is_null(self::$notifyStmt)) {
+            if(!isset(self::$notifyStmt)) {
 				self::$notifyStmt = OCP\DB::prepare("INSERT INTO *PREFIX*notifications (class, uid, moment) VALUES (?, ?, NOW())");
 			}
             self::$notifyStmt->execute(array($classId, $uid));
             $id = OCP\DB::insertid("*PREFIX*notifications");
             if(count($params)) {
-				if(is_null(self::$paramStmt)) {
+				if(!isset(self::$paramStmt)) {
 					self::$paramStmt = OCP\DB::prepare("INSERT INTO *PREFIX*notification_params (nid, key, value) VALUES ($id, ?, ?)");
 				}
                 foreach($params as $key => $value) {
@@ -139,6 +161,10 @@ class OC_Notify {
         } catch(Exception $e) {
             OCP\Util::writeLog("notify", "Could not send notification: " . $e->getMessage(), OCP\Util::ERROR);
             return null;
+            /* TODO: good exception handling and throwing, e.g.:
+             * - throw exception when there are errors
+             * - return false when the app/class is blacklisted
+             */
         }
     }
     
@@ -157,10 +183,10 @@ class OC_Notify {
 			}
 		}
         if(!$count) {
-			$notifyStmt = OCP\DB::prepare("SELECT n.id, n.uid, n.read, n.moment, c.appid, c.name, c.content FROM *PREFIX*notifications AS n INNER JOIN *PREFIX*notification_classes AS c ON n.class = c.id WHERE n.uid = ? ORDER BY n.read ASC, n.moment DESC");
+			$notifyStmt = OCP\DB::prepare("SELECT n.id, n.uid, n.read, n.moment, c.appid, c.name AS class, c.summary, c.content FROM *PREFIX*notifications AS n INNER JOIN *PREFIX*notification_classes AS c ON n.class = c.id WHERE n.uid = ? ORDER BY n.read ASC, n.moment DESC");
 			$result = $notifyStmt->execute(array($uid));
 		} else {
-			$notifyStmt = OCP\DB::prepare("SELECT n.id, n.uid, n.read, n.moment, c.appid, c.name AS class, c.content FROM *PREFIX*notifications AS n INNER JOIN *PREFIX*notification_classes AS c ON n.class = c.id WHERE n.uid = ? ORDER BY n.read ASC, n.moment DESC LIMIT ?");
+			$notifyStmt = OCP\DB::prepare("SELECT n.id, n.uid, n.read, n.moment, c.appid, c.name AS class, c.summary, c.content FROM *PREFIX*notifications AS n INNER JOIN *PREFIX*notification_classes AS c ON n.class = c.id WHERE n.uid = ? ORDER BY n.read ASC, n.moment DESC LIMIT ?");
 			$result = $notifyStmt->execute(array($uid, $count));
 		}
         $notifications = $result->fetchAll();
@@ -174,6 +200,10 @@ class OC_Notify {
 					$notifications[$i][$param["key"]] = $param["value"];
 				} elseif(strpos($notifications[$i]["content"], "{{$param["key"]}}") !== false) {
 					$notifications[$i]["content"] = str_replace("{{$param["key"]}}", $param["value"], $notifications[$i]["content"]);
+				} elseif(in_array($param["key"], array('id', 'read'))) {
+					// these params aren't allowed
+					// FIXME check before writing to db??
+					continue;
 				} else {
 					$notifications[$i]["params"][$param["key"]] = $param["value"];
 				}
@@ -181,15 +211,13 @@ class OC_Notify {
         }
         return $notifications;
     }
-    
-    /**
-     * @brief mark one or more notifications of the logged in user as read
-     * @param $uid user id
-     * @param $id either notification id returned by sendUserNotification, app id or null
-     * @param $read the (boolean) value to set the read column to
-     * @return number of affected rows
-     */
-    public static function markRead($uid = null, $id = null, $read = true) {
+	
+	/**
+	 * @brief mark all notifications of the given user as read
+	 * @param $uid
+	 * @return number of affected rows
+	 */
+	public static function markReadByUser($uid = null, $read = true) {
 		if(is_null($uid)) {
 			if(OCP\User::isLoggedIn()) {
 				$uid = OCP\User::getUser();
@@ -197,77 +225,192 @@ class OC_Notify {
 				return 0;
 			}
 		}
-		if(is_null($id)) {
-			// update all user notifications
-			$stmt = OCP\DB::prepare("UPDATE *PREFIX*notifications SET read = ? WHERE uid = ?");
-			$stmt->execute(array((int) $read, $uid));
-		} else if(is_numeric($id)) {
-			// update the user notification with the given id
-			$stmt = OCP\DB::prepare("UPDATE *PREFIX*notifications SET read = ? WHERE id = ? AND uid = ?");
-			$stmt->execute(array((int) $read, $id, $uid));
-		} else if(is_string($id)) {
-			// update all user notifications of the given app
-			$stmt = OCP\DB::prepare("UPDATE *PREFIX*notifications SET read = ? WHERE uid = ? AND appid = ?");
-			$stmt->execute(array((int) $read, $uid, $id));
-		} else {
-			return 0;
+		if(!isset(self::$readByUserStmt)) {
+			self::$readByUserStmt = OCP\DB::prepare("UPDATE *PREFIX*notifications SET read = ? WHERE uid = ?");
 		}
-		return $stmt->numRows();
+		self::$readByUserStmt->execute(array((int) $read, $uid));
+		return self::$readByUserStmt->numRows();
 	}
 	
 	/**
-     * @brief delete one or more notifications from the database
-     * @param $uid user id
-     * @param $id either notification id returned by sendUserNotification, app id, boolean or null
-     * @return number of affected rows
-     * @fixme also delete assigned notification_params!!
-     */
-    public static function delete($uid = null, $id = null) {
+	 * @brief mark all notifications with the given class id as read
+	 * @param $uid user id
+	 * @param $class class id or array with multiple class ids
+	 * @param $read the (boolean) value to set the read column to
+	 */
+	public static function markReadByClassId($uid = null, $class, $read = true) {
 		if(is_null($uid)) {
 			if(OCP\User::isLoggedIn()) {
 				$uid = OCP\User::getUser();
 			} else {
-				throw new Exception("Not authorized!");
+				return 0;
 			}
 		}
-		$deleteParams = OCP\DB::prepare("DELETE FROM *PREFIX*notification_params WHERE nid = ?");
-		if(is_numeric($id)) {
-			// delete the user notification with the given id
-			$stmt = OCP\DB::prepare("DELETE FROM *PREFIX*notifications WHERE id = ? AND uid = ?");
-			$stmt->execute(array($id, $uid));
-			if($stmt->numRows()) {
-				$deleteParams->execute(array($id));
-				return 1;
+		if(!isset(self::$readByClassIdStmt)) {
+			self::$readByClassIdStmt = OCP\DB::prepare("UPDATE *PREFIX*notifications SET read = ? WHERE class = ? AND uid = ?");
+		}
+		if(!is_array($class)) {
+			if($class === false) {
+				return 0;
 			}
-			return 0;
-		} else {
-			if(is_null($id)) {
-				// delete all user notifications
-				$stmt = OCP\DB::prepare("SELECT id FROM *PREFIX*notifications WHERE uid = ?");
-				$deleteNotifyStmt = OCP\DB::prepare("DELETE FROM *PREFIX*notifications WHERE uid = ?");
-				$notifyStmtParams = array($uid);
-			} else if(is_string($id)) {
-				// delete all user notifications of the given app
-				$stmt = OCP\DB::prepare("SELECT id FROM *PREFIX*notifications WHERE uid = ? AND appid = ?");
-				$deleteNotifyStmt = OCP\DB::prepare("DELETE FROM *PREFIX*notifications WHERE uid = ? AND appid = ?");
-				$notifyStmtParams = array($uid, $id);
-			} else if(is_bool($id)) {
-				// delete all user notifications with read = $id
-				$stmt = OCP\DB::prepare("SELECT id FROM *PREFIX*notifications WHERE uid = ? AND read = ?");
-				$deleteNotifyStmt = OCP\DB::prepare("DELETE FROM *PREFIX*notifications WHERE uid = ? AND read = ?");
-				$notifyStmtParams = array($uid, $id);
+			$class = array($class);
+		}
+		$return = 0;
+		foreach($class as $c) {
+			self::$readByClassIdStmt->execute(array((int) $read, $c, $uid));
+			$return += self::$readByClassIdStmt->numRows();
+		}
+		return $return;
+	}
+	
+	/**
+	 * @brief mark all notifications of the given app (and optional class) as read
+	 * @param $app
+	 * @param $class
+	 * @return number of affected rows
+	 */
+	public static function markReadByApp($uid = null, $app, $class = null, $read = true) {
+		return self::markReadByClassId($uid, self::getClassId($app, $class), $read);
+	}
+	
+	/**
+     * @brief mark the notification with the given id as read
+     * @param $uid user id
+     * @param $id notification id
+     * @param $read the (boolean) value to set the read column to
+     * @return number of affected rows
+     */
+	public static function markReadById($uid = null, $id, $read = true) {
+		if(is_null($uid)) {
+			if(OCP\User::isLoggedIn()) {
+				$uid = OCP\User::getUser();
 			} else {
-				throw new Exception("Invalid argument!");
+				return 0;
 			}
-			$result = $stmt->execute($notifyStmtParams);
-			if($result) {
-				while($row = $result->fetchRow()) {
-					$deleteParams->execute(array($row->id));
-				}
-			}
-			$deleteNotifyStmt->execute($notifyStmtParams);
-			return $deleteNotifyStmt->numRows();
 		}
+		if(!isset(self::$readByIdStmt)) {
+			self::$readByIdStmt = OCP\DB::prepare("UPDATE *PREFIX*notifications SET read = ? WHERE id = ? AND uid = ?");
+		}
+		self::$readByIdStmt->execute(array((int) $read, $id, $uid));
+		return self::$readByIdStmt->numRows();
+	}
+	
+	/**
+	 * @brief delete all notifications of the given user
+	 * @param $uid
+	 * @return number of affected rows
+	 */
+	public static function deleteByUser($uid = null) {
+		if(is_null($uid)) {
+			if(OCP\User::isLoggedIn()) {
+				$uid = OCP\User::getUser();
+			} else {
+				return 0;
+			}
+		}
+		if(!isset(self::$deleteParamsByUserStmt)) {
+			self::$deleteParamsByUserStmt = OCP\DB::prepare("DELETE FROM *PREFIX*notification_params WHERE nid IN (SELECT id FROM *PREFIX*notifications WHERE uid = ?)");
+		}
+		if(!isset(self::$deleteByUserStmt)) {
+			self::$deleteByUserStmt = OCP\DB::prepare("DELETE FROM *PREFIX*notifications WHERE uid = ?");
+		}
+		self::$deleteParamsByUserStmt->execute(array($uid));
+		self::$deleteByUserStmt->execute(array($uid));
+		return self::$deleteByUserStmt->numRows();
+	}
+	
+	/**
+	 * @brief delete all notifications with the given class id
+	 * @param $uid user id
+	 * @param $class class id or array with multiple class ids
+	 */
+	public static function deleteByClassId($uid = null, $class) {
+		if(is_null($uid)) {
+			if(OCP\User::isLoggedIn()) {
+				$uid = OCP\User::getUser();
+			} else {
+				return 0;
+			}
+		}
+		if(!isset(self::$deleteParamsByClassIdStmt)) {
+			self::$deleteParamsByClassIdStmt = OCP\DB::prepare("DELETE FROM *PREFIX*notification_params WHERE nid IN (SELECT id FROM *PREFIX*notifications WHERE class = ? AND uid = ?)");
+		}
+		if(!isset(self::$deleteByClassIdStmt)) {
+			self::$deleteByClassIdStmt = OCP\DB::prepare("DELETE FROM *PREFIX*notifications WHERE class = ? AND uid = ?");
+		}
+		if(!is_array($class)) {
+			if($class === false) {
+				return 0;
+			}
+			$class = array($class);
+		}
+		$return = 0;
+		foreach($class as $c) {
+			self::$deleteParamsByClassIdStmt->execute(array($c, $uid));
+			self::$deleteByClassIdStmt->execute(array($c, $uid));
+			$return += self::$deleteByClassIdStmt->numRows();
+		}
+		return $return;
+	}
+	
+	/**
+	 * @brief delete all notifications of the given app (and optional class)
+	 * @param $app
+	 * @param $class
+	 * @return number of affected rows
+	 */
+	public static function deleteByApp($uid = null, $app, $class = null) {
+		return self::deleteByClassId($uid, self::getClassId($app, $class));
+	}
+	
+	/**
+     * @brief delete the notification with the given id
+     * @param $uid user id
+     * @param $id notification id
+     * @return number of affected rows
+     */
+	public static function deleteById($uid = null, $id) {
+		if(is_null($uid)) {
+			if(OCP\User::isLoggedIn()) {
+				$uid = OCP\User::getUser();
+			} else {
+				return 0;
+			}
+		}
+		if(!isset(self::$deleteParamsByIdStmt)) {
+			self::$deleteParamsByIdStmt = OCP\DB::prepare("DELETE FROM *PREFIX*notification_params WHERE nid IN (SELECT id FROM *PREFIX*notifications WHERE id = ? AND uid = ?)");
+		}
+		if(!isset(self::$deleteByIdStmt)) {
+			self::$deleteByIdStmt = OCP\DB::prepare("DELETE FROM *PREFIX*notifications WHERE id = ? AND uid = ?");
+		}
+		self::$deleteParamsByIdStmt->execute(array($id, $uid));
+		self::$deleteByIdStmt->execute(array($id, $uid));
+		return self::$deleteByIdStmt->numRows();
+	}
+	
+	/**
+     * @brief delete the notification with the given read flag
+     * @param $uid user id
+     * @param $read read flag
+     * @return number of affected rows
+     */
+	public static function deleteByRead($uid = null, $read) {
+		if(is_null($uid)) {
+			if(OCP\User::isLoggedIn()) {
+				$uid = OCP\User::getUser();
+			} else {
+				return 0;
+			}
+		}
+		if(!isset(self::$deleteParamsByReadStmt)) {
+			self::$deleteParamsByReadStmt = OCP\DB::prepare("DELETE FROM *PREFIX*notification_params WHERE nid IN (SELECT id FROM *PREFIX*notifications WHERE uid = ? AND read = ?)");
+		}
+		if(!isset(self::$deleteByReadStmt)) {
+			self::$deleteByReadStmt = OCP\DB::prepare("DELETE FROM *PREFIX*notifications WHERE uid = ? AND read = ?");
+		}
+		self::$deleteParamsByReadStmt->execute(array($uid, $read));
+		self::$deleteByReadStmt->execute(array($uid, $read));
+		return self::$deleteByReadStmt->numRows();
 	}
 	
 	/**

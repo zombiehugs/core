@@ -1,7 +1,7 @@
 OC.notify = {
-	//TODO don't hardcode these!!
-    autoRefresh: true,
+	//TODO don't hardcode this!!
     refreshInterval: 30,
+    autoRefresh: true,
 	dom: {
 		icon: $('<a id="notify-icon" class="header-right header-action" href="#" title="' + t('notify', 'Notifications') + '"><img class="svg" alt="' + t('notify', 'Notifications') + '" src="' + OC.imagePath('notify', 'headerIcon.svg') + '" /></a>'),
 		counter: $('<span id="notify-counter" data-count="0">0</span>'),

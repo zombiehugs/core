@@ -22,6 +22,7 @@
 
 require_once('3rdparty/feedcreator/feedcreator.class.php');
 OCP\App::checkAppEnabled('notify');
+OCP\Util::writeLog("notify", "making feed from $path_info", OCP\Util::DEBUG);
 if($path_info == '/notify_feed/feed.rss') {
 	$type = 'RSS2.0';
 } else if($path_info == '/notify_feed/feed.atom') {
@@ -55,7 +56,7 @@ $feed->image->link = $feed->link;
 
 foreach($notifications as $notification) {
 	$item = new FeedItem();
-	$item->title = strip_tags($notification["content"]);
+	$item->title = strip_tags($notification["summary"]);
 	$item->date = strtotime($notification["moment"]);
 	if(preg_match('/^https?:\/\//', $notification["href"])) {
 		$item->link = $notification["href"];

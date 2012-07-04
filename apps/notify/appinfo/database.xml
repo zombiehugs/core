@@ -114,6 +114,14 @@
    </field>
 
    <field>
+    <name>summary</name>
+    <type>text</type>
+    <default></default>
+    <notnull>true</notnull>
+    <length>64</length>
+   </field>
+
+   <field>
     <name>content</name>
     <type>text</type>
     <default></default>
