@@ -344,7 +344,7 @@
 
  <table>
 
-  <name>*dbprefix*calendar_remote_objects</name>
+  <name>*dbprefix*calendar_remote_caldav</name>
 
   <declaration>
 
@@ -368,63 +368,11 @@
    </field>
 
    <field>
-    <name>objecttype</name>
+    <name>url</name>
     <type>text</type>
     <default></default>
     <notnull>true</notnull>
-    <length>40</length>
-   </field>
-
-   <field>
-    <name>startdate</name>
-    <type>timestamp</type>
-    <default>0000-00-00 00:00:00</default>
-    <notnull>false</notnull>
-   </field>
-
-   <field>
-    <name>enddate</name>
-    <type>timestamp</type>
-    <default>0000-00-00 00:00:00</default>
-    <notnull>false</notnull>
-   </field>
-
-   <field>
-    <name>repeating</name>
-    <type>integer</type>
-    <default></default>
-    <notnull>false</notnull>
-    <length>4</length>
-   </field>
-
-   <field>
-    <name>summary</name>
-    <type>text</type>
-    <default></default>
-    <notnull>false</notnull>
-    <length>255</length>
-   </field>
-
-   <field>
-    <name>calendardata</name>
-    <type>clob</type>
-    <notnull>false</notnull>
-   </field>
-
-   <field>
-    <name>uri</name>
-    <type>text</type>
-    <default></default>
-    <notnull>false</notnull>
-    <length>255</length>
-   </field>
-
-   <field>
-    <name>lastmodified</name>
-    <type>integer</type>
-    <default></default>
-    <notnull>false</notnull>
-    <length>4</length>
+    <length>4096</length>
    </field>
 
   </declaration>
@@ -433,7 +381,7 @@
 
  <table>
 
-  <name>*dbprefix*calendar_remote_calendars</name>
+  <name>*dbprefix*calendar_remote_webcal</name>
 
   <declaration>
 
@@ -448,67 +396,12 @@
    </field>
 
    <field>
-    <name>userid</name>
-    <type>text</type>
-    <default></default>
-    <notnull>false</notnull>
-    <length>255</length>
-   </field>
-
-   <field>
-    <name>displayname</name>
-    <type>text</type>
-    <default></default>
-    <notnull>false</notnull>
-    <length>100</length>
-   </field>
-
-   <field>
-    <name>uri</name>
-    <type>text</type>
-    <default></default>
-    <notnull>false</notnull>
-    <length>255</length>
-   </field>
-
-   <field>
-    <name>active</name>
+    <name>calendarid</name>
     <type>integer</type>
-    <default>1</default>
-    <notnull>true</notnull>
-    <length>4</length>
-   </field>
-
-   <field>
-    <name>ctag</name>
-    <type>integer</type>
-    <default>0</default>
+    <default></default>
     <notnull>true</notnull>
     <unsigned>true</unsigned>
     <length>4</length>
-   </field>
-
-   <field>
-    <name>calendarorder</name>
-    <type>integer</type>
-    <default>0</default>
-    <notnull>true</notnull>
-    <unsigned>true</unsigned>
-    <length>4</length>
-   </field>
-
-   <field>
-    <name>calendarcolor</name>
-    <type>text</type>
-    <default></default>
-    <notnull>false</notnull>
-    <length>10</length>
-   </field>
-
-   <field>
-    <name>timezone</name>
-    <type>clob</type>
-    <notnull>false</notnull>
    </field>
 
    <field>
@@ -517,14 +410,6 @@
     <default></default>
     <notnull>true</notnull>
     <length>4096</length>
-   </field>
-
-   <field>
-    <name>components</name>
-    <type>text</type>
-    <default></default>
-    <notnull>false</notnull>
-    <length>100</length>
    </field>
 
   </declaration>
