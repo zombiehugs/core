@@ -9,110 +9,135 @@
  * This class manages remote calendars
  */
 class OC_Calendar_Remote{
-	/*
-	 * @brief adds an remote calendar
-	 * @param (string) $url - url of the remote calendar
-	 * @return (int) $id - new id of the remote calendar
+	/**
+	 * @brief contants for caldav and webcal
 	 */
-	public static function add($url, $userid){
-		$url = OC_Validator::httpurl($url, true);
-		if(!$url){
-			return false;
-		}
-		$stmt = OC_DB::prepare('INSERT INTO *PREFIX*calendar_remote (url, userid, calendardata, lastupdate, active) VALUES(?,?,null,null, 1)');
-		$stmt->execute(array($url,$userid,null));
-		$id = OC_DB::insertid('*PREFIX*calendar_remote');
-		self::update_cache($id);
-		return $id;
-	}
-	/*
-	 * @brief returns the remote calendar
-	 * @param (int) $id - id of the calendar
-	 * @return (array) $caledar - info about the calendar
-	 */
-	public static function get($id){
-		$stmt = OC_DB::prepare('SELECT * FROM *PREFIX*calendar_remote WHERE id = ?');
-		$result = $stmt->execute(array($id));
-		return $result->fetchRow();
-	}
+	//const CALDAV = 'caldav'; caldav not supported yet
+	const WEBCAL = 'webcal';
+	
 	/*
 	 * @brief returns all remote calendars of a user
 	 * @param (string) $userid - userid of the user
 	 * @return (array) $calendars - all remote calendars of a user
 	 */
-	public static function getall($userid){
-		$stmt = OC_DB::prepare('SELECT * FROM *PREFIX*calendar_remote WHERE userid = ?');
-		$result = $stmt->execute(array($userid));
-		$return = array();
-		while( $row = $result->fetchRow()){
+	public static function all($userid, $type = null){
+		$typesql = (is_null($type)?'':' AND type = ?');
+		$stmt = OC_DB::prepare('SELECT * FROM *PREFIX*calendar_remote INNER JOIN *PREFIX*calendar_calendars ON *PREFIX*calendar_remote.calendarid = *PREFIX*calendar_calendars.id WHERE userid = ?' . $typesql);
+		if(is_null($type)){
+			$result = $stmt->execute(array($userid));
+		}else{
+			$result = $stmt->execute(array($userid, $type));
+		}
+		while($row = $result->fetchRow()){
 			$return[] = $row;
 		}
 		return $return;
 	}
+	
+	/*
+	 * @brief returns a remote calendar
+	 * @param (int) $id - id of the calendar
+	 * @return (array) $caledar - info about the calendar
+	 */
+	public static function find($id){
+		$stmt = OC_DB::prepare('SELECT * FROM *PREFIX*calendar_remote INNER JOIN *PREFIX*calendar_calendars ON *PREFIX*calendar_remote.calendarid = *PREFIX*calendar_calendars.id WHERE calendarid = ?');
+		$result = $stmt->execute(array($id));
+		return $result->fetchRow();
+	}
+	
+	/*
+	 * @brief adds a remote calendar
+	 * @param interger $calendarid - id of the calendar
+	 * @param string $url - url of the calendar
+	 * @param string $type - type of the remote calendar
+	 * @return integer $id 
+	 */
+	public static function add($calendarid, $url, $type){
+		$stmt = OC_DB::prepare('INSERT INTO *PREFIX*calendar_remote (calendarid, url, type) VALUES(?,?,?)');
+		$stmt->execute(array($calendarid, $url, $type));
+		$id = OC_DB::insertid('*PREFIX*calendar_remote_' . $type);
+		return $id;
+	}
+	
+	/*
+	 * @brief edits a remote calendar
+	 * @param interger $calendarid - id of the calendar
+	 * @param string $url - url of the calendar
+	 * @param string $type - type of the remote calendar
+	 * @return boolean
+	 */
+	public static function edit($calendarid, $url, $type){
+		$stmt = OC_DB::prepare('UPDATE *PREFIX*calendar_remote SET url=?,type=? WHERE calendarid = ?');
+		$stmt->execute(array($url, $type, $calendarid));
+		return true;
+	}
+	
 	/*
 	 * @brief deletes a remote calendar
-	 * @param (int) $id - id of the calendar
-	 * @return (bool) 
+	 * @param integer $id - id of the calendar
+	 * @return boolean
 	 */
 	public static function delete($id){
-		$stmt = OC_DB::prepare('DELETE FROM *PREFIX*calendar_remote WHERE id = ?');
+		$stmt = OC_DB::prepare('DELETE FROM *PREFIX*calendar_remote WHERE calendarid = ?');
 		$stmt->execute();
-		if(self::get($id)){
-			return false;
-		}
 		return true;
 	}
+	
 	/*
 	 * @brief checks if the calendar was already cached
-	 * @param (int) $id - id of the calendar
-	 * @return (bool) 
+	 * @param integer $id - id of the calendar
+	 * @return boolean 
 	 */
-	public static function is_cached($id){
-		$remotecal = self::get($id);
-		if(is_null($remotecal['calendardata']) || is_null($remotecal['lastupdate'])){
+	public static function isCached($id){
+		$cal = self::find($id);
+		if($cal['hash'] == ''){
 			return false;
 		}
 		return true;
 	}
+	
 	/*
 	 * @brief checks if the cache is up to date
-	 * @param (int) $id - id of the remote calendar
-	 * @return (bool)
+	 * @param string $calendardata
+	 * @param integer $id - id of the calendar
+	 * @return boolean
 	 */
-	public static function is_cache_uptodate($id){
-		$remotecal = self::get($id);
-		$md5cache = md5($remotecal['calendardata']);
-		$md5remote = md5(self::getremoteics($id));
-		if($md5cache == $md5remote){
+	public static function isUpToDate($calendardata, $id){
+		$cal = self::find($id);
+		if($cal['hash'] == md5($calendardata)){
 			return true;
-		}else{
-			return false;
 		}
+		return false;
 	}
+	
 	/*
 	 * @brief updates the cache 
-	 * @param (int) $id - id of the remote calendar
-	 * @return (bool)
+	 * @param integer $id - id of the remote calendar
+	 * @return boolean
 	 */
-	public static function update_cache($id){
-		$ics = self::getremoteics($id);
-		if(!$ics){
+	public static function updateCache($id){
+		$cal = self::find($id);
+		if($cal['type'] == 'webcal'){
+			$remote = new OC_Calendar_Webcal($cal['url']);
+			$calendardata = $remote->serialize();
+			if(!self::isUpToDate($calendardata, $id)){
+				$import = new OC_Calendar_Import($calendardata);
+				//$import - set id
+				$import->disableProgressCache();
+				$import->import();
+				self::updateMD5($id, md5($calendardata));
+				return true;
+			}
+		}
+		if($cal['type'] == 'caldav'){
+			//caldav not supported yet
 			return false;
 		}
-		$stmt = OC_DB::prepare('UPDATE *PREFIX*calendar_remote SET calendardata = ? WHERE id = ?');
-		$stmt->execute(array($ics, $id));
-		return true;
 	}
-	/*
-	 * @brief returns the remote calendardata
-	 * @param (string) $id - id of the remote calendar
-	 * @return (string) $calendardata
-	 */
-	public static function getremoteics($id){
-		$remotecal = self::get($id);
-		$ics = @fopen($remotecal['url'], 'r');
-		if($ics == '' || !$ics){
-			return false;
-		}
+	
+	public static function updateMD5($id, $hash){
+		$stmt = OC_DB::prepare('UPDATE *PREFIX*calendar_remote SET hash=? WHERE calendarid = ?');
+		$stmt->execute(array($hash, $id));
+		return true;
 	}
 }

@@ -349,16 +349,6 @@
   <declaration>
 
    <field>
-    <name>id</name>
-    <type>integer</type>
-    <default>0</default>
-    <notnull>true</notnull>
-    <autoincrement>1</autoincrement>
-    <unsigned>true</unsigned>
-    <length>4</length>
-   </field>
-
-   <field>
     <name>calendarid</name>
     <type>integer</type>
     <default></default>
@@ -373,6 +363,13 @@
     <default></default>
     <notnull>true</notnull>
     <length>4096</length>
+   </field>
+   
+   <field>
+    <name>hash</name>
+    <type>text</type>
+    <notnull>true</notnull>
+    <length>255</length>
    </field>
 
    <field>
