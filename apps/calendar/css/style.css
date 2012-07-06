@@ -53,9 +53,10 @@ color:#A9A9A9;
 select#category{width:140px;}
 button.category{margin:0 3px;}
 
-.calendar-colorpicker-color{display:inline-block;width:20px;height:20px;margin-right:2px;cursor:pointer;border:2px solid transparent;}
+.calendar-colorpicker-color{display:inline-block;width:20px;height:5px;margin-right:2px;cursor:pointer;border:2px solid transparent;}
 .calendar-colorpicker-color.active{border:2px solid black;}
-
+#calendar_import_defaultcolors{text-align: center;}
+input.displayname{width: 450px;float:right;}
 #event {padding: 0;margin: 0;margin-top:-5px}
 
 .calendar_share_dropdown{ display:block;  position:absolute; z-index:100; width:16em; right:0; margin-right:7em; background:#F8F8F8; padding:1em;

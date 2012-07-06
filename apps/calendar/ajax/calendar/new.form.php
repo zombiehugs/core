@@ -17,6 +17,6 @@ $calendar = array(
 );
 $tmpl = new OCP\Template('calendar', 'part.editcalendar');
 $tmpl->assign('new', true);
-$tmpl->assign('calendarcolor_options', $calendarcolor_options);
+$tmpl->assign('defaultcolors', $calendarcolor_options);
 $tmpl->assign('calendar', $calendar);
 $tmpl->printPage();

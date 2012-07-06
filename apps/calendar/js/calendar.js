@@ -380,7 +380,7 @@ Calendar={
 					$('#dialog_holder').load(OC.filePath('calendar', 'ajax/calendar', 'overview.php'), function(){
 						$('#choosecalendar_dialog').dialog({
 							width : 600,
-							height: 400,
+							resizable: false,
 							close : function(event, ui) {
 								$(this).dialog('destroy').remove();
 							}
