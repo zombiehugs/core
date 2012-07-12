@@ -25,7 +25,7 @@
  */
 class OC_Notify {
 	// reusable prepared statements:
-	private static $classIdStmt, $classIdsStmt, $classInsertStmt, $notifyStmt, $paramStmt, $readByIdStmt, $readByUserStmt, $readByClassIdStmt, $deleteByIdStmt, $deleteByUserStmt, $deleteByClassIdStmt, $deleteByReadStmt, $deleteParamsByIdStmt, $deleteParamsByUserStmt, $deleteParamsByClassIdStmt, $deleteParamsByReadStmt;
+	private static $classesStmt, $classIdStmt, $classIdsStmt, $classInsertStmt, $notifyStmt, $paramStmt, $readByIdStmt, $readByUserStmt, $readByClassIdStmt, $deleteByIdStmt, $deleteByUserStmt, $deleteByClassIdStmt, $deleteByReadStmt, $deleteParamsByIdStmt, $deleteParamsByUserStmt, $deleteParamsByClassIdStmt, $deleteParamsByReadStmt;
 	
 	/**
 	 * @brief get the class id of a given app/class name pair
@@ -415,6 +415,24 @@ class OC_Notify {
 	}
 	
 	/**
-	 * @brief Add an app or notification class to the blacklist
-	 */
+     * @brief get all notification classes
+     * @param $uid user id to get the blacklist flag
+     * @return array with notification classes
+     */
+    public static function getClasses($uid = null) {
+		if(is_null($uid)) {
+			if(OCP\User::isLoggedIn()) {
+				$uid = OCP\User::getUser();
+			} else {
+				return array();
+			}
+		}
+		if(!isset(self::$classesStmt)) {
+			// b.class + 1 just to be sure that there are no issues if class id is zero
+			// additionally, I tried COUNT(b.class) instead of COALESCE(...) but it didn't give me the expected results
+			self::$classesStmt = OCP\DB::prepare("SELECT c.id, c.appid, c.name, c.summary, COALESCE(MIN(1, b.class + 1), 0) AS blocked FROM *PREFIX*notification_classes AS c LEFT JOIN *PREFIX*notification_blacklist AS b ON c.id = b.class AND b.uid = ? ORDER BY c.appid ASC, c.name ASC");
+		}
+		$result = self::$classesStmt->execute(array($uid));
+		return $result->fetchAll();
+	}
 }

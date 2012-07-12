@@ -38,4 +38,5 @@ if(OCP\User::isLoggedIn()) {
 		'title' => $l->t('ownCloud notifications (%s)', 'RSS 2.0'),
 		'href' => OCP\Util::linkToRemote('notify_feed') . 'feed.atom'
 	));
+	OCP\App::registerPersonal('notify', 'personal');
 }
