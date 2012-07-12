@@ -316,7 +316,7 @@ Contacts={
 						$('#contacts li[data-id="'+newid+'"]').addClass('active');
 						$.getJSON(OC.filePath('contacts', 'ajax', 'contactdetails.php'),{'id':newid},function(jsondata){
 							if(jsondata.status == 'success'){
-								$('#contacts h3[data-id="'+bookid+'"]').trigger('click');
+								$('#contacts ul[data-id="'+bookid+'"]').slideDown(300);
 								Contacts.UI.Card.loadContact(jsondata.data, bookid);
 							} else {
 								OC.dialogs.alert(jsondata.data.message, t('contacts', 'Error'));
@@ -326,8 +326,9 @@ Contacts={
 				}
 				
 				// Make sure proper DOM is loaded.
-				if(!$('#card')[0] && newid) {
-					$.getJSON(OC.filePath('contacts', 'ajax', 'loadcard.php'),{},function(jsondata){
+				if(!$('#card').length && newid) {
+					console.log('Loading card DOM');
+					$.getJSON(OC.filePath('contacts', 'ajax', 'loadcard.php'),{requesttoken:requesttoken},function(jsondata){
 						if(jsondata.status == 'success'){
 							$('#rightcontent').html(jsondata.data.page).ready(function() {
 								Contacts.UI.loadHandlers();
@@ -339,6 +340,7 @@ Contacts={
 					});
 				}
 				else if(!newid) {
+					console.log('Loading intro');
 					// load intro page
 					$.getJSON(OC.filePath('contacts', 'ajax', 'loadintro.php'),{},function(jsondata){
 						if(jsondata.status == 'success'){
@@ -370,6 +372,7 @@ Contacts={
 				return $('<li data-id="'+data.id+'" data-bookid="'+data.addressbookid+'" role="button"><a href="'+OC.linkTo('contacts', 'index.php')+'&id='+data.id+'"  style="background: url('+OC.filePath('contacts', '', 'thumbnail.php')+'?id='+data.id+') no-repeat scroll 0% 0% transparent;">'+data.displayname+'</a></li>');
 			},
 			add:function(n, fn, aid, isnew){ // add a new contact
+				console.log('Adding ' + fn);
 				aid = aid?aid:$('#contacts h3.active').first().data('id');
 				var localAddcontact = function(n, fn, aid, isnew) {
 					$.post(OC.filePath('contacts', 'ajax', 'addcontact.php'), { n: n, fn: fn, aid: aid, isnew: isnew },
@@ -413,8 +416,8 @@ Contacts={
 					});
 				}
 			
-				var card = $('#card')[0];
-				if(!card) {
+				if(!$('#card').length) {
+					console.log('Loading card DOM');
 					$.getJSON(OC.filePath('contacts', 'ajax', 'loadcard.php'),{'requesttoken': requesttoken},function(jsondata){
 						if(jsondata.status == 'success'){
 							$('#rightcontent').html(jsondata.data.page).ready(function() {
@@ -660,7 +663,7 @@ Contacts={
 					return false;
 				}
 				container = $(obj).parents('.propertycontainer').first(); // get the parent holding the metadata.
-				Contacts.UI.loading(container, true);
+				Contacts.UI.loading(obj, true);
 				var checksum = container.data('checksum');
 				var name = container.data('element');
 				var fields = container.find('input.contacts_property,select.contacts_property').serializeArray();
@@ -683,7 +686,7 @@ Contacts={
 				var q = container.find('input.contacts_property,select.contacts_property,textarea.contacts_property').serialize();
 				if(q == '' || q == undefined) {
 					OC.dialogs.alert(t('contacts', 'Couldn\'t serialize elements.'), t('contacts', 'Error'));
-					Contacts.UI.loading(container, false);
+					Contacts.UI.loading(obj, false);
 					return false;
 				}
 				q = q + '&id=' + this.id + '&name=' + name;
@@ -695,13 +698,13 @@ Contacts={
 						if(jsondata.status == 'success'){
 							container.data('checksum', jsondata.data.checksum);
 							Contacts.UI.Card.savePropertyInternal(name, fields, checksum, jsondata.data.checksum);
-							Contacts.UI.loading(container, false);
+							Contacts.UI.loading(obj, false);
 							$(obj).removeAttr('disabled');
 							return true;
 						}
 						else{
 							OC.dialogs.alert(jsondata.data.message, t('contacts', 'Error'));
-							Contacts.UI.loading(container, false);
+							Contacts.UI.loading(obj, false);
 							$(obj).removeAttr('disabled');
 							return false;
 						}
@@ -714,13 +717,13 @@ Contacts={
 							container.data('checksum', jsondata.data.checksum);
 							// TODO: savePropertyInternal doesn't know about new fields
 							//Contacts.UI.Card.savePropertyInternal(name, fields, checksum, jsondata.data.checksum);
-							Contacts.UI.loading(container, false);
+							Contacts.UI.loading(obj, false);
 							$(obj).removeAttr('disabled');
 							return true;
 						}
 						else{
 							OC.dialogs.alert(jsondata.data.message, t('contacts', 'Error'));
-							Contacts.UI.loading(container, false);
+							Contacts.UI.loading(obj, false);
 							$(obj).removeAttr('disabled');
 							return false;
 						}
@@ -1359,13 +1362,18 @@ Contacts={
 				}
 				return false;
 			},
-			activation:function(checkbox, bookid)
-			{
-				$.post(OC.filePath('contacts', 'ajax', 'activation.php'), { bookid: bookid, active: checkbox.checked?1:0 },
-				  function(data) {
-					if (data.status == 'success'){
-						checkbox.checked = data.active == 1;
-						Contacts.UI.Contacts.update();
+			activation:function(checkbox, bookid){
+				var active = checkbox.checked;
+				$.post(OC.filePath('contacts', 'ajax', 'activation.php'), {bookid: bookid, active: (active?1:0)}, function(jsondata) {
+					if (jsondata.status == 'success'){
+						if(!active) {
+							$('#contacts h3[data-id="'+bookid+'"],#contacts ul[data-id="'+bookid+'"]').remove();
+						} else {
+							Contacts.UI.Contacts.update();
+						}
+					} else {
+						OC.dialogs.alert(jsondata.data.message, t('contacts', 'Error'));
+						checkbox.checked = !active;
 					}
 				  });
 			},
@@ -1388,6 +1396,7 @@ Contacts={
 					  function(jsondata) {
 						if (jsondata.status == 'success'){
 							$(obj).closest('tr').remove();
+							$('#contacts h3[data-id="'+bookid+'"],#contacts ul[data-id="'+bookid+'"]').remove();
 							Contacts.UI.Contacts.update();
 						} else {
 							OC.dialogs.alert(jsondata.data.message, t('contacts', 'Error'));
@@ -1460,7 +1469,7 @@ Contacts={
 							}
 						}
 					};
-					xhr.open('POST', OC.filePath('contacts', 'ajax', 'uploadimport.php') + '?file='+encodeURIComponent(file.name), true);
+					xhr.open('POST', OC.filePath('contacts', 'ajax', 'uploadimport.php') + '?file='+encodeURIComponent(file.name)+'&requesttoken='+requesttoken, true);
 					xhr.setRequestHeader('Cache-Control', 'no-cache');
 					xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 					xhr.setRequestHeader('X_FILE_NAME', encodeURIComponent(file.name));
@@ -1598,10 +1607,10 @@ Contacts={
 								firstrun = true;
 								
 								if($('#contacts h3').length == 0) {
-									$('#contacts').html('<h3 class="addressbook" data-id="'+b+'">'+book.displayname+'</h3><ul class="contacts" data-id="'+b+'"></ul>');
+									$('#contacts').html('<h3 class="addressbook" data-id="'+b+'">'+book.displayname+'</h3><ul class="contacts hidden" data-id="'+b+'"></ul>');
 								} else {
 									if(!$('#contacts h3[data-id="'+b+'"]').length) {
-										$('<h3 class="addressbook" data-id="'+b+'">'+book.displayname+'</h3><ul class="contacts" data-id="'+b+'"></ul>')
+										$('<h3 class="addressbook" data-id="'+b+'">'+book.displayname+'</h3><ul class="contacts hidden" data-id="'+b+'"></ul>')
 										.appendTo('#contacts');
 									}
 								}

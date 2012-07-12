@@ -237,6 +237,46 @@ class OC_Mount_Config {
 		$content .= ");\n?>";
 		@file_put_contents($file, $content);
 	}
+	
+	/**
+	 * Returns all user uploaded ssl root certificates
+	 * @return array
+	 */
+	public static function getCertificates() {
+		$view = \OCP\Files::getStorage('files_external');
+		$path=\OCP\Config::getSystemValue('datadirectory').$view->getAbsolutePath("").'uploads/';
+		if (!is_dir($path)) mkdir($path);
+		$result = array();
+		$handle = opendir($path);
+		while (false !== ($file = readdir($handle))) {
+			if($file != '.' && $file != '..') $result[] = $file;
+		}
+		return $result;
+	}
+	
+	/**
+	 * creates certificate bundle
+	 */
+	public static function createCertificateBundle() {
+		$view = \OCP\Files::getStorage("files_external");
+		$path = \OCP\Config::getSystemValue('datadirectory').$view->getAbsolutePath("");
+		
+		$certs = OC_Mount_Config::getCertificates();
+		$fh_certs = fopen($path."/rootcerts.crt", 'w');
+		foreach ($certs as $cert) {
+			$file=$path.'/uploads/'.$cert;
+			$fh = fopen($file, "r");
+			$data = fread($fh, filesize($file));
+			fclose($fh);
+			if (strpos($data, 'BEGIN CERTIFICATE')) {
+				fwrite($fh_certs, $data);
+			}
+		}
+		
+		fclose($fh_certs);
+		
+		return true;
+	} 
 
 }
 
