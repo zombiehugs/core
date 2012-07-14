@@ -196,7 +196,7 @@ class OC_Notify {
         $notifications = $result->fetchAll();
         $paramStmt = OCP\DB::prepare("SELECT key, value FROM *PREFIX*notification_params WHERE nid = ?");
         foreach($notifications as $i => $n) {
-            $l = OC_L10N::get($n["appid"], $lang);
+            $l = OC_L10N::get($n["app"], $lang);
             $notifications[$i]["summary"] = $l->t($n["summary"]);
             $notifications[$i]["content"] = $l->t($n["content"]);
             $result = $paramStmt->execute(array($n["id"]));
