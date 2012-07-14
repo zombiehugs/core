@@ -25,7 +25,7 @@
  */
 class OC_Notify {
 	// reusable prepared statements:
-	private static $classesStmt, $classIdStmt, $classIdsStmt, $classInsertStmt, $notifyStmt, $paramStmt, $readByIdStmt, $readByUserStmt, $readByClassIdStmt, $deleteByIdStmt, $deleteByUserStmt, $deleteByClassIdStmt, $deleteByReadStmt, $deleteParamsByIdStmt, $deleteParamsByUserStmt, $deleteParamsByClassIdStmt, $deleteParamsByReadStmt;
+	private static $classesStmt, $classIdStmt, $classIdsStmt, $classInsertStmt, $notifyStmt, $paramStmt, $readByIdStmt, $readByUserStmt, $readByClassIdStmt, $deleteByIdStmt, $deleteByUserStmt, $deleteByClassIdStmt, $deleteByReadStmt, $deleteParamsByIdStmt, $deleteParamsByUserStmt, $deleteParamsByClassIdStmt, $deleteParamsByReadStmt, $addToBlacklistStmt, $removeFromBlacklistStmt;
 	
 	/**
 	 * @brief get the class id of a given app/class name pair
@@ -141,6 +141,10 @@ class OC_Notify {
 			if($classId === false) {
 				throw new Exception("Notification template $appid/$class not found");
 			}
+			if(self::isBlacklisted($uid, $classId)) {
+				OCP\Util::writeLog("notify", "blacklisted uid/class: $uid  / $classId", OCP\Util::DEBUG);
+				return null;
+			}
             OCP\DB::beginTransaction();
             if(!isset(self::$notifyStmt)) {
 				self::$notifyStmt = OCP\DB::prepare("INSERT INTO *PREFIX*notifications (class, uid, moment) VALUES (?, ?, NOW())");
@@ -157,13 +161,13 @@ class OC_Notify {
                 }
             }
             OCP\DB::commit();
-            return $id;
+            return (int)$id;
         } catch(Exception $e) {
             OCP\Util::writeLog("notify", "Could not send notification: " . $e->getMessage(), OCP\Util::ERROR);
-            return null;
+            throw $e;
             /* TODO: good exception handling and throwing, e.g.:
              * - throw exception when there are errors
-             * - return false when the app/class is blacklisted
+             * - return false (or null?) when the app/class is blacklisted
              */
         }
     }
@@ -435,4 +439,45 @@ class OC_Notify {
 		$result = self::$classesStmt->execute(array($uid));
 		return $result->fetchAll();
 	}
+	
+	/**
+	 * @brief add/remove a notification class to/from the blacklist
+	 * @param string $uid user
+	 * @param int $class class id
+	 * @param boolean $block true to add, false to remove from blacklist
+	 */
+	public static function setBlacklist($uid = null, $class, $block) {
+		if(is_null($uid)) {
+			if(OCP\User::isLoggedIn()) {
+				$uid = OCP\User::getUser();
+			} else {
+				throw new Exception('Not logged in!');
+			}
+		}
+		$stmt = null;
+		if($block) {
+			if(!isset(self::$addToBlacklistStmt)) {
+				self::$addToBlacklistStmt = OCP\DB::prepare("INSERT INTO *PREFIX*notification_blacklist (uid, class) VALUES (?, ?)");
+			}
+			$stmt = self::$addToBlacklistStmt;
+		} else {
+			if(!isset(self::$removeFromBlacklistStmt)) {
+				self::$removeFromBlacklistStmt = OCP\DB::prepare("DELETE FROM *PREFIX*notification_blacklist WHERE uid = ? AND class = ?");
+			}
+			$stmt = self::$removeFromBlacklistStmt;
+		}
+		$stmt->execute(array($uid, $class));
+	}
+	
+	/**
+	 * @brief check if the given class is in the given user's blacklist
+	 * @param string $uid user
+	 * @param string $class class id
+	 * @return true if the class is blocked by the user, otherwise false
+	 */
+	private static function isBlacklisted($uid, $class) {
+		return (bool)OCP\DB::prepare("SELECT COUNT(*) FROM *PREFIX*notification_blacklist WHERE uid = ? AND class = ?")
+				->execute(array($uid, $class))
+				->fetchOne();
+    }
 }

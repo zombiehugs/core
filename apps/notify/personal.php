@@ -1,5 +1,6 @@
 <?php
 OCP\Util::addScript('notify', 'personalSettings');
+OCP\Util::addStyle('notify', 'personalSettings');
 $tmpl = new OCP\Template('notify', 'personalSettings');
 $notificationClasses = OC_Notify::getClasses();
 $classes = array();
