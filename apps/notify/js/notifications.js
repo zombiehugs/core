@@ -25,15 +25,16 @@ OC.notify = {
 			'title': notification.moment,
 			'data-read': notification.read
 		}).addClass(notification.app + '_' + notification.class).appendTo(OC.notify.dom.list);
-		el.find('a.content').attr('href', notification.href).html(notification.content).click(function(e) {
+		var content = el.find('a.content').attr('href', notification.href).html(notification.content).click(function(e) {
 			//make the href actually work:
 			e.stopPropagation();
 		});
+		if(typeof(notification.img) != 'undefined') {
+			content.prepend('<img class="notify-img" src="' + notification.img + '" />');
+		}
 		for(var param in notification.params) {
 			el.attr('data-' + param, notification.params[param]);
 		}
-		//FIXME: do it right and tipsy (and take care of removed elements!)
-		//el.find('.actionicons span').tipsy();
 		OC.notify.dom.fitContainerSize();
 	},
     timeoutId: null,

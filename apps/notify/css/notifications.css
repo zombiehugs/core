@@ -18,7 +18,7 @@
 #notify-readall { background-image:url('%appswebroot%/notify/img/readicons.svg'); background-position:-16px 0; }
 #notify-deleteread { background-image:url('%webroot%/core/img/actions/delete.svg'); }
 #notify-list .notification { margin:0.25em; display:block; position:relative; }
-#notify-list .notification .content { display:inline-block; width:20em; padding:0.5em; }
+#notify-list .notification .content { display:inline-block; width:19em; padding:0.5em; line-height:1.8em; }
 #notify-list .notification div.actionicons { width:1.5em; height:3em; float:right; position:relative; padding:0; visibility:hidden; }
 #notify-list .notification:hover div.actionicons { visibility:visible; }
 #notify-list .notification div.actionicons span { width:1.5em; height:1.5em; background-size:cover; background-repeat:no-repeat; position:absolute; left:0; text-indent:-9000px; }

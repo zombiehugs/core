@@ -2,7 +2,6 @@ $(document).ready(function() {
 	$('tr.notificationClass input[type="checkbox"]').change(function(e) {
 		var block = $(this).is(':checked');
 		var id = parseInt($(this).parentsUntil('tr').parent().toggleClass('notify-blocked', block).attr('data-notify-class-id'));
-		console.log('block', id, block);
 		$.post(
 			OC.filePath('notify', 'ajax', 'blacklist.php'),
 			{id: id, block: block ? 1 : 0},

@@ -25,16 +25,15 @@
  */
 class OC_Notify {
 	// reusable prepared statements:
-	private static $classesStmt, $classIdStmt, $classIdsStmt, $classInsertStmt, $notifyStmt, $paramStmt, $readByIdStmt, $readByUserStmt, $readByClassIdStmt, $deleteByIdStmt, $deleteByUserStmt, $deleteByClassIdStmt, $deleteByReadStmt, $deleteParamsByIdStmt, $deleteParamsByUserStmt, $deleteParamsByClassIdStmt, $deleteParamsByReadStmt, $addToBlacklistStmt, $removeFromBlacklistStmt;
+	private static $classesStmt, $classIdStmt, $classIdsStmt, $classInsertStmt, $notifyStmt, $paramStmt, $readByIdStmt, $readByUserStmt, $readByClassIdStmt, $deleteByIdStmt, $deleteByUserStmt, $deleteByClassIdStmt, $deleteByReadStmt, $deleteParamsByIdStmt, $deleteParamsByUserStmt, $deleteParamsByClassIdStmt, $deleteParamsByReadStmt, $addToBlacklistStmt, $removeFromBlacklistStmt, $unreadNumStmt, $isBlockedStmt;
 	
 	/**
-	 * @brief get the class id of a given app/class name pair
+	 * @brief get the class id of a given app/class name pair or all class ids of the given app
 	 * @param $app app id
 	 * @param $class class name defined in the app's info.xml or null to fetch all class IDs of the given app
 	 * @return id, array or false, if the class doesn't exist
 	 */
 	private static function getClassId($app, $class = null) {
-		OCP\Util::writeLog("notify", "getClassId($app, $class)", OCP\Util::DEBUG);
 		$return = array();
 		if($class == null) {
 			// get all classes of $app
@@ -54,7 +53,6 @@ class OC_Notify {
 				$return = (int)$row;
 			}
 		}
-		OCP\Util::writeLog("notify", "return classId: " . print_r($return, true), OCP\Util::DEBUG);
 		if(!count($return)) {
 			return self::parseAppNotifications($app, $class);
 		}
@@ -122,9 +120,10 @@ class OC_Notify {
 				return 0;
 			}
 		}
-        return OCP\DB::prepare("SELECT COUNT(*) FROM *PREFIX*notifications WHERE read = 0 AND uid = ?")
-                ->execute(array($uid))
-                ->fetchOne();
+		if(!isset(self::$unreadNumStmt)) {
+			self::$unreadNumStmt = OCP\DB::prepare("SELECT COUNT(*) FROM *PREFIX*notifications WHERE read = 0 AND uid = ?");
+		}
+        return self::$unreadNumStmt->execute(array($uid))->fetchOne();
     }
     
     /**
@@ -142,7 +141,6 @@ class OC_Notify {
 				throw new Exception("Notification template $appid/$class not found");
 			}
 			if(self::isBlacklisted($uid, $classId)) {
-				OCP\Util::writeLog("notify", "blacklisted uid/class: $uid  / $classId", OCP\Util::DEBUG);
 				return null;
 			}
             OCP\DB::beginTransaction();
@@ -284,6 +282,7 @@ class OC_Notify {
      * @param $id notification id
      * @param $read the (boolean) value to set the read column to
      * @return number of affected rows
+     * @fixme do we really need $uid here??
      */
 	public static function markReadById($uid = null, $id, $read = true) {
 		if(is_null($uid)) {
@@ -476,8 +475,9 @@ class OC_Notify {
 	 * @return true if the class is blocked by the user, otherwise false
 	 */
 	private static function isBlacklisted($uid, $class) {
-		return (bool)OCP\DB::prepare("SELECT COUNT(*) FROM *PREFIX*notification_blacklist WHERE uid = ? AND class = ?")
-				->execute(array($uid, $class))
-				->fetchOne();
+		if(!isset(self::$isBlockedStmt)) {
+			self::$isBlockedStmt = OCP\DB::prepare("SELECT COUNT(*) FROM *PREFIX*notification_blacklist WHERE uid = ? AND class = ?");
+		}
+		return (bool)self::$isBlockedStmt->execute(array($uid, $class))->fetchOne();
     }
 }
