@@ -21,7 +21,74 @@
 */
 
 /**
- * Public class for notifications
+ *   User notifications class
+ * 
+ * Any app can send notifications with a short text to any ownCloud user.
+ * To provide notifications, that app's info.xml has to contain named templates.
+ * The name of a template may later be used by an application to manipulate
+ * the style of the notifications with CSS or to mark all its notifications
+ * as read.
+ * Templates may contain placeholders (format: {key}) for dynamic values and may be translatable.
+ * Any parameter passed in an array to the sendUserNotification method that
+ * is neither "img", "href" nor meant to set a value for a placeholder
+ * gets translated to an HTML data-* attribute assigned to the notification
+ * element.
+ * 
+ *   Example usage
+ * 
+ * Provided we want to implement notifications in the files_sharing app to inform users when someone else shares a file with them.
+ * 
+ * This is an example info.xml:
+ * <info>
+ *   ...
+ *   <notifications>
+ *     <template id="sharedFile" summary="File shared">&lt;strong&gt;{user_from}&lt;/strong&gt; shared a file with you!</template>
+ *     <template id="removed" summary="Shared file removed">&lt;strong&gt;{user}&lt;/strong&gt; removed a shared file!</template>
+ *   </notifications>
+ * </info>
+ * 
+ * The template may contain encoded (!) HTML tags of the following types: a, b, i, strong, em, span.
+ * 
+ * When a user shares a file, we use this PHP code to send the notification:
+ * 
+ * <?php
+ * // ...
+ * if(class_exists('OC_Notify')) {
+ *     $notification_id = OC_Notify::sendUserNotification('files_sharing', 'sharedFile', $target_user, array(
+ *         'user_from' => $source_user,
+ *         'href' => OCP\Util::linkTo('files', 'index.php') . '&dir=/Shared',
+ *         'img' => OCP\Util::imagePath('core', 'actions/share.svg')
+ *     ));
+ * }
+ * ?>
+ * 
+ * The method returns the notification id, if the operation was successful.
+ * Please keep in mind that the user may add the requested notification to
+ * the personal notification blacklist. In this case the method simply returns
+ * false and doesn't send the notification at all.
+ * 
+ * These parameters are reserved and should not be used as placeholders:
+ *  - href: either an absolute or relative URL where the user gets to when clicking on the notification
+ *  - img: an image that is included in the notification list. It's highly recommended to provide
+ * 			CSS rules along with your app that makes this image look good.
+ * 
+ * When the user opens the notification list, the notifications' HTML elements
+ * get a class of the format "app_templateId" where "app" is the app id and
+ * "templateId" the notification's template id given in info.xml and the
+ * sendUserNotification() call. This makes it easy for us to give our
+ * notifications custom CSS properties, for example:
+ * 
+ * .notification.files_sharing_sharedFile img.notify-img { float:left; height:2em; width:2em; }
+ * 
+ * Users can manually mark their notifications as read, but often the application
+ * can know that the user has read a specific notification or doesn't need
+ * it any more. In this case we can chose from those public methods inside OC_Notify:
+ *  - markReadByApp('myapp')
+ *  - markReadByApp('myapp', 'mynotification')
+ *  - markReadById(1337)
+ *  - deleteByApp('myapp')
+ *  - deleteByApp('myapp', 'mynotification')
+ *  - deleteById(1337)
  */
 class OC_Notify {
 	// reusable prepared statements:
