@@ -15,4 +15,7 @@
 		<files>get.php</files>
 		<webdav>get.php</webdav>
 	</public>
+	<notifications>
+		<template id="share" summary="File shared">&lt;strong&gt;{uid_from}&lt;/strong&gt; shared a file with you.</template>
+	</notifications>
 </info>
