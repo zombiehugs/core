@@ -344,7 +344,7 @@
 
  <table>
 
-  <name>*dbprefix*calendar_remote</name>
+  <name>*dbprefix*calendar_webcal</name>
 
   <declaration>
 
@@ -370,14 +370,6 @@
     <type>text</type>
     <notnull>true</notnull>
     <length>255</length>
-   </field>
-
-   <field>
-    <name>type</name>
-    <type>text</type>
-    <default></default>
-    <notnull>true</notnull>
-    <length>6</length>
    </field>
 
   </declaration>
