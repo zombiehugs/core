@@ -19,4 +19,5 @@ $tmpl = new OCP\Template('calendar', 'part.editcalendar');
 $tmpl->assign('new', true);
 $tmpl->assign('defaultcolors', $calendarcolor_options);
 $tmpl->assign('calendar', $calendar);
+$tmpl->assign('isWebCal', 0);
 $tmpl->printPage();

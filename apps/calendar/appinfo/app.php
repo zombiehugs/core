@@ -11,6 +11,7 @@ OC::$CLASSPATH['OC_Calendar_Remote'] = 'apps/calendar/lib/remote.php';
 OC::$CLASSPATH['OC_Search_Provider_Calendar'] = 'apps/calendar/lib/search.php';
 OC::$CLASSPATH['OC_Calendar_Export'] = 'apps/calendar/lib/export.php';
 OC::$CLASSPATH['OC_Calendar_Import'] = 'apps/calendar/lib/import.php';
+OC::$CLASSPATH['OC_Calendar_WebCal'] = 'apps/calendar/lib/webcal.php';
 //General Hooks
 OCP\Util::connectHook('OC_User', 'post_createUser', 'OC_Calendar_Hooks', 'createUser');
 OCP\Util::connectHook('OC_User', 'post_deleteUser', 'OC_Calendar_Hooks', 'deleteUser');

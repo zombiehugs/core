@@ -13,8 +13,8 @@
 	<td></td>
 	<td>
 		<div id="calendartype" style="text-align:center;">
-		<input type="radio" id="calendartype_oc" name="calendartype" /><label for="calendartype_oc">ownCloud Calendar</label>
-		<input type="radio" id="calendartype_webcal" name="calendartype" /><label for="calendartype_webcal">Webcal</label>
+		<input type="radio" id="calendartype_oc" name="calendartype" <?php echo ((bool) $_['isWebCal'])?'':'checked="checked"'; ?> /><label for="calendartype_oc">ownCloud Calendar</label>
+		<input type="radio" id="calendartype_webcal" name="calendartype" <?php echo ((bool) $_['isWebCal'])?'checked="checked"':''; ?> /><label for="calendartype_webcal">Webcal</label>
 		</div>
 	</td>
 </tr>
