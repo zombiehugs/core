@@ -71,7 +71,7 @@ class OC_Calendar_WebCal{
 	}
 	
 	/*
-	 * @brief checks if the calendar was already cached
+	 * @brief checks if the calendar is cached
 	 * @param integer $id of the calendar
 	 * @return boolean 
 	 */
@@ -104,14 +104,23 @@ class OC_Calendar_WebCal{
 	 */
 	public static function updateCache($id){
 		$cal = self::find($id);
-		$remote = new OC_Calendar_Webcal($cal['url']);
-		$calendardata = $remote->serialize();
+		$ics = @file_get_contents($cal['url']);
+		if($ics == false){
+			OCP\Util::log('calendar', 'Could not load WebCal ressource (' . $cal['url'] . '). Please allow file_get_contents to open online ressources', OCP\Util::ERROR);
+			return false;
+		}
 		if(!self::isUpToDate($calendardata, $id)){
-			$import = new OC_Calendar_Import($calendardata);
-			//$import - set id
-			$import->disableProgressCache();
-			$import->import();
-			self::updateMD5($id, md5($calendardata));
+			try{
+				$import = new OC_Calendar_Import($calendardata);
+				$import->setUserID(OCP\User::getUser());
+				$import->setTimeZone(OC_Calendar_App::$tz);
+				$import->disableProgressCache();
+				$import->setCalendarID($id);
+				self::updateMD5($id, md5($calendardata));
+			}catch(Exception $e){
+				OCP\Util::log('calendar', 'Could not parse WebCal ressource (' . $cal['url'] . ').', OCP\Util::WARN);
+				return false;
+			}
 			return true;
 		}
 	}
@@ -121,7 +130,7 @@ class OC_Calendar_WebCal{
 	 * @param integer $id of the calendar 
 	 */
 	public static function updateMD5($id, $hash){
-		$stmt = OC_DB::prepare('UPDATE *PREFIX*calendar_remote SET hash=? WHERE calendarid = ?');
+		$stmt = OC_DB::prepare('UPDATE *PREFIX*calendar_webcal SET hash=? WHERE calendarid = ?');
 		$stmt->execute(array($hash, $id));
 		return true;
 	}
