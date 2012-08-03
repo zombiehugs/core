@@ -10,9 +10,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: http://bugs.owncloud.org/\n"
-"POT-Creation-Date: 2012-07-29 02:03+0200\n"
-"PO-Revision-Date: 2012-07-28 01:58+0000\n"
-"Last-Translator: Peter Peroša <peter.perosa@gmail.com>\n"
+"POT-Creation-Date: 2012-07-31 22:53+0200\n"
+"PO-Revision-Date: 2012-07-31 20:54+0000\n"
+"Last-Translator: owncloud_robot <thomas.mueller@tmit.eu>\n"
 "Language-Team: Slovenian (http://www.transifex.com/projects/p/owncloud/language/sl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -62,9 +62,33 @@ msgstr "Vzemi iz souporabe"
 msgid "Delete"
 msgstr "Izbriši"
 
-#: js/filelist.js:186
-msgid "undo deletion"
-msgstr "prekliči izbris"
+#: js/filelist.js:141
+msgid "already exists"
+msgstr ""
+
+#: js/filelist.js:141
+msgid "replace"
+msgstr ""
+
+#: js/filelist.js:141
+msgid "cancel"
+msgstr ""
+
+#: js/filelist.js:195
+msgid "replaced"
+msgstr ""
+
+#: js/filelist.js:195
+msgid "with"
+msgstr ""
+
+#: js/filelist.js:195 js/filelist.js:256
+msgid "undo"
+msgstr "razveljavi"
+
+#: js/filelist.js:256
+msgid "deleted"
+msgstr "izbrisano"
 
 #: js/files.js:170
 msgid "generating ZIP-file, it may take some time."
@@ -180,7 +204,7 @@ msgstr "Souporaba"
 
 #: templates/index.php:51
 msgid "Download"
-msgstr "Prejmi"
+msgstr "Prenesi"
 
 #: templates/index.php:64
 msgid "Upload too large"

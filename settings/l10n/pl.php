@@ -3,11 +3,13 @@
 "Invalid email" => "Niepoprawny email",
 "OpenID Changed" => "Zmieniono OpenID",
 "Invalid request" => "Nieprawidłowe żądanie",
+"Authentication error" => "Błąd uwierzytelniania",
 "Language changed" => "Język zmieniony",
 "Disable" => "Wyłączone",
 "Enable" => "Włączone",
 "Saving..." => "Zapisywanie...",
 "__language_name__" => "Polski",
+"Security Warning" => "Ostrzeżenia bezpieczeństwa",
 "Log" => "Log",
 "More" => "Więcej",
 "Add your App" => "Dodaj aplikacje",
@@ -43,6 +45,7 @@
 "Create" => "Utwórz",
 "Default Quota" => "Domyślny udział",
 "Other" => "Inne",
+"SubAdmin" => "SubAdmin",
 "Quota" => "Udział",
 "Delete" => "Usuń"
 );
