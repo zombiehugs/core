@@ -316,8 +316,11 @@ OC.Contacts={
 			console.log('Card, cid: ' + params.cid + ' aid: ' + params.aid);
 			var newid, bookid, firstitem;
 			if(!parseInt(params.cid) && !parseInt(params.aid)) {
-				firstitem = $('#contacts ul').first().find('li:first-child');
+				firstitem = $('#contacts ul').find('li:first-child');
 				if(firstitem.length > 0) {
+					if(firstitem.length > 1) {
+						firstitem = firstitem.first();
+					}
 					newid = parseInt(firstitem.data('id'));
 					bookid = parseInt(firstitem.data('bookid'));
 				}
@@ -407,13 +410,13 @@ OC.Contacts={
 			console.log('Adding ' + fn);
 			aid = aid?aid:$('#contacts h3.active').first().data('id');
 			var localAddcontact = function(n, fn, aid, isnew) {
-				$.post(OC.filePath('contacts', 'ajax', 'addcontact.php'), { n: n, fn: fn, aid: aid, isnew: isnew },
+				$.post(OC.filePath('contacts', 'ajax', 'contact/add.php'), { n: n, fn: fn, aid: aid, isnew: isnew },
 				function(jsondata) {
 					if (jsondata.status == 'success'){
 						$('#rightcontent').data('id',jsondata.data.id);
 						var id = jsondata.data.id;
 						var aid = jsondata.data.aid;
-						$.getJSON(OC.filePath('contacts', 'ajax', 'contactdetails.php'),{'id':id},function(jsondata){
+						$.getJSON(OC.filePath('contacts', 'ajax', 'contact/details.php'),{'id':id},function(jsondata){
 							if(jsondata.status == 'success'){
 								OC.Contacts.Card.loadContact(jsondata.data, aid);
 								var item = OC.Contacts.Contacts.insertContact({data:jsondata.data});
@@ -509,7 +512,7 @@ OC.Contacts={
 			if(OC.Contacts.Contacts.deletionQueue.indexOf(id) == -1 && removeFromQueue) {
 				return;
 			}
-			$.post(OC.filePath('contacts', 'ajax', 'deletecard.php'),{'id':id},function(jsondata) {
+			$.post(OC.filePath('contacts', 'ajax', 'contact/delete.php'),{'id':id},function(jsondata) {
 				if(jsondata.status == 'error'){
 					OC.dialogs.alert(jsondata.data.message, t('contacts', 'Error'));
 				}
@@ -744,7 +747,7 @@ OC.Contacts={
 					q = q + '&checksum=' + checksum;
 					console.log('Saving: ' + q);
 					$(obj).attr('disabled', 'disabled');
-					$.post(OC.filePath('contacts', 'ajax', 'saveproperty.php'),q,function(jsondata){
+					$.post(OC.filePath('contacts', 'ajax', 'contact/saveproperty.php'),q,function(jsondata){
 						if(jsondata.status == 'success'){
 							container.data('checksum', jsondata.data.checksum);
 							OC.Contacts.Card.savePropertyInternal(name, fields, checksum, jsondata.data.checksum);
@@ -762,7 +765,7 @@ OC.Contacts={
 			} else { // add
 					console.log('Adding: ' + q);
 					$(obj).attr('disabled', 'disabled');
-					$.post(OC.filePath('contacts', 'ajax', 'addproperty.php'),q,function(jsondata){
+					$.post(OC.filePath('contacts', 'ajax', 'contact/addproperty.php'),q,function(jsondata){
 						if(jsondata.status == 'success'){
 							container.data('checksum', jsondata.data.checksum);
 							// TODO: savePropertyInternal doesn't know about new fields
@@ -820,7 +823,7 @@ OC.Contacts={
 			OC.Contacts.loading(obj, true);
 			var checksum = OC.Contacts.checksumFor(obj);
 			if(checksum) {
-				$.post(OC.filePath('contacts', 'ajax', 'deleteproperty.php'),{'id': this.id, 'checksum': checksum },function(jsondata){
+				$.post(OC.filePath('contacts', 'ajax', 'contact/deleteproperty.php'),{'id': this.id, 'checksum': checksum },function(jsondata){
 					if(jsondata.status == 'success'){
 						if(type == 'list') {
 							OC.Contacts.propertyContainerFor(obj).remove();
@@ -1435,7 +1438,7 @@ OC.Contacts={
 				return false;
 			}
 			var droplist = (droptarget.is('ul'))?droptarget:droptarget.next();
-			$.post(OC.filePath('contacts', 'ajax', 'movetoaddressbook.php'), { ids: dragitem.data('id'), aid: droptarget.data('id') },
+			$.post(OC.filePath('contacts', 'ajax', 'contact/move.php'), { ids: dragitem.data('id'), aid: droptarget.data('id') },
 				function(jsondata){
 					if(jsondata.status == 'success'){
 						dragitem.attr('data-bookid', droptarget.data('id'))
@@ -1496,6 +1499,19 @@ OC.Contacts={
 			//this.contacts[id] = contact;
 			return contact;
 		},
+		addAddressbook:function(name, description, cb) {
+			$.post(OC.filePath('contacts', 'ajax/addressbook', 'add.php'), { name: name, description: description, active: true },
+				function(jsondata) {
+				if(jsondata.status == 'success'){
+					if(cb && typeof cb == 'function') {
+						cb(jsondata.data.addressbook);
+					}
+				} else {
+					OC.dialogs.alert(jsondata.data.message, t('contacts', 'Error'));
+					return false;
+				}
+			});
+		},
 		doImport:function(file, aid){
 			$.post(OC.filePath('contacts', '', 'import.php'), { id: aid, file: file, fstype: 'OC_FilesystemView' },
 				function(jsondata){
@@ -1506,8 +1522,7 @@ OC.Contacts={
 			return false;
 		},
 		next:function(reverse) {
-			// TODO: Check if we're last-child/first-child and jump to next/prev address book.
-			var curlistitem = $('#contacts li[data-id="'+OC.Contacts.Card.id+'"]');
+			var curlistitem = this.getContact(OC.Contacts.Card.id);
 			var newlistitem = reverse ? curlistitem.prev('li') : curlistitem.next('li');
 			if(newlistitem) {
 				curlistitem.removeClass('active');
@@ -1519,6 +1534,30 @@ OC.Contacts={
 		},
 		previous:function() {
 			this.next(true);
+		},
+		nextAddressbook:function(reverse) {
+			console.log('nextAddressbook', reverse);
+			var curlistitem = this.getContact(OC.Contacts.Card.id);
+			var parent = curlistitem.parent('ul');
+			var newparent = reverse
+				? parent.prevAll('ul').first()
+				: parent.nextAll('ul').first();
+			if(newparent) {
+				newlistitem = newparent.find('li:first-child');
+				if(newlistitem) {
+					parent.slideUp().prev('h3').removeClass('active');
+					newparent.slideDown().prev('h3').addClass('active');
+					curlistitem.removeClass('active');
+					OC.Contacts.Card.update({
+						cid:newlistitem.data('id'),
+						aid:newlistitem.data('bookid')
+					});
+				}
+			}
+		},
+		previousAddressbook:function() {
+			console.log('previousAddressbook');
+			this.nextAddressbook(true);
 		},
 		// Reload the contacts list.
 		update:function(params){
@@ -1538,7 +1577,7 @@ OC.Contacts={
 			if(params.aid) {
 				opts['aid'] = params.aid;
 			}
-			$.getJSON(OC.filePath('contacts', 'ajax', 'contacts.php'),opts,function(jsondata){
+			$.getJSON(OC.filePath('contacts', 'ajax', 'contact/list.php'),opts,function(jsondata){
 				if(jsondata.status == 'success'){
 					var books = jsondata.data.entries;
 					$.each(books, function(b, book) {
@@ -1661,10 +1700,10 @@ $(document).ready(function(){
 			|| !OC.Contacts.Card.id) {
 			return;
 		}
-		console.log(event.which + ' ' + event.target.nodeName);
+		//console.log(event.which + ' ' + event.target.nodeName);
 		/**
 		 * To add:
-		 * (Shift)n/p: next/prev addressbook
+		 * Shift-a: add addressbook
 		 * u (85): hide/show leftcontent
 		 * f (70): add field
 		 */
@@ -1672,18 +1711,13 @@ $(document).ready(function(){
 			case 27: // Esc
 				ninjahelp.hide();
 				break;
-			case 46:
+			case 46: // Delete
 				if(event.shiftKey) {
 					OC.Contacts.Card.delayedDelete();
 				}
 				break;
-			case 32: // space
-				if(event.shiftKey) {
-					OC.Contacts.Contacts.previous();
-					break;
-				}
 			case 40: // down
-			case 75: // k
+			case 74: // j
 				OC.Contacts.Contacts.next();
 				break;
 			case 65: // a
@@ -1695,23 +1729,24 @@ $(document).ready(function(){
 				OC.Contacts.Card.editNew();
 				break;
 			case 38: // up
-			case 74: // j
+			case 75: // k
 				OC.Contacts.Contacts.previous();
 				break;
+			case 34: // PageDown
 			case 78: // n
 				// next addressbook
-				OC.Contacts.notImplemented();
+				OC.Contacts.Contacts.nextAddressbook();
 				break;
-			case 13: // Enter
 			case 79: // o
 				var aid = $('#contacts h3.active').first().data('id');
 				if(aid) {
 					$('#contacts ul[data-id="'+aid+'"]').slideToggle(300);
 				}
 				break;
+			case 33: // PageUp
 			case 80: // p
 				// prev addressbook
-				OC.Contacts.notImplemented();
+				OC.Contacts.Contacts.previousAddressbook();
 				break;
 			case 82: // r
 				OC.Contacts.Contacts.update({cid:OC.Contacts.Card.id});
@@ -1974,7 +2009,7 @@ $(document).ready(function(){
 														return false;
 													}
 													$(this).dialog('close');
-													OC.Contacts.Addressbooks.addAddressbook(displayname, description, function(addressbook){
+													OC.Contacts.Contacts.addAddressbook(displayname, description, function(addressbook) {
 														aid = addressbook.id;
 														setTimeout(function() {
 															importFiles(aid, uploadingFiles);

@@ -24,6 +24,9 @@ OCP\JSON::checkLoggedIn();
 OCP\JSON::checkAppEnabled('contacts');
 OCP\JSON::callCheck();
 
+// Firefox and Konqueror tries to download application/json for me.  --Arthur
+OCP\JSON::setContentTypeHeader('text/plain; charset=utf-8');
+
 require_once 'loghandler.php';
 
 $image = null;
