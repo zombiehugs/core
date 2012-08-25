@@ -12,15 +12,19 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: http://bugs.owncloud.org/\n"
-"POT-Creation-Date: 2012-08-02 02:02+0200\n"
-"PO-Revision-Date: 2012-08-02 00:04+0000\n"
-"Last-Translator: owncloud_robot <thomas.mueller@tmit.eu>\n"
+"POT-Creation-Date: 2012-08-18 02:01+0200\n"
+"PO-Revision-Date: 2012-08-18 00:02+0000\n"
+"Last-Translator: I Robot <thomas.mueller@tmit.eu>\n"
 "Language-Team: Norwegian Bokmål (Norway) (http://www.transifex.com/projects/p/owncloud/language/nb_NO/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: nb_NO\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: ajax/apps/ocs.php:23
+msgid "Unable to load list from App Store"
+msgstr ""
 
 #: ajax/lostpassword.php:14
 msgid "Email saved"
@@ -46,11 +50,15 @@ msgstr ""
 msgid "Language changed"
 msgstr "Språk endret"
 
-#: js/apps.js:31 js/apps.js:67
+#: js/apps.js:18
+msgid "Error"
+msgstr ""
+
+#: js/apps.js:39 js/apps.js:73
 msgid "Disable"
 msgstr "Slå avBehandle "
 
-#: js/apps.js:31 js/apps.js:54
+#: js/apps.js:39 js/apps.js:62
 msgid "Enable"
 msgstr "Slå på"
 
@@ -66,11 +74,27 @@ msgstr "__language_name__"
 msgid "Security Warning"
 msgstr ""
 
-#: templates/admin.php:28
+#: templates/admin.php:29
+msgid "Cron"
+msgstr ""
+
+#: templates/admin.php:31
+msgid "execute one task with each page loaded"
+msgstr ""
+
+#: templates/admin.php:33
+msgid "cron.php is registered at a webcron service"
+msgstr ""
+
+#: templates/admin.php:35
+msgid "use systems cron service"
+msgstr ""
+
+#: templates/admin.php:39
 msgid "Log"
 msgstr "Logg"
 
-#: templates/admin.php:55
+#: templates/admin.php:67
 msgid "More"
 msgstr "Mer"
 
@@ -78,19 +102,19 @@ msgstr "Mer"
 msgid "Add your App"
 msgstr "Legg til din App"
 
-#: templates/apps.php:24
+#: templates/apps.php:26
 msgid "Select an App"
 msgstr "Velg en app"
 
-#: templates/apps.php:27
+#: templates/apps.php:29
 msgid "See application page at apps.owncloud.com"
 msgstr "Se applikasjonens side på apps.owncloud.org"
 
-#: templates/apps.php:28
+#: templates/apps.php:30
 msgid "-licensed"
 msgstr "-lisensiert"
 
-#: templates/apps.php:28
+#: templates/apps.php:30
 msgid "by"
 msgstr "av"
 
@@ -207,13 +231,13 @@ msgid "Other"
 msgstr "Annet"
 
 #: templates/users.php:80 templates/users.php:112
-msgid "SubAdmin"
+msgid "Group Admin"
 msgstr ""
 
 #: templates/users.php:82
 msgid "Quota"
 msgstr "Kvote"
 
-#: templates/users.php:145
+#: templates/users.php:146
 msgid "Delete"
 msgstr "Slett"

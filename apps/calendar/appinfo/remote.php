@@ -21,10 +21,16 @@ $principalBackend = new OC_Connector_Sabre_Principal();
 $caldavBackend    = new OC_Connector_Sabre_CalDAV();
 
 // Root nodes
+$Sabre_CalDAV_Principal_Collection = new Sabre_CalDAV_Principal_Collection($principalBackend);
+$Sabre_CalDAV_Principal_Collection->disableListing = true; // Disable listening
+
+$calendarRoot = new OC_Connector_Sabre_CalDAV_CalendarRoot($principalBackend, $caldavBackend);
+$calendarRoot->disableListing = true; // Disable listening
+
 $nodes = array(
-	new Sabre_CalDAV_Principal_Collection($principalBackend),
-	new Sabre_CalDAV_CalendarRootNode($principalBackend, $caldavBackend),
-);
+	$Sabre_CalDAV_Principal_Collection,
+	$calendarRoot,
+	);
 
 // Fire up server
 $server = new Sabre_DAV_Server($nodes);
@@ -35,5 +41,6 @@ $server->addPlugin(new Sabre_CalDAV_Plugin());
 $server->addPlugin(new Sabre_DAVACL_Plugin());
 $server->addPlugin(new Sabre_DAV_Browser_Plugin(false)); // Show something in the Browser, but no upload
 $server->addPlugin(new Sabre_CalDAV_ICSExportPlugin());
+
 // And off we go!
 $server->exec();

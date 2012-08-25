@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: http://bugs.owncloud.org/\n"
-"POT-Creation-Date: 2012-08-04 02:02+0200\n"
-"PO-Revision-Date: 2012-08-03 22:28+0000\n"
+"POT-Creation-Date: 2012-08-19 02:02+0200\n"
+"PO-Revision-Date: 2012-08-18 17:13+0000\n"
 "Last-Translator: Mariano <mstreet@kde.org.ar>\n"
 "Language-Team: Esperanto (http://www.transifex.com/projects/p/owncloud/language/eo/)\n"
 "MIME-Version: 1.0\n"
@@ -18,6 +18,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: eo\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: ajax/apps/ocs.php:23
+msgid "Unable to load list from App Store"
+msgstr "Ne eblis ŝargi liston el aplikaĵovendejo"
 
 #: ajax/lostpassword.php:14
 msgid "Email saved"
@@ -43,11 +47,15 @@ msgstr "Aŭtentiga eraro"
 msgid "Language changed"
 msgstr "La lingvo estas ŝanĝita"
 
-#: js/apps.js:31 js/apps.js:67
+#: js/apps.js:18
+msgid "Error"
+msgstr "Eraro"
+
+#: js/apps.js:39 js/apps.js:73
 msgid "Disable"
 msgstr "Malkapabligi"
 
-#: js/apps.js:31 js/apps.js:54
+#: js/apps.js:39 js/apps.js:62
 msgid "Enable"
 msgstr "Kapabligi"
 
@@ -63,11 +71,27 @@ msgstr "Esperanto"
 msgid "Security Warning"
 msgstr "Sekureca averto"
 
-#: templates/admin.php:28
-msgid "Log"
-msgstr "Registro"
+#: templates/admin.php:29
+msgid "Cron"
+msgstr "Cron"
 
-#: templates/admin.php:55
+#: templates/admin.php:31
+msgid "execute one task with each page loaded"
+msgstr "lanĉi unu taskon po ĉiu paĝo ŝargita"
+
+#: templates/admin.php:33
+msgid "cron.php is registered at a webcron service"
+msgstr "cron.php estas registrita kiel webcron-servilo"
+
+#: templates/admin.php:35
+msgid "use systems cron service"
+msgstr "uzi la cron-servon de la sistemo"
+
+#: templates/admin.php:39
+msgid "Log"
+msgstr "Protokolo"
+
+#: templates/admin.php:67
 msgid "More"
 msgstr "Pli"
 
@@ -75,19 +99,19 @@ msgstr "Pli"
 msgid "Add your App"
 msgstr "Aldonu vian aplikaĵon"
 
-#: templates/apps.php:24
+#: templates/apps.php:26
 msgid "Select an App"
 msgstr "Elekti aplikaĵon"
 
-#: templates/apps.php:27
+#: templates/apps.php:29
 msgid "See application page at apps.owncloud.com"
 msgstr "Vidu la paĝon pri aplikaĵoj ĉe apps.owncloud.com"
 
-#: templates/apps.php:28
+#: templates/apps.php:30
 msgid "-licensed"
 msgstr "-permesila"
 
-#: templates/apps.php:28
+#: templates/apps.php:30
 msgid "by"
 msgstr "de"
 
@@ -204,13 +228,13 @@ msgid "Other"
 msgstr "Alia"
 
 #: templates/users.php:80 templates/users.php:112
-msgid "SubAdmin"
-msgstr ""
+msgid "Group Admin"
+msgstr "Grupadministranto"
 
 #: templates/users.php:82
 msgid "Quota"
 msgstr "Kvoto"
 
-#: templates/users.php:145
+#: templates/users.php:146
 msgid "Delete"
 msgstr "Forigi"

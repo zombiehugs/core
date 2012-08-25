@@ -24,7 +24,8 @@
 OCP\JSON::checkLoggedIn();
 OCP\JSON::checkAppEnabled('contacts');
 OCP\JSON::callCheck();
-require_once 'loghandler.php';
+
+require_once __DIR__.'/../loghandler.php';
 
 $id = $_POST['id'];
 $checksum = $_POST['checksum'];
@@ -39,8 +40,15 @@ if(is_null($line)) {
 
 unset($vcard->children[$line]);
 
-if(!OC_Contacts_VCard::edit($id, $vcard)) {
-	bailOut($l10n->t('Error deleting contact property.'));
+try {
+	OC_Contacts_VCard::edit($id, $vcard);
+} catch(Exception $e) {
+	bailOut($e->getMessage());
 }
 
-OCP\JSON::success(array('data' => array( 'id' => $id )));
+OCP\JSON::success(array(
+	'data' => array(
+		'id' => $id,
+		'lastmodified' => OC_Contacts_App::lastModified($vcard)->format('U'),
+	)
+));

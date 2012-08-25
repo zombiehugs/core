@@ -9,19 +9,24 @@
 #   <jos@gelauff.net>, 2012.
 #   <koen@vervloesem.eu>, 2011.
 #   <pietje8501@gmail.com>, 2012.
+# Richard Bos <radoeka@gmail.com>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: http://bugs.owncloud.org/\n"
-"POT-Creation-Date: 2012-08-02 02:02+0200\n"
-"PO-Revision-Date: 2012-08-02 00:04+0000\n"
-"Last-Translator: owncloud_robot <thomas.mueller@tmit.eu>\n"
+"POT-Creation-Date: 2012-08-25 02:04+0200\n"
+"PO-Revision-Date: 2012-08-24 08:40+0000\n"
+"Last-Translator: Richard Bos <radoeka@gmail.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/projects/p/owncloud/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: nl\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: ajax/apps/ocs.php:23
+msgid "Unable to load list from App Store"
+msgstr "Kan de lijst niet van de App store laden"
 
 #: ajax/lostpassword.php:14
 msgid "Email saved"
@@ -41,17 +46,21 @@ msgstr "Ongeldig verzoek"
 
 #: ajax/removeuser.php:13 ajax/setquota.php:18 ajax/togglegroups.php:18
 msgid "Authentication error"
-msgstr ""
+msgstr "Authenticatie fout"
 
 #: ajax/setlanguage.php:18
 msgid "Language changed"
 msgstr "Taal aangepast"
 
-#: js/apps.js:31 js/apps.js:67
+#: js/apps.js:18
+msgid "Error"
+msgstr "Fout"
+
+#: js/apps.js:39 js/apps.js:73
 msgid "Disable"
 msgstr "Uitschakelen"
 
-#: js/apps.js:31 js/apps.js:54
+#: js/apps.js:39 js/apps.js:62
 msgid "Enable"
 msgstr "Inschakelen"
 
@@ -65,13 +74,29 @@ msgstr "Nederlands"
 
 #: templates/admin.php:14
 msgid "Security Warning"
-msgstr ""
+msgstr "Veiligheidswaarschuwing"
 
-#: templates/admin.php:28
+#: templates/admin.php:29
+msgid "Cron"
+msgstr "Cron"
+
+#: templates/admin.php:31
+msgid "execute one task with each page loaded"
+msgstr "Voer 1 taak uit bij elke geladen pagina"
+
+#: templates/admin.php:33
+msgid "cron.php is registered at a webcron service"
+msgstr "cron.php is geregistreerd bij een webcron service"
+
+#: templates/admin.php:35
+msgid "use systems cron service"
+msgstr "gebruik de systeem cron service"
+
+#: templates/admin.php:39
 msgid "Log"
 msgstr "Log"
 
-#: templates/admin.php:55
+#: templates/admin.php:67
 msgid "More"
 msgstr "Meer"
 
@@ -79,19 +104,19 @@ msgstr "Meer"
 msgid "Add your App"
 msgstr "Voeg je App toe"
 
-#: templates/apps.php:24
+#: templates/apps.php:26
 msgid "Select an App"
 msgstr "Selecteer een app"
 
-#: templates/apps.php:27
+#: templates/apps.php:29
 msgid "See application page at apps.owncloud.com"
 msgstr "Zie de applicatiepagina op apps.owncloud.com"
 
-#: templates/apps.php:28
+#: templates/apps.php:30
 msgid "-licensed"
 msgstr "-gelicentieerd"
 
-#: templates/apps.php:28
+#: templates/apps.php:30
 msgid "by"
 msgstr "door"
 
@@ -208,13 +233,13 @@ msgid "Other"
 msgstr "Andere"
 
 #: templates/users.php:80 templates/users.php:112
-msgid "SubAdmin"
-msgstr ""
+msgid "Group Admin"
+msgstr "Groep Administrator"
 
 #: templates/users.php:82
 msgid "Quota"
 msgstr "Limieten"
 
-#: templates/users.php:145
+#: templates/users.php:146
 msgid "Delete"
 msgstr "verwijderen"

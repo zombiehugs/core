@@ -36,10 +36,16 @@ $principalBackend = new OC_Connector_Sabre_Principal();
 $carddavBackend   = new OC_Connector_Sabre_CardDAV();
 
 // Root nodes
+$principalCollection = new Sabre_CalDAV_Principal_Collection($principalBackend);
+$principalCollection->disableListing = true; // Disable listening
+
+$addressBookRoot = new OC_Connector_Sabre_CardDAV_AddressBookRoot($principalBackend, $carddavBackend);
+$addressBookRoot->disableListing = true; // Disable listening
+
 $nodes = array(
-	new Sabre_CalDAV_Principal_Collection($principalBackend),
-	new Sabre_CardDAV_AddressBookRoot($principalBackend, $carddavBackend),
-);
+	$principalCollection,
+	$addressBookRoot,
+	);
 
 // Fire up server
 $server = new Sabre_DAV_Server($nodes);
@@ -49,7 +55,7 @@ $server->addPlugin(new Sabre_DAV_Auth_Plugin($authBackend, 'ownCloud'));
 $server->addPlugin(new Sabre_CardDAV_Plugin());
 $server->addPlugin(new Sabre_DAVACL_Plugin());
 $server->addPlugin(new Sabre_DAV_Browser_Plugin(false)); // Show something in the Browser, but no upload
-$server->addPlugin(new Sabre_CardDAV_VCFExportPlugin());
+$server->addPlugin(new OC_Connector_Sabre_CardDAV_VCFExportPlugin());
 
 // And off we go!
 $server->exec();

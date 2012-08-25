@@ -14,15 +14,19 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: http://bugs.owncloud.org/\n"
-"POT-Creation-Date: 2012-08-02 02:02+0200\n"
-"PO-Revision-Date: 2012-08-02 00:04+0000\n"
-"Last-Translator: owncloud_robot <thomas.mueller@tmit.eu>\n"
+"POT-Creation-Date: 2012-08-23 02:03+0200\n"
+"PO-Revision-Date: 2012-08-22 20:01+0000\n"
+"Last-Translator: Vincenzo Reale <vinx.reale@gmail.com>\n"
 "Language-Team: Italian (http://www.transifex.com/projects/p/owncloud/language/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: it\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: ajax/apps/ocs.php:23
+msgid "Unable to load list from App Store"
+msgstr "Impossibile caricare l'elenco dall'App Store"
 
 #: ajax/lostpassword.php:14
 msgid "Email saved"
@@ -48,11 +52,15 @@ msgstr "Errore di autenticazione"
 msgid "Language changed"
 msgstr "Lingua modificata"
 
-#: js/apps.js:31 js/apps.js:67
+#: js/apps.js:18
+msgid "Error"
+msgstr "Errore"
+
+#: js/apps.js:39 js/apps.js:73
 msgid "Disable"
 msgstr "Disabilita"
 
-#: js/apps.js:31 js/apps.js:54
+#: js/apps.js:39 js/apps.js:62
 msgid "Enable"
 msgstr "Abilita"
 
@@ -68,11 +76,27 @@ msgstr "Italiano"
 msgid "Security Warning"
 msgstr "Avviso di sicurezza"
 
-#: templates/admin.php:28
+#: templates/admin.php:29
+msgid "Cron"
+msgstr "Cron"
+
+#: templates/admin.php:31
+msgid "execute one task with each page loaded"
+msgstr "esegui un'attività con ogni pagina caricata"
+
+#: templates/admin.php:33
+msgid "cron.php is registered at a webcron service"
+msgstr "cron.php è registrato a un servizio webcron"
+
+#: templates/admin.php:35
+msgid "use systems cron service"
+msgstr "usa il servizio cron di sistema"
+
+#: templates/admin.php:39
 msgid "Log"
 msgstr "Registro"
 
-#: templates/admin.php:55
+#: templates/admin.php:67
 msgid "More"
 msgstr "Altro"
 
@@ -80,19 +104,19 @@ msgstr "Altro"
 msgid "Add your App"
 msgstr "Aggiungi la tua applicazione"
 
-#: templates/apps.php:24
+#: templates/apps.php:26
 msgid "Select an App"
 msgstr "Seleziona un'applicazione"
 
-#: templates/apps.php:27
+#: templates/apps.php:29
 msgid "See application page at apps.owncloud.com"
 msgstr "Vedere la pagina dell'applicazione su apps.owncloud.com"
 
-#: templates/apps.php:28
+#: templates/apps.php:30
 msgid "-licensed"
 msgstr "-rilasciato"
 
-#: templates/apps.php:28
+#: templates/apps.php:30
 msgid "by"
 msgstr "da"
 
@@ -170,7 +194,7 @@ msgstr "Il tuo indirizzo email"
 
 #: templates/personal.php:32
 msgid "Fill in an email address to enable password recovery"
-msgstr "Inserici il tuo indirizzo email per abilitare il recupero della password"
+msgstr "Inserisci il tuo indirizzo email per abilitare il recupero della password"
 
 #: templates/personal.php:38 templates/personal.php:39
 msgid "Language"
@@ -209,13 +233,13 @@ msgid "Other"
 msgstr "Altro"
 
 #: templates/users.php:80 templates/users.php:112
-msgid "SubAdmin"
-msgstr "SubAdmin"
+msgid "Group Admin"
+msgstr "Gruppo di amministrazione"
 
 #: templates/users.php:82
 msgid "Quota"
 msgstr "Quote"
 
-#: templates/users.php:145
+#: templates/users.php:146
 msgid "Delete"
 msgstr "Elimina"

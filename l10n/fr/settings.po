@@ -3,7 +3,9 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# Cyril Glapa <kyriog@gmail.com>, 2012.
 #   <fboulogne@april.org>, 2011.
+#   <gp4004@arghh.org>, 2012.
 #   <guiguidu31300@gmail.com>, 2012.
 # Jan-Christoph Borchardt <JanCBorchardt@fsfe.org>, 2011.
 # Nahir Mohamed <nahirmoha@gmail.com>, 2012.
@@ -14,15 +16,19 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: http://bugs.owncloud.org/\n"
-"POT-Creation-Date: 2012-08-02 02:02+0200\n"
-"PO-Revision-Date: 2012-08-02 00:04+0000\n"
-"Last-Translator: owncloud_robot <thomas.mueller@tmit.eu>\n"
+"POT-Creation-Date: 2012-08-21 02:03+0200\n"
+"PO-Revision-Date: 2012-08-20 15:19+0000\n"
+"Last-Translator: gp4004 <gp4004@arghh.org>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/owncloud/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
+
+#: ajax/apps/ocs.php:23
+msgid "Unable to load list from App Store"
+msgstr "Impossible de charger la liste depuis l'App Store"
 
 #: ajax/lostpassword.php:14
 msgid "Email saved"
@@ -48,11 +54,15 @@ msgstr "Erreur d'authentification"
 msgid "Language changed"
 msgstr "Langue changée"
 
-#: js/apps.js:31 js/apps.js:67
+#: js/apps.js:18
+msgid "Error"
+msgstr "Erreur"
+
+#: js/apps.js:39 js/apps.js:73
 msgid "Disable"
 msgstr "Désactiver"
 
-#: js/apps.js:31 js/apps.js:54
+#: js/apps.js:39 js/apps.js:62
 msgid "Enable"
 msgstr "Activer"
 
@@ -68,11 +78,27 @@ msgstr "Français"
 msgid "Security Warning"
 msgstr "Alertes de sécurité"
 
-#: templates/admin.php:28
+#: templates/admin.php:29
+msgid "Cron"
+msgstr "Cron"
+
+#: templates/admin.php:31
+msgid "execute one task with each page loaded"
+msgstr "exécuter une tâche pour chaque page chargée"
+
+#: templates/admin.php:33
+msgid "cron.php is registered at a webcron service"
+msgstr "cron.php est enregistré comme un service webcron"
+
+#: templates/admin.php:35
+msgid "use systems cron service"
+msgstr "utiliser le service cron du système "
+
+#: templates/admin.php:39
 msgid "Log"
 msgstr "Journaux"
 
-#: templates/admin.php:55
+#: templates/admin.php:67
 msgid "More"
 msgstr "Plus"
 
@@ -80,19 +106,19 @@ msgstr "Plus"
 msgid "Add your App"
 msgstr "Ajoutez votre application"
 
-#: templates/apps.php:24
+#: templates/apps.php:26
 msgid "Select an App"
 msgstr "Sélectionner une Application"
 
-#: templates/apps.php:27
+#: templates/apps.php:29
 msgid "See application page at apps.owncloud.com"
 msgstr "Voir la page des applications à l'url apps.owncloud.com"
 
-#: templates/apps.php:28
+#: templates/apps.php:30
 msgid "-licensed"
 msgstr "sous licence"
 
-#: templates/apps.php:28
+#: templates/apps.php:30
 msgid "by"
 msgstr "par"
 
@@ -209,13 +235,13 @@ msgid "Other"
 msgstr "Autre"
 
 #: templates/users.php:80 templates/users.php:112
-msgid "SubAdmin"
-msgstr "SubAdmin"
+msgid "Group Admin"
+msgstr "Groupe Admin"
 
 #: templates/users.php:82
 msgid "Quota"
 msgstr "Quota"
 
-#: templates/users.php:145
+#: templates/users.php:146
 msgid "Delete"
 msgstr "Supprimer"

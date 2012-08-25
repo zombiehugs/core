@@ -65,19 +65,27 @@ class OC_FileCache{
 		if($root===false){
 			$root=OC_Filesystem::getRoot();
 		}
-		$path=$root.$path;
-		$parent=self::getParentId($path);
-		$id=self::getId($path,'');
-		if(isset(OC_FileCache_Cached::$savedData[$path])){
-			$data=array_merge(OC_FileCache_Cached::$savedData[$path],$data);
-			unset(OC_FileCache_Cached::$savedData[$path]);
+		$fullpath=$root.$path;
+		$parent=self::getParentId($fullpath);
+		$id=self::getId($fullpath,'');
+		if(isset(OC_FileCache_Cached::$savedData[$fullpath])){
+			$data=array_merge(OC_FileCache_Cached::$savedData[$fullpath],$data);
+			unset(OC_FileCache_Cached::$savedData[$fullpath]);
 		}
 		if($id!=-1){
 			self::update($id,$data);
 			return;
 		}
+		
+		// add parent directory to the file cache if it does not exist yet.
+		if ($parent == -1 && $fullpath != $root) {
+			$parentDir = substr(dirname($path), 0, strrpos(dirname($path), DIRECTORY_SEPARATOR));
+			self::scanFile($parentDir);
+			$parent = self::getParentId($fullpath);
+		}
+		
 		if(!isset($data['size']) or !isset($data['mtime'])){//save incomplete data for the next time we write it
-			OC_FileCache_Cached::$savedData[$path]=$data;
+			OC_FileCache_Cached::$savedData[$fullpath]=$data;
 			return;
 		}
 		if(!isset($data['encrypted'])){
@@ -93,14 +101,14 @@ class OC_FileCache{
 		$data['encrypted']=(int)$data['encrypted'];
 		$data['versioned']=(int)$data['versioned'];
 		$user=OC_User::getUser();
-		$query=OC_DB::prepare('INSERT INTO *PREFIX*fscache(parent, name, path, path_hash, size, mtime, ctime, mimetype, mimepart,`user`,writable,encrypted,versioned) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)');
-		$result=$query->execute(array($parent,basename($path),$path,md5($path),$data['size'],$data['mtime'],$data['ctime'],$data['mimetype'],$mimePart,$user,$data['writable'],$data['encrypted'],$data['versioned']));
+		$query=OC_DB::prepare('INSERT INTO `*PREFIX*fscache`(`parent`, `name`, `path`, `path_hash`, `size`, `mtime`, `ctime`, `mimetype`, `mimepart`,`user`,`writable`,`encrypted`,`versioned`) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)');
+		$result=$query->execute(array($parent,basename($fullpath),$fullpath,md5($fullpath),$data['size'],$data['mtime'],$data['ctime'],$data['mimetype'],$mimePart,$user,$data['writable'],$data['encrypted'],$data['versioned']));
 		if(OC_DB::isError($result)){
-			OC_Log::write('files','error while writing file('.$path.') to cache',OC_Log::ERROR);
+			OC_Log::write('files','error while writing file('.$fullpath.') to cache',OC_Log::ERROR);
 		}
 
 		if($cache=OC_Cache::getUserCache(true)){
-			$cache->remove('fileid/'.$path);//ensure we don't have -1 cached
+			$cache->remove('fileid/'.$fullpath);//ensure we don't have -1 cached
 		}
 	}
 
@@ -115,18 +123,21 @@ class OC_FileCache{
 		foreach(array('size','mtime','ctime','mimetype','encrypted','versioned','writable') as $attribute){
 			if(isset($data[$attribute])){
 				//Convert to int it args are false
-				if($data[$attribute] === false) $arguments[] = 0;
-				else $arguments[] = $data[$attribute];
-				$queryParts[]=$attribute.'=?';
+				if($data[$attribute] === false){
+					$arguments[] = 0;
+				}else{
+					$arguments[] = $data[$attribute];
+				}
+				$queryParts[]='`'.$attribute.'`=?';
 			}
 		}
 		if(isset($data['mimetype'])){
 			$arguments[]=dirname($data['mimetype']);
-			$queryParts[]='mimepart=?';
+			$queryParts[]='`mimepart`=?';
 		}
 		$arguments[]=$id;
 		
-		$sql = 'UPDATE *PREFIX*fscache SET '.implode(' , ',$queryParts).' WHERE id=?';
+		$sql = 'UPDATE `*PREFIX*fscache` SET '.implode(' , ',$queryParts).' WHERE `id`=?';
 		$query=OC_DB::prepare($sql);
 		$result=$query->execute($arguments);
 		if(OC_DB::isError($result)){
@@ -147,7 +158,7 @@ class OC_FileCache{
 		$oldPath=$root.$oldPath;
 		$newPath=$root.$newPath;
 		$newParent=self::getParentId($newPath);
-		$query=OC_DB::prepare('UPDATE *PREFIX*fscache SET parent=? ,name=?, path=?, path_hash=? WHERE path_hash=?');
+		$query=OC_DB::prepare('UPDATE `*PREFIX*fscache` SET `parent`=? ,`name`=?, `path`=?, `path_hash`=? WHERE `path_hash`=?');
 		$query->execute(array($newParent,basename($newPath),$newPath,md5($newPath),md5($oldPath)));
 
 		if(($cache=OC_Cache::getUserCache(true)) && $cache->hasKey('fileid/'.$oldPath)){
@@ -155,9 +166,9 @@ class OC_FileCache{
 			$cache->remove('fileid/'.$oldPath);
 		}
 
-		$query=OC_DB::prepare('SELECT path FROM *PREFIX*fscache WHERE path LIKE ?');
+		$query=OC_DB::prepare('SELECT `path` FROM `*PREFIX*fscache` WHERE `path` LIKE ?');
 		$oldLength=strlen($oldPath);
-		$updateQuery=OC_DB::prepare('UPDATE *PREFIX*fscache SET path=?, path_hash=? WHERE path_hash=?');
+		$updateQuery=OC_DB::prepare('UPDATE `*PREFIX*fscache` SET `path`=?, `path_hash`=? WHERE `path_hash`=?');
 		while($row= $query->execute(array($oldPath.'/%'))->fetchRow()){
 			$old=$row['path'];
 			$new=$newPath.substr($old,$oldLength);
@@ -179,11 +190,11 @@ class OC_FileCache{
 		if($root===false){
 			$root=OC_Filesystem::getRoot();
 		}
-		$query=OC_DB::prepare('DELETE FROM *PREFIX*fscache WHERE path_hash=?');
+		$query=OC_DB::prepare('DELETE FROM `*PREFIX*fscache` WHERE `path_hash`=?');
 		$query->execute(array(md5($root.$path)));
 		
 		//delete everything inside the folder
-		$query=OC_DB::prepare('DELETE FROM *PREFIX*fscache WHERE path LIKE ?');
+		$query=OC_DB::prepare('DELETE FROM `*PREFIX*fscache` WHERE `path` LIKE ?');
 		$query->execute(array($root.$path.'/%'));
 
 		OC_Cache::remove('fileid/'.$root.$path);
@@ -202,9 +213,9 @@ class OC_FileCache{
 		}
 		$rootLen=strlen($root);
 		if(!$returnData){
-			$query=OC_DB::prepare('SELECT path FROM *PREFIX*fscache WHERE name LIKE ? AND `user`=?');
+			$query=OC_DB::prepare('SELECT `path` FROM `*PREFIX*fscache` WHERE `name` LIKE ? AND `user`=?');
 		}else{
-			$query=OC_DB::prepare('SELECT * FROM *PREFIX*fscache WHERE name LIKE ? AND `user`=?');
+			$query=OC_DB::prepare('SELECT * FROM `*PREFIX*fscache` WHERE `name` LIKE ? AND `user`=?');
 		}
 		$result=$query->execute(array("%$search%",OC_User::getUser()));
 		$names=array();
@@ -267,7 +278,7 @@ class OC_FileCache{
 			return $cache->get('fileid/'.$fullPath);
 		}
 		
-		$query=OC_DB::prepare('SELECT id FROM *PREFIX*fscache WHERE path_hash=?');
+		$query=OC_DB::prepare('SELECT `id` FROM `*PREFIX*fscache` WHERE `path_hash`=?');
 		$result=$query->execute(array(md5($fullPath)));
 		if(OC_DB::isError($result)){
 			OC_Log::write('files','error while getting file id of '.$path,OC_Log::ERROR);
@@ -297,7 +308,7 @@ class OC_FileCache{
 		if(!$user){
 			$user=OC_User::getUser();
 		}
-		$query=OC_DB::prepare('SELECT path FROM *PREFIX*fscache WHERE id=? AND `user`=?');
+		$query=OC_DB::prepare('SELECT `path` FROM `*PREFIX*fscache` WHERE `id`=? AND `user`=?');
 		$result=$query->execute(array($id,$user));
 		$row=$result->fetchRow();
 		$path=$row['path'];
@@ -331,7 +342,7 @@ class OC_FileCache{
 		if($sizeDiff==0) return;
 		$id=self::getId($path,$root);
 		while($id!=-1){//walk up the filetree increasing the size of all parent folders
-			$query=OC_DB::prepare('UPDATE *PREFIX*fscache SET size=size+? WHERE id=?');
+			$query=OC_DB::prepare('UPDATE `*PREFIX*fscache` SET `size`=`size`+? WHERE `id`=?');
 			$query->execute(array($sizeDiff,$id));
 			$id=self::getParentId($path);
 			$path=dirname($path);
@@ -343,13 +354,17 @@ class OC_FileCache{
 	 * @param string $path
 	 * @param OC_EventSource $enventSource (optional)
 	 * @param int count (optional)
-	 * @param string root (optionak)
+	 * @param string root (optional)
 	 */
 	public static function scan($path,$eventSource=false,&$count=0,$root=false){
 		if($eventSource){
 			$eventSource->send('scanning',array('file'=>$path,'count'=>$count));
 		}
 		$lastSend=$count;
+		// NOTE: Ugly hack to prevent shared files from going into the cache (the source already exists somewhere in the cache)
+		if (substr($path, 0, 7) == '/Shared') {
+			return;
+		}
 		if($root===false){
 			$view=OC_Filesystem::getView();
 		}else{
@@ -387,6 +402,10 @@ class OC_FileCache{
 	 * @return int size of the scanned file
 	 */
 	public static function scanFile($path,$root=false){
+		// NOTE: Ugly hack to prevent shared files from going into the cache (the source already exists somewhere in the cache)
+		if (substr($path, 0, 7) == '/Shared') {
+			return;
+		}
 		if($root===false){
 			$view=OC_Filesystem::getView();
 		}else{
@@ -431,10 +450,10 @@ class OC_FileCache{
 		$root .= '%';
 		$user=OC_User::getUser();
 		if(!$part2){
-			$query=OC_DB::prepare('SELECT path FROM *PREFIX*fscache WHERE mimepart=? AND `user`=? AND path LIKE ?');
+			$query=OC_DB::prepare('SELECT `path` FROM `*PREFIX*fscache` WHERE `mimepart`=? AND `user`=? AND `path` LIKE ?');
 			$result=$query->execute(array($part1,$user, $root));
 		}else{
-			$query=OC_DB::prepare('SELECT path FROM *PREFIX*fscache WHERE mimetype=? AND `user`=? AND path LIKE ? ');
+			$query=OC_DB::prepare('SELECT `path` FROM `*PREFIX*fscache` WHERE `mimetype`=? AND `user`=? AND `path` LIKE ? ');
 			$result=$query->execute(array($part1.'/'.$part2,$user, $root));
 		}
 		$names=array();
@@ -448,7 +467,7 @@ class OC_FileCache{
 	 * clean old pre-path_hash entries
 	 */
 	public static function clean(){
-		$query=OC_DB::prepare('DELETE FROM *PREFIX*fscache WHERE LENGTH(path_hash)<30');
+		$query=OC_DB::prepare('DELETE FROM `*PREFIX*fscache` WHERE LENGTH(`path_hash`)<30');
 		$query->execute();
 	}
 }

@@ -42,6 +42,7 @@ class Connection {
 		'ldapAgentPassword' => null,
 		'ldapTLS' => null,
 		'ldapNoCase' => null,
+		'turnOffCertCheck' => null,
 		'ldapIgnoreNamingRules' => null,
 		'ldapUserDisplayName' => null,
 		'ldapUserFilter' => null,
@@ -52,6 +53,8 @@ class Connection {
 		'ldapQuotaDefault' => null,
 		'ldapEmailAttribute' => null,
 		'ldapCacheTTL' => null,
+		'ldapUuidAttribute' => null,
+		'ldapOverrideUuidAttribute' => null,
 	);
 
 	public function __construct($configID = 'user_ldap') {
@@ -73,6 +76,22 @@ class Connection {
 		}
 	}
 
+	public function __set($name, $value) {
+		$changed = false;
+		//omly few options are writable
+		if($name == 'ldapUuidAttribute') {
+			\OCP\Util::writeLog('user_ldap', 'Set config ldapUuidAttribute to  '.$value, \OCP\Util::DEBUG);
+			$this->config[$name] = $value;
+			if(!empty($this->configID)) {
+				\OCP\Config::getAppValue($this->configID, 'ldap_uuid_attribute', $value);
+			}
+			$changed = true;
+		}
+		if($changed) {
+			$this->validateConfiguration();
+		}
+	}
+
 	/**
 	 * @brief initializes the LDAP backend
 	 * @param $force read the config settings no matter what
@@ -90,6 +109,9 @@ class Connection {
 	public function getConnectionResource() {
 		if(!$this->ldapConnectionRes) {
 			$this->init();
+		} else if(!is_resource($this->ldapConnectionRes)) {
+			$this->ldapConnectionRes = null;
+			$this->establishConnection();
 		}
 		if(is_null($this->ldapConnectionRes)) {
 			\OCP\Util::writeLog('user_ldap', 'Connection could not be established', \OCP\Util::ERROR);
@@ -164,6 +186,7 @@ class Connection {
 			$this->config['ldapBaseGroups']        = \OCP\Config::getAppValue($this->configID, 'ldap_base_groups', $this->config['ldapBase']);
 			$this->config['ldapTLS']               = \OCP\Config::getAppValue($this->configID, 'ldap_tls',0);
 			$this->config['ldapNoCase']            = \OCP\Config::getAppValue($this->configID, 'ldap_nocase', 0);
+			$this->config['turnOffCertCheck']      = \OCP\Config::getAppValue($this->configID, 'ldap_turn_off_cert_check', 0);
 			$this->config['ldapUserDisplayName']   = mb_strtolower(\OCP\Config::getAppValue($this->configID, 'ldap_display_name', 'uid'), 'UTF-8');
 			$this->config['ldapUserFilter']        = \OCP\Config::getAppValue($this->configID, 'ldap_userlist_filter','objectClass=person');
 			$this->config['ldapGroupFilter']       = \OCP\Config::getAppValue($this->configID, 'ldap_group_filter','(objectClass=posixGroup)');
@@ -175,6 +198,8 @@ class Connection {
 			$this->config['ldapGroupMemberAssocAttr'] = \OCP\Config::getAppValue($this->configID, 'ldap_group_member_assoc_attribute', 'uniqueMember');
 			$this->config['ldapIgnoreNamingRules'] = \OCP\Config::getSystemValue('ldapIgnoreNamingRules', false);
 			$this->config['ldapCacheTTL']          = \OCP\Config::getAppValue($this->configID, 'ldap_cache_ttl', 10*60);
+			$this->config['ldapUuidAttribute']     = \OCP\Config::getAppValue($this->configID, 'ldap_uuid_attribute', 'auto');
+			$this->config['ldapOverrideUuidAttribute'] = \OCP\Config::getAppValue($this->configID, 'ldap_override_uuid_attribute', 0);
 
 			$this->configured = $this->validateConfiguration();
 		}
@@ -231,6 +256,11 @@ class Connection {
 		if(empty($this->config['ldapGroupFilter']) && empty($this->config['ldapGroupMemberAssocAttr'])) {
 			\OCP\Util::writeLog('user_ldap', 'No group filter is specified, LDAP group feature will not be used.', \OCP\Util::INFO);
 		}
+		if(!in_array($this->config['ldapUuidAttribute'], array('auto','entryuuid', 'nsuniqueid', 'objectguid'))) {
+			\OCP\Config::setAppValue($this->configID, 'ldap_uuid_attribute', 'auto');
+			\OCP\Util::writeLog('user_ldap', 'Illegal value for the UUID Attribute, reset to autodetect.', \OCP\Util::INFO);
+		}
+
 
 		//second step: critical checks. If left empty or filled wrong, set as unconfigured and give a warning.
 		$configurationOK = true;
@@ -291,6 +321,13 @@ class Connection {
 				\OCP\Util::writeLog('user_ldap', 'function ldap_connect is not available. Make sure that the PHP ldap module is installed.', \OCP\Util::ERROR);
 
 				return false;
+			}
+			if($this->config['turnOffCertCheck']) {
+				if(putenv('LDAPTLS_REQCERT=never')) {
+					\OCP\Util::writeLog('user_ldap', 'Turned off SSL certificate validation successfully.', \OCP\Util::WARN);
+				} else {
+					\OCP\Util::writeLog('user_ldap', 'Could not turn off SSL certificate validation.', \OCP\Util::WARN);
+				}
 			}
 			$this->ldapConnectionRes = ldap_connect($this->config['ldapHost'], $this->config['ldapPort']);
 			if(ldap_set_option($this->ldapConnectionRes, LDAP_OPT_PROTOCOL_VERSION, 3)) {

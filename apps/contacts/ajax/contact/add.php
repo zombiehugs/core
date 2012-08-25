@@ -49,4 +49,14 @@ if(!$id) {
 	exit();
 }
 
-OCP\JSON::success(array('data' => array( 'id' => $id, 'aid' => $aid )));
+$lastmodified = OC_Contacts_App::lastModified($vcard);
+if(!$lastmodified) {
+	$lastmodified = new DateTime();
+}
+OCP\JSON::success(array(
+	'data' => array(
+		'id' => $id,
+		'aid' => $aid,
+		'lastmodified' => $lastmodified->format('U')
+	)
+));

@@ -4,20 +4,23 @@
 # 
 # Translators:
 #   <admin@s-goecker.de>, 2011, 2012.
+#   <driz@i2pmail.org>, 2012.
 #   <georg.stefan.germany@googlemail.com>, 2011, 2012.
 # Jan-Christoph Borchardt <JanCBorchardt@fsfe.org>, 2011.
 # Jan-Christoph Borchardt <jan@unhosted.org>, 2011.
 # Marcel Kühlhorn <susefan93@gmx.de>, 2012.
 #   <niko@nik-o-mat.de>, 2012.
 #   <peddn@web.de>, 2012.
+# Phi Lieb <>, 2012.
 #   <thomas.mueller@tmit.eu>, 2012.
+#   <transifex.3.mensaje@spamgourmet.com>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: http://bugs.owncloud.org/\n"
-"POT-Creation-Date: 2012-07-27 02:02+0200\n"
-"PO-Revision-Date: 2012-07-26 18:09+0000\n"
-"Last-Translator: JamFX <niko@nik-o-mat.de>\n"
+"POT-Creation-Date: 2012-08-24 02:02+0200\n"
+"PO-Revision-Date: 2012-08-23 09:20+0000\n"
+"Last-Translator: traductor <transifex.3.mensaje@spamgourmet.com>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/owncloud/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -35,11 +38,11 @@ msgstr "Es sieht so aus, als wäre alles vollständig zwischengespeichert."
 
 #: ajax/categories/rescan.php:29
 msgid "No calendars found."
-msgstr "Keine Kalender gefunden"
+msgstr "Keine Kalender gefunden."
 
 #: ajax/categories/rescan.php:37
 msgid "No events found."
-msgstr "Keine Termine gefunden"
+msgstr "Keine Termine gefunden."
 
 #: ajax/event/edit.form.php:20
 msgid "Wrong calendar"
@@ -49,7 +52,7 @@ msgstr "Falscher Kalender"
 msgid ""
 "The file contained either no events or all events are already saved in your "
 "calendar."
-msgstr "Entweder enthielt die Datei keine Termine oder alle Termine waren schon im Kalender gespeichert."
+msgstr "Entweder enthielt die Datei keine Termine oder alle Termine waren bereits im Kalender gespeichert."
 
 #: ajax/import/dropimport.php:31 ajax/import/import.php:67
 msgid "events has been saved in the new calendar"
@@ -75,33 +78,32 @@ msgstr "Zeitzone geändert"
 msgid "Invalid request"
 msgstr "Fehlerhafte Anfrage"
 
-#: appinfo/app.php:35 templates/calendar.php:15
+#: appinfo/app.php:37 templates/calendar.php:15
 #: templates/part.eventform.php:33 templates/part.showevent.php:33
-#: templates/settings.php:12
 msgid "Calendar"
 msgstr "Kalender"
 
-#: js/calendar.js:828
+#: js/calendar.js:832
 msgid "ddd"
 msgstr "ddd"
 
-#: js/calendar.js:829
+#: js/calendar.js:833
 msgid "ddd M/d"
 msgstr "ddd d.M"
 
-#: js/calendar.js:830
+#: js/calendar.js:834
 msgid "dddd M/d"
 msgstr "dddd d.M"
 
-#: js/calendar.js:833
+#: js/calendar.js:837
 msgid "MMMM yyyy"
 msgstr "MMMM yyyy"
 
-#: js/calendar.js:835
+#: js/calendar.js:839
 msgid "MMM d[ yyyy]{ '&#8212;'[ MMM] d yyyy}"
 msgstr "MMM d[ yyyy]{ '&#8212;'[ MMM] d yyyy}"
 
-#: js/calendar.js:837
+#: js/calendar.js:841
 msgid "dddd, MMM d, yyyy"
 msgstr "dddd, d. MMM yyyy"
 
@@ -226,7 +228,7 @@ msgstr "an einem Monatstag"
 msgid "by weekday"
 msgstr "an einem Wochentag"
 
-#: lib/object.php:411 templates/calendar.php:5 templates/settings.php:42
+#: lib/object.php:411 templates/calendar.php:5 templates/settings.php:69
 msgid "Monday"
 msgstr "Montag"
 
@@ -250,7 +252,7 @@ msgstr "Freitag"
 msgid "Saturday"
 msgstr "Samstag"
 
-#: lib/object.php:417 templates/calendar.php:5 templates/settings.php:43
+#: lib/object.php:417 templates/calendar.php:5 templates/settings.php:70
 msgid "Sunday"
 msgstr "Sonntag"
 
@@ -467,33 +469,25 @@ msgstr "Der Termin hört auf, bevor er angefangen hat."
 msgid "There was a database fail"
 msgstr "Datenbankfehler"
 
-#: templates/calendar.php:38
+#: templates/calendar.php:39
 msgid "Week"
 msgstr "Woche"
 
-#: templates/calendar.php:39
+#: templates/calendar.php:40
 msgid "Month"
 msgstr "Monat"
 
-#: templates/calendar.php:40
+#: templates/calendar.php:41
 msgid "List"
 msgstr "Liste"
 
-#: templates/calendar.php:44
+#: templates/calendar.php:45
 msgid "Today"
 msgstr "Heute"
 
-#: templates/calendar.php:45
-msgid "Calendars"
-msgstr "Kalender"
-
-#: templates/calendar.php:59
-msgid "There was a fail, while parsing the file."
-msgstr "Fehler beim Einlesen der Datei."
-
-#: templates/part.choosecalendar.php:1
-msgid "Choose active calendars"
-msgstr "Aktive Kalender wählen"
+#: templates/calendar.php:46 templates/calendar.php:47
+msgid "Settings"
+msgstr "Einstellungen"
 
 #: templates/part.choosecalendar.php:2
 msgid "Your calendars"
@@ -506,7 +500,7 @@ msgstr "CalDAV-Link"
 
 #: templates/part.choosecalendar.php:31
 msgid "Shared calendars"
-msgstr "geteilte Kalender"
+msgstr "Geteilte Kalender"
 
 #: templates/part.choosecalendar.php:48
 msgid "No shared calendars"
@@ -697,7 +691,7 @@ msgstr "Neuen Kalender anlegen"
 
 #: templates/part.import.php:17
 msgid "Import a calendar file"
-msgstr "Kalenderdatei Importieren"
+msgstr "Kalenderdatei importieren"
 
 #: templates/part.import.php:24
 msgid "Please choose a calendar"
@@ -715,7 +709,7 @@ msgstr "Wählen Sie einen verfügbaren Namen."
 msgid ""
 "A Calendar with this name already exists. If you continue anyhow, these "
 "calendars will be merged."
-msgstr "Ein Kalender mit diesem Namen existiert schon. Sollten Sie fortfahren, werden die beiden Kalender zusammengeführt."
+msgstr "Ein Kalender mit diesem Namen existiert bereits. Sollten Sie fortfahren, werden die beiden Kalender zusammengeführt."
 
 #: templates/part.import.php:47
 msgid "Import"
@@ -745,55 +739,63 @@ msgstr "von"
 msgid "at"
 msgstr "um"
 
-#: templates/settings.php:14
+#: templates/settings.php:10
+msgid "General"
+msgstr "Allgemein"
+
+#: templates/settings.php:15
 msgid "Timezone"
 msgstr "Zeitzone"
 
-#: templates/settings.php:31
-msgid "Check always for changes of the timezone"
-msgstr "immer die Zeitzone überprüfen"
+#: templates/settings.php:47
+msgid "Update timezone automatically"
+msgstr "Zeitzone automatisch aktualisieren"
 
-#: templates/settings.php:33
-msgid "Timeformat"
+#: templates/settings.php:52
+msgid "Time format"
 msgstr "Zeitformat"
 
-#: templates/settings.php:35
+#: templates/settings.php:57
 msgid "24h"
-msgstr "24h"
+msgstr "24 Stunden"
 
-#: templates/settings.php:36
+#: templates/settings.php:58
 msgid "12h"
-msgstr "12h"
+msgstr "12 Stunden"
 
-#: templates/settings.php:40
-msgid "First day of the week"
-msgstr "erster Wochentag"
+#: templates/settings.php:64
+msgid "Start week on"
+msgstr "Erster Wochentag"
 
-#: templates/settings.php:47
+#: templates/settings.php:76
 msgid "Cache"
 msgstr "Zwischenspeicher"
 
-#: templates/settings.php:48
+#: templates/settings.php:80
 msgid "Clear cache for repeating events"
-msgstr "Lösche den Zwischenspeicher für wiederholende Veranstaltungen."
+msgstr "Lösche den Zwischenspeicher für wiederholende Veranstaltungen"
 
-#: templates/settings.php:53
+#: templates/settings.php:85
+msgid "URLs"
+msgstr "URLs"
+
+#: templates/settings.php:87
 msgid "Calendar CalDAV syncing addresses"
-msgstr "CalDAV-Kalender gleicht Adressen ab."
+msgstr "CalDAV-Kalender gleicht Adressen ab"
 
-#: templates/settings.php:53
+#: templates/settings.php:87
 msgid "more info"
 msgstr "weitere Informationen"
 
-#: templates/settings.php:55
+#: templates/settings.php:89
 msgid "Primary address (Kontact et al)"
 msgstr "Primäre Adresse (Kontakt u.a.)"
 
-#: templates/settings.php:57
+#: templates/settings.php:91
 msgid "iOS/OS X"
 msgstr "iOS/OS X"
 
-#: templates/settings.php:59
+#: templates/settings.php:93
 msgid "Read only iCalendar link(s)"
 msgstr "Nur lesende(r) iCalender-Link(s)"
 

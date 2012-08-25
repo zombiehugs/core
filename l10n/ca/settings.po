@@ -9,15 +9,19 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: http://bugs.owncloud.org/\n"
-"POT-Creation-Date: 2012-08-02 02:02+0200\n"
-"PO-Revision-Date: 2012-08-02 00:04+0000\n"
-"Last-Translator: owncloud_robot <thomas.mueller@tmit.eu>\n"
+"POT-Creation-Date: 2012-08-21 02:03+0200\n"
+"PO-Revision-Date: 2012-08-20 07:27+0000\n"
+"Last-Translator: rogerc <rcalvoi@yahoo.com>\n"
 "Language-Team: Catalan (http://www.transifex.com/projects/p/owncloud/language/ca/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: ca\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: ajax/apps/ocs.php:23
+msgid "Unable to load list from App Store"
+msgstr "No s'ha pogut carregar la llista des de l'App Store"
 
 #: ajax/lostpassword.php:14
 msgid "Email saved"
@@ -43,11 +47,15 @@ msgstr "Error d'autenticació"
 msgid "Language changed"
 msgstr "S'ha canviat l'idioma"
 
-#: js/apps.js:31 js/apps.js:67
+#: js/apps.js:18
+msgid "Error"
+msgstr "Error"
+
+#: js/apps.js:39 js/apps.js:73
 msgid "Disable"
 msgstr "Desactiva"
 
-#: js/apps.js:31 js/apps.js:54
+#: js/apps.js:39 js/apps.js:62
 msgid "Enable"
 msgstr "Activa"
 
@@ -63,31 +71,47 @@ msgstr "Català"
 msgid "Security Warning"
 msgstr "Avís de seguretat"
 
-#: templates/admin.php:28
+#: templates/admin.php:29
+msgid "Cron"
+msgstr "Cron"
+
+#: templates/admin.php:31
+msgid "execute one task with each page loaded"
+msgstr "executa una tasca en carregar cada pàgina"
+
+#: templates/admin.php:33
+msgid "cron.php is registered at a webcron service"
+msgstr "cron.php està registrat en un servei web cron"
+
+#: templates/admin.php:35
+msgid "use systems cron service"
+msgstr "usa el servei cron del sistema"
+
+#: templates/admin.php:39
 msgid "Log"
 msgstr "Registre"
 
-#: templates/admin.php:55
+#: templates/admin.php:67
 msgid "More"
 msgstr "Més"
 
 #: templates/apps.php:10
 msgid "Add your App"
-msgstr "Afegeiu la vostra aplicació"
+msgstr "Afegiu la vostra aplicació"
 
-#: templates/apps.php:24
+#: templates/apps.php:26
 msgid "Select an App"
 msgstr "Seleccioneu una aplicació"
 
-#: templates/apps.php:27
+#: templates/apps.php:29
 msgid "See application page at apps.owncloud.com"
 msgstr "Mireu la pàgina d'aplicacions a apps.owncloud.com"
 
-#: templates/apps.php:28
+#: templates/apps.php:30
 msgid "-licensed"
 msgstr "- amb llicència"
 
-#: templates/apps.php:28
+#: templates/apps.php:30
 msgid "by"
 msgstr "de"
 
@@ -204,13 +228,13 @@ msgid "Other"
 msgstr "Altre"
 
 #: templates/users.php:80 templates/users.php:112
-msgid "SubAdmin"
-msgstr "SubAdmin"
+msgid "Group Admin"
+msgstr "Grup Admin"
 
 #: templates/users.php:82
 msgid "Quota"
 msgstr "Quota"
 
-#: templates/users.php:145
+#: templates/users.php:146
 msgid "Delete"
 msgstr "Suprimeix"

@@ -66,7 +66,7 @@ class OC_Util {
 	 * @return array
 	 */
 	public static function getVersion(){
-		return array(4,81,2);
+		return array(4,82,4);
 	}
 
 	/**
@@ -74,7 +74,7 @@ class OC_Util {
 	 * @return string
 	 */
 	public static function getVersionString(){
-		return '5 pre alpha';
+		return '5 pre alpha 1';
 	}
 
 	/**
@@ -271,15 +271,26 @@ class OC_Util {
 		return $errors;
 	}
 
-	public static function displayLoginPage($parameters = array()){
-		if(isset($_COOKIE["username"])){
-			$parameters["username"] = $_COOKIE["username"];
+	public static function displayLoginPage($display_lostpassword) {
+		$parameters = array();
+		$parameters['display_lostpassword'] = $display_lostpassword;
+		if (!empty($_POST['user'])) {
+			$parameters["username"] =
+				OC_Util::sanitizeHTML($_POST['user']).'"';
+			$parameters['user_autofocus'] = false;
 		} else {
 			$parameters["username"] = '';
+			$parameters['user_autofocus'] = true;
 		}
 		$sectoken=rand(1000000,9999999);
 		$_SESSION['sectoken']=$sectoken;
 		$parameters["sectoken"] = $sectoken;
+		if (isset($_REQUEST['redirect_url'])) {
+			$redirect_url = OC_Util::sanitizeHTML($_REQUEST['redirect_url']);
+		} else {
+			$redirect_url = $_SERVER['REQUEST_URI'];
+		}
+		$parameters['redirect_url'] = $redirect_url;
 		OC_Template::printGuestPage("", "login", $parameters);
 	}
 
@@ -343,10 +354,16 @@ class OC_Util {
 			$location = $_REQUEST['redirect_url'];
 		}
 		else if (isset(OC::$REQUESTEDAPP) && !empty(OC::$REQUESTEDAPP)) {
-			$location = OC::$WEBROOT.'/?app='.OC::$REQUESTEDAPP;
+			$location = OC_Helper::linkToAbsolute( OC::$REQUESTEDAPP, 'index.php' );
 		}
 		else {
-			$location = OC::$WEBROOT.'/'.OC_Appconfig::getValue('core', 'defaultpage', '?app=files');
+			$defaultpage = OC_Appconfig::getValue('core', 'defaultpage');
+			if ($defaultpage) {
+				$location = OC_Helper::makeURLAbsolute(OC::$WEBROOT.'/'.$defaultpage);
+			}
+			else {
+				$location = OC_Helper::linkToAbsolute( 'files', 'index.php' );
+			}
 		}
 		OC_Log::write('core', 'redirectToDefaultPage: '.$location, OC_Log::DEBUG);
 		header( 'Location: '.$location );
@@ -470,7 +487,7 @@ class OC_Util {
 		@fclose($fp);
 
 		// accessing the file via http
-		$url = OC_Helper::serverProtocol(). '://'  . OC_Helper::serverHost() . OC::$WEBROOT.'/data'.$filename;
+		$url = OC_Helper::makeURLAbsolute(OC::$WEBROOT.'/data'.$filename);
 		$fp = @fopen($url, 'r');
 		$content=@fread($fp, 2048);
 		@fclose($fp);

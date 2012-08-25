@@ -273,7 +273,12 @@ class OC_Filesystem{
 	*/
 	static private function createStorage($class,$arguments){
 		if(class_exists($class)){
-			return new $class($arguments);
+			try {
+				return new $class($arguments);
+			} catch (Exception $exception) {
+				OC_Log::write('core', $exception->getMessage(), OC_Log::ERROR);
+				return false;
+			}
 		}else{
 			OC_Log::write('core','storage backend '.$class.' not found',OC_Log::ERROR);
 			return false;
@@ -331,6 +336,13 @@ class OC_Filesystem{
 	static public function getLocalFile($path){
 		return self::$defaultInstance->getLocalFile($path);
 	}
+	/**
+	 * @param string path
+	 * @return string
+	 */
+	static public function getLocalFolder($path){
+		return self::$defaultInstance->getLocalFolder($path);
+	}
 	
 	/**
 	* return path to file which reflects one visible in browser
@@ -363,13 +375,21 @@ class OC_Filesystem{
 	
 	/**
 	 * checks if a file is blacklsited for storage in the filesystem
+	 * Listens to write and rename hooks
 	 * @param array $data from hook
 	 */
 	static public function isBlacklisted($data){
 		$blacklist = array('.htaccess');
-		$filename = strtolower(basename($data['path']));
-		if(in_array($filename,$blacklist)){
-			$data['run'] = false;	
+		if (isset($data['path'])) {
+			$path = $data['path'];
+		} else if (isset($data['newpath'])) {
+			$path = $data['newpath'];
+		}
+		if (isset($path)) {
+			$filename = strtolower(basename($path));
+			if (in_array($filename, $blacklist)) {
+				$data['run'] = false;
+			}
 		}
 	}
 	
@@ -406,11 +426,32 @@ class OC_Filesystem{
 	static public function readfile($path){
 		return self::$defaultInstance->readfile($path);
 	}
+	/**
+	* @deprecated Replaced by isReadable() as part of CRUDS
+	*/
 	static public function is_readable($path){
 		return self::$defaultInstance->is_readable($path);
 	}
+	/**
+	* @deprecated Replaced by isCreatable(), isUpdatable(), isDeletable() as part of CRUDS
+	*/
 	static public function is_writable($path){
 		return self::$defaultInstance->is_writable($path);
+	}
+	static public function isCreatable($path) {
+		return self::$defaultInstance->isCreatable($path);
+	}
+	static public function isReadable($path) {
+		return self::$defaultInstance->isReadable($path);
+	}
+	static public function isUpdatable($path) {
+		return self::$defaultInstance->isUpdatable($path);
+	}
+	static public function isDeletable($path) {
+		return self::$defaultInstance->isDeletable($path);
+	}
+	static public function isSharable($path) {
+		return self::$defaultInstance->isSharable($path);
 	}
 	static public function file_exists($path){
 		return self::$defaultInstance->file_exists($path);
@@ -480,6 +521,37 @@ class OC_Filesystem{
 			$path=$params['oldpath'];
 		}
 		OC_Connector_Sabre_Node::removeETagPropertyForPath($path);
+	}
+
+	/**
+	 * normalize a path
+	 * @param string path
+	 * @param bool $stripTrailingSlash
+	 * @return string
+	 */
+	public static function normalizePath($path,$stripTrailingSlash=true){
+		if($path==''){
+			return '/';
+		}
+		//no windows style slashes
+		$path=str_replace('\\','/',$path);
+		//add leading slash
+		if($path[0]!=='/'){
+			$path='/'.$path;
+		}
+		//remove trainling slash
+		if($stripTrailingSlash and strlen($path)>1 and substr($path,-1,1)==='/'){
+			$path=substr($path,0,-1);
+		}
+		//remove duplicate slashes
+		while(strpos($path,'//')!==false){
+			$path=str_replace('//','/',$path);
+		}
+		//normalize unicode if possible
+		if(class_exists('Normalizer')){
+			$path=Normalizer::normalize($path);
+		}
+		return $path;
 	}
 }
 OC_Hook::connect('OC_Filesystem','post_write', 'OC_Filesystem','removeETagHook');

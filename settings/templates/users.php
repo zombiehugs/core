@@ -18,7 +18,7 @@ var isadmin = <?php echo $_['isadmin']?'true':'false'; ?>;
 </script>
 <div id="controls">
 	<form id="newuser">
-		<input id="newusername" placeholder="<?php echo $l->t('Name')?>" /> <input
+		<input id="newusername" type="text" placeholder="<?php echo $l->t('Name')?>" /> <input
 			type="password" id="newuserpassword"
 			placeholder="<?php echo $l->t('Password')?>" /> <select
 			class="groupsselect"
@@ -77,7 +77,7 @@ var isadmin = <?php echo $_['isadmin']?'true':'false'; ?>;
 			<th id="headerPassword"><?php echo $l->t( 'Password' ); ?></th>
 			<th id="headerGroups"><?php echo $l->t( 'Groups' ); ?></th>
 			<?php if(is_array($_['subadmins']) || $_['subadmins']): ?>
-			<th id="headerSubAdmins"><?php echo $l->t('SubAdmin'); ?></th>
+			<th id="headerSubAdmins"><?php echo $l->t('Group Admin'); ?></th>
 			<?php endif;?>
 			<th id="headerQuota"><?php echo $l->t( 'Quota' ); ?></th>
 			<th id="headerRemove">&nbsp;</th>
@@ -109,7 +109,7 @@ var isadmin = <?php echo $_['isadmin']?'true':'false'; ?>;
 				class="subadminsselect"
 				data-username="<?php echo $user['name'] ;?>"
 				data-subadmin="<?php echo $user['subadmin'] ;?>"
-				data-placeholder="subadmins" title="<?php echo $l->t('SubAdmin')?>"
+				data-placeholder="subadmins" title="<?php echo $l->t('Group Admin')?>"
 				multiple="multiple">
 					<?php foreach($_["subadmingroups"] as $group): ?>
 					<option value="<?php echo $group;?>">
@@ -141,9 +141,12 @@ var isadmin = <?php echo $_['isadmin']?'true':'false'; ?>;
 					</select> <input class='quota-other'></input>
 				</div>
 			</td>
-			<td class="remove"><?php if($user['name']!=OC_User::getUser()):?> <img
-				alt="Delete" title="<?php echo $l->t('Delete')?>" class="svg action"
-				src="<?php echo image_path('core','actions/delete.svg') ?>" /> <?php endif;?>
+			<td class="remove">
+				<?php if($user['name']!=OC_User::getUser()):?> 
+					<a href="#" class="action delete" original-title="<?php echo $l->t('Delete')?>">
+						<img src="<?php echo image_path('core','actions/delete.svg') ?>" />
+					</a>
+				<?php endif;?>
 			</td>
 		</tr>
 		<?php endforeach; ?>

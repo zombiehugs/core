@@ -10,15 +10,19 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: http://bugs.owncloud.org/\n"
-"POT-Creation-Date: 2012-08-02 02:02+0200\n"
-"PO-Revision-Date: 2012-08-02 00:04+0000\n"
-"Last-Translator: owncloud_robot <thomas.mueller@tmit.eu>\n"
+"POT-Creation-Date: 2012-08-19 02:02+0200\n"
+"PO-Revision-Date: 2012-08-18 05:49+0000\n"
+"Last-Translator: leonfeng <rainofchaos@gmail.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/owncloud/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: zh_CN\n"
 "Plural-Forms: nplurals=1; plural=0\n"
+
+#: ajax/apps/ocs.php:23
+msgid "Unable to load list from App Store"
+msgstr "无法从应用商店载入列表"
 
 #: ajax/lostpassword.php:14
 msgid "Email saved"
@@ -38,17 +42,21 @@ msgstr "非法请求"
 
 #: ajax/removeuser.php:13 ajax/setquota.php:18 ajax/togglegroups.php:18
 msgid "Authentication error"
-msgstr ""
+msgstr "认证错误"
 
 #: ajax/setlanguage.php:18
 msgid "Language changed"
 msgstr "语言已修改"
 
-#: js/apps.js:31 js/apps.js:67
+#: js/apps.js:18
+msgid "Error"
+msgstr "错误"
+
+#: js/apps.js:39 js/apps.js:73
 msgid "Disable"
 msgstr "禁用"
 
-#: js/apps.js:31 js/apps.js:54
+#: js/apps.js:39 js/apps.js:62
 msgid "Enable"
 msgstr "启用"
 
@@ -62,13 +70,29 @@ msgstr "简体中文"
 
 #: templates/admin.php:14
 msgid "Security Warning"
+msgstr "安全警告"
+
+#: templates/admin.php:29
+msgid "Cron"
+msgstr "计划任务"
+
+#: templates/admin.php:31
+msgid "execute one task with each page loaded"
+msgstr "为每个装入的页面执行任务"
+
+#: templates/admin.php:33
+msgid "cron.php is registered at a webcron service"
 msgstr ""
 
-#: templates/admin.php:28
+#: templates/admin.php:35
+msgid "use systems cron service"
+msgstr "实现系统 cron 服务"
+
+#: templates/admin.php:39
 msgid "Log"
 msgstr "日志"
 
-#: templates/admin.php:55
+#: templates/admin.php:67
 msgid "More"
 msgstr "更多"
 
@@ -76,19 +100,19 @@ msgstr "更多"
 msgid "Add your App"
 msgstr "添加应用"
 
-#: templates/apps.php:24
+#: templates/apps.php:26
 msgid "Select an App"
 msgstr "选择一个应用"
 
-#: templates/apps.php:27
+#: templates/apps.php:29
 msgid "See application page at apps.owncloud.com"
 msgstr "查看在 app.owncloud.com 的应用程序页面"
 
-#: templates/apps.php:28
+#: templates/apps.php:30
 msgid "-licensed"
 msgstr "-许可证"
 
-#: templates/apps.php:28
+#: templates/apps.php:30
 msgid "by"
 msgstr "由"
 
@@ -205,13 +229,13 @@ msgid "Other"
 msgstr "其它"
 
 #: templates/users.php:80 templates/users.php:112
-msgid "SubAdmin"
-msgstr ""
+msgid "Group Admin"
+msgstr "组管理"
 
 #: templates/users.php:82
 msgid "Quota"
 msgstr "配额"
 
-#: templates/users.php:145
+#: templates/users.php:146
 msgid "Delete"
 msgstr "删除"

@@ -7,21 +7,26 @@
 #   <mikkelbjerglarsen@gmail.com>, 2011.
 # Morten Juhl-Johansen Zölde-Fejér <morten@writtenandread.net>, 2011, 2012.
 # Pascal d'Hermilly <pascal@dhermilly.dk>, 2011.
+#   <sr@ybnet.dk>, 2012.
 # Thomas Tanghus <>, 2012.
 # Thomas Tanghus <thomas@tanghus.net>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: http://bugs.owncloud.org/\n"
-"POT-Creation-Date: 2012-08-02 02:02+0200\n"
-"PO-Revision-Date: 2012-08-02 00:04+0000\n"
-"Last-Translator: owncloud_robot <thomas.mueller@tmit.eu>\n"
+"POT-Creation-Date: 2012-08-21 02:03+0200\n"
+"PO-Revision-Date: 2012-08-20 14:35+0000\n"
+"Last-Translator: ressel <sr@ybnet.dk>\n"
 "Language-Team: Danish (http://www.transifex.com/projects/p/owncloud/language/da/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: da\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: ajax/apps/ocs.php:23
+msgid "Unable to load list from App Store"
+msgstr "Kunne ikke indlæse listen fra App Store"
 
 #: ajax/lostpassword.php:14
 msgid "Email saved"
@@ -41,17 +46,21 @@ msgstr "Ugyldig forespørgsel"
 
 #: ajax/removeuser.php:13 ajax/setquota.php:18 ajax/togglegroups.php:18
 msgid "Authentication error"
-msgstr ""
+msgstr "Adgangsfejl"
 
 #: ajax/setlanguage.php:18
 msgid "Language changed"
 msgstr "Sprog ændret"
 
-#: js/apps.js:31 js/apps.js:67
+#: js/apps.js:18
+msgid "Error"
+msgstr "Fejl"
+
+#: js/apps.js:39 js/apps.js:73
 msgid "Disable"
 msgstr "Deaktiver"
 
-#: js/apps.js:31 js/apps.js:54
+#: js/apps.js:39 js/apps.js:62
 msgid "Enable"
 msgstr "Aktiver"
 
@@ -65,13 +74,29 @@ msgstr "Dansk"
 
 #: templates/admin.php:14
 msgid "Security Warning"
+msgstr "Sikkerhedsadvarsel"
+
+#: templates/admin.php:29
+msgid "Cron"
+msgstr "Cron"
+
+#: templates/admin.php:31
+msgid "execute one task with each page loaded"
 msgstr ""
 
-#: templates/admin.php:28
+#: templates/admin.php:33
+msgid "cron.php is registered at a webcron service"
+msgstr "cron.php er tilmeldt en webcron tjeneste"
+
+#: templates/admin.php:35
+msgid "use systems cron service"
+msgstr ""
+
+#: templates/admin.php:39
 msgid "Log"
 msgstr "Log"
 
-#: templates/admin.php:55
+#: templates/admin.php:67
 msgid "More"
 msgstr "Mere"
 
@@ -79,19 +104,19 @@ msgstr "Mere"
 msgid "Add your App"
 msgstr "Tilføj din App"
 
-#: templates/apps.php:24
+#: templates/apps.php:26
 msgid "Select an App"
 msgstr "Vælg en App"
 
-#: templates/apps.php:27
+#: templates/apps.php:29
 msgid "See application page at apps.owncloud.com"
 msgstr "Se applikationens side på apps.owncloud.com"
 
-#: templates/apps.php:28
+#: templates/apps.php:30
 msgid "-licensed"
 msgstr "-licenseret"
 
-#: templates/apps.php:28
+#: templates/apps.php:30
 msgid "by"
 msgstr "af"
 
@@ -208,13 +233,13 @@ msgid "Other"
 msgstr "Andet"
 
 #: templates/users.php:80 templates/users.php:112
-msgid "SubAdmin"
+msgid "Group Admin"
 msgstr ""
 
 #: templates/users.php:82
 msgid "Quota"
 msgstr "Kvote"
 
-#: templates/users.php:145
+#: templates/users.php:146
 msgid "Delete"
 msgstr "Slet"
