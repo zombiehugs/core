@@ -27,10 +27,10 @@
 #notify-list .notification span.readicon.unread, #notify-list .notification span.readicon.read:hover { background-position:left 0; }
 #notify-list .notification span.readicon.read, #notify-list .notification span.readicon.unread:hover { background-position:right 0; }
 /* unread notifications: */
-#notify-list .notification[data-read="0"] { background: #faa; }
-#notify-list .notification[data-read="0"]:hover { background: #f55; }
+#notify-list .notification[data-read="0"] { background: #7995BD; }
+#notify-list .notification[data-read="0"]:hover { background: #95A8C7; }
 #notify-list .notification[data-read="0"] .readicon.read { display:none; }
 /* read notifications: */
-#notify-list .notification[data-read="1"] { background: #afa; }
-#notify-list .notification[data-read="1"]:hover { background: #5f5; }
+/*#notify-list .notification[data-read="1"] { background: #afa; }
+#notify-list .notification[data-read="1"]:hover { background: #5f5; }*/
 #notify-list .notification[data-read="1"] .readicon.unread { display:none; }
