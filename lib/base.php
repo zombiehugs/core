@@ -55,11 +55,11 @@ class OC{
 	 * web path in 'url'
 	 */
 	public static $APPSROOTS = array();
-	/*
+	/**
 	 * requested app
 	 */
 	public static $REQUESTEDAPP = '';
-	/*
+	/**
 	 * requested file of app
 	 */
 	public static $REQUESTEDFILE = '';
@@ -67,15 +67,30 @@ class OC{
 	 * check if owncloud runs in cli mode
 	 */
 	public static $CLI = false;
-	/*
+	/**
 	 * OC router
 	 */
 	protected static $router = null;
+	/**
+	 * API object
+	 */
+	public static $api;
 	/**
 	 * SPL autoload
 	 */
 	public static function autoload($className) {
 		if(array_key_exists($className, OC::$CLASSPATH)) {
+			
+			require_once('apilayer.php');
+			
+			// Set an API object for the running version of 
+			// ownCloud, and ensure it's available to client code
+			self::$api = new API( '4.5' );
+		
+			// Register the newly loaded class with the api object
+			// to make sure it's accessible via an OO interface
+			self::$api->registerObject( $className, new Anonymous( $className ) );
+			
 			$path = OC::$CLASSPATH[$className];
 			/** @TODO: Remove this when necessary
 			 Remove "apps/" from inclusion path for smooth migration to mutli app dir
