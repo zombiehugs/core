@@ -10,7 +10,6 @@
 
 require_once "PHPUnit/Framework/TestCase.php";
 require_once realpath( dirname(__FILE__).'/../../lib/base.php' );
-require_once realpath( dirname(__FILE__).'/../../lib/base.php' );
 
 use OCA\Encryption;
 
@@ -56,7 +55,25 @@ class Test_Apilayer extends \PHPUnit_Framework_TestCase {
 // 		$subject->doSomething();
 	
 		$this->api->registerObject( 'obName', new Anonymous( 'obName' ) );
+		
+		$container = $this->api->getObjects();
+		
+		$this->assertEquals( 'Anonymous', get_class( $container['obName'] ) );
+		
+		$this->assertFalse( 'Anonymous' == get_class( $container['NonObName'] ) );
 	
+	}
+	
+	function testreturnMethod() {
+	
+		$this->assertEquals( 15, strlen( $this->api->PasswordHash->get_random_bytes( 15 ) ) );
+	
+	}
+	
+	function testreturnNamespacedMethod() {
+	
+		$this->assertEquals( 15, $this->api->OCP__App->isEnabled( 'files_archive' ) );
+		
 	}
 	
 }

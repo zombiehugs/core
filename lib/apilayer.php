@@ -32,7 +32,7 @@ class Anonymous {
  
 	private $className;
 	
-	function __construct($className) {
+	function __construct( $className ) {
 	
 		$this->className = $className;
 		
@@ -44,9 +44,21 @@ class Anonymous {
 	 * @param string $arguments arguments that were passed to the called method
 	 * @return return value of the method called
 	 */
-	function __call($methodName, $arguments) {
+	function __call( $methodName, $arguments ) {
+	
+		// Check if namespace identifier has been used, and if so,
+		// substitute it for the real thing
+		if ( preg_match ( '/__/', $this->className ) ) {
 		
-		return call_user_func_array( $this->className.'::'.$methodName, $arguments );
+			$classnameF = preg_replace( '/__/', '\\', $this->className );
+		
+		} else {
+		
+			$classnameF = $this->className;
+		
+		}
+		
+		return call_user_func_array( $classnameF.'::'.$methodName, $arguments );
 		
 	}
 }
@@ -152,4 +164,15 @@ class API {
 		return true;
 		
 	}
+	
+	/**
+	 * @brief Simple getter to return objects array
+	 * @return array $container Array of accessible objects
+	 */
+	public function getObjects(){
+
+		return $this->container;
+		
+	}
+	
 }
