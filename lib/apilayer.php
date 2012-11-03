@@ -67,7 +67,6 @@ class Anonymous {
 class API {
 
 	private $version;
-	private static $instance;
 	private $container = array();
 	
 	public function __construct( $version = '4.5' ){
@@ -110,7 +109,7 @@ class API {
 	 * @brief Get the API version being used
 	 * @return string $version API version
 	 */
-	public static function getVersion() {
+	public function getVersion() {
 	
 		return $this->version;
 	
@@ -122,6 +121,9 @@ class API {
 	 * @return Anonymous Anonymous class wrapping specified class
 	 */
 	public function __get( $className ){
+	
+		# TODO: Consider parsing $className for namespaces, and somehow
+		# manually applying them
 	
 		if ( array_key_exists( $className, $this->container ) ) {
 			
