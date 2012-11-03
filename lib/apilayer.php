@@ -81,39 +81,46 @@ class API {
 	private $version;
 	private $container = array();
 	
-	public function __construct( $version = '4.5' ){
+	public function __construct( $version = '4.5' ) {
 		
 		$this->version = $version;
 		
 		// Manually set the class names that won't be set by the 
 		// autoloader
-		// TODO: find a better way to set these core objects
-		$apiV4_5 = array(
-			'OC_Lib' => new Anonymous( 'OC_Lib' )
-			, 'OC_Config' => new Anonymous( 'OC_Config' )
-			, 'OC_Request' => new Anonymous( 'OC_Request' )
-			, 'OC_Util' => new Anonymous( 'OC_Util' )
-			, 'OC_DB' => new Anonymous( 'OC_DB' )
-			, 'OC_Template' => new Anonymous( 'OC_Template' )
-			, 'OC_Minimizer_CSS' => new Anonymous( 'OC_Minimizer_CSS' )
-			, 'OC_Minimizer_JS' => new Anonymous( 'OC_Minimizer_JS' )
-			, 'OC_App' => new Anonymous( 'OC_App' )
-			, 'OC_Appconfig' => new Anonymous( 'OC_Appconfig' )
-			, 'OC_Router' => new Anonymous( 'OC_Router' )
-			, 'OC_User_Database' => new Anonymous( 'OC_User_Database' )
-			, 'OC_Group_Database' => new Anonymous( 'OC_Group_Database' )
-			, 'OC_BackgroundJob_RegularTask' => new Anonymous( 'OC_BackgroundJob_RegularTask' )
-			, 'OC_Hook' => new Anonymous( 'OC_Hook' )
-			, 'OC_Helper' => new Anonymous( 'OC_Helper' )
-			, 'OC_Response' => new Anonymous( 'OC_Response' )
-			, 'OC_Preferences' => new Anonymous( 'OC_Preferences' )
+		$classNames4_5 = array(
+			'OC_Lib' => 'OC_Lib'
+			, 'OC_Config' => 'OC_Config'
+			, 'OC_Request' => 'OC_Request'
+			, 'OC_Util' => 'OC_Util'
+			, 'OC_DB' => 'OC_DB'
+			, 'OC_Template' => 'OC_Template'
+			, 'OC_Minimizer_CSS' => 'OC_Minimizer_CSS'
+			, 'OC_Minimizer_JS' => 'OC_Minimizer_JS'
+			, 'OC_App' => 'OC_App'
+			, 'OC_Appconfig' => 'OC_Appconfig'
+			, 'OC_Router' => 'OC_Router'
+			, 'OC_User_Database' => 'OC_User_Database'
+			, 'OC_Group_Database' => 'OC_Group_Database'
+			, 'OC_BackgroundJob_RegularTask' => 'OC_BackgroundJob_RegularTask'
+			, 'OC_Hook' => 'OC_Hook'
+			, 'OC_Helper' => 'OC_Helper'
+			, 'OC_Response' => 'OC_Response'
+			, 'OC_Preferences' => 'OC_Preferences'
 		);
+		
+		$api = array();
 
 		if ( $version == '4.5' ) {
 		
-			$this->container = $apiV4_5;
+			foreach ( $classNames4_5 as $key => $value ) {
+			
+				$api['$key'] = function () { return new Anonymous( $value ); };
+			
+			}
 		
 		}
+		
+		$this->container = $api;
 	
 	}
 	
@@ -132,10 +139,7 @@ class API {
 	 * @param string $className name of the 
 	 * @return Anonymous Anonymous class wrapping specified class
 	 */
-	public function __get( $className ){
-	
-		# TODO: Consider parsing $className for namespaces, and somehow
-		# manually applying them
+	public function __get( $className ) {
 	
 		if ( array_key_exists( $className, $this->container ) ) {
 			
@@ -157,9 +161,9 @@ class API {
 	 * @note $key must be consistent between all API versions, but 
 	 * differing objects can be set to $object as necessary
 	 */
-	public function registerObject( $key, $object ){
+	public function registerObject( $key, $object ) {
 
-		$this->container[$key] = $object;
+		$this->container[$key] = function () { return new Anonymous( $object ); };
 		
 		return true;
 		
@@ -169,7 +173,7 @@ class API {
 	 * @brief Simple getter to return objects array
 	 * @return array $container Array of accessible objects
 	 */
-	public function getObjects(){
+	public function getObjects() {
 
 		return $this->container;
 		
