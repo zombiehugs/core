@@ -75,21 +75,29 @@ class OC{
 	 * API object
 	 */
 	public static $api;
+	
 	/**
-	 * SPL autoload
+	 * @brief Autoloader for automatically loading user defined classes
+	 * @param string $classname name of the class requiring loading
+	 * @note Only classes containing a pre-defined prefix are automatically
+	 * loaded. e.g. 'OC_MyClass' will be autoloaded, but 'MyClass' will not
 	 */
 	public static function autoload($className) {
+	
+		require_once realpath( dirname(__FILE__).'/apilayer.php' );
+		require_once realpath( dirname(__FILE__).'/anonymous.php' );
+		require_once realpath( dirname(__FILE__).'/apireference.php' );
+		require_once realpath( dirname(__FILE__).'/apireference/v4_5.php' );
+		
+		$stockClasses = new ApiV4_5();
+	
+		// If the location of the class file has already been 
+		// registered manually, use that path
 		if(array_key_exists($className, OC::$CLASSPATH)) {
-			
-			require_once('apilayer.php');
-			
-			// Set an API object for the running version of 
-			// ownCloud, and ensure it's available to client code
-			self::$api = new API( '4.5' );
 		
 			// Register the newly loaded class with the api object
 			// to make sure it's accessible via an OO interface
-			self::$api->registerObject( $className, new Anonymous( $className ) );
+			self::$api->registerObject( $className, new OC_Anonymous( $className ) );
 			
 			$path = OC::$CLASSPATH[$className];
 			/** @TODO: Remove this when necessary
@@ -121,10 +129,16 @@ class OC{
 		elseif(strpos($className, 'Test_')===0) {
 			$path =  'tests/lib/'.strtolower(str_replace('_', '/', substr($className, 5)) . '.php');
 		}else{
+			OC_Log::write('core', 'class "'.$className.'" could not be autoloaded; does it have a prefix?', OC_Log::ERROR);
 			return false;
 		}
 
 		if($fullPath = stream_resolve_include_path($path)) {
+			
+			// Set an API object for the running version of 
+			// ownCloud, and ensure it's available to client code
+			self::$api = new OC_ApiLayer( $stockClasses );
+		
 			require_once $fullPath;
 		}
 		return false;

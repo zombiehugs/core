@@ -21,48 +21,6 @@
  *
  */
 
-# TODO: make sure arguments which are references remain passed by reference and do not become values, to avoid bugs
-
-# NOTE: preRunProxies issue: certain methods underneath the abstraction layer need to pas vars by reference. Theses ares are part of the array handled by __call, however currently I'm unsure how to retain the reference during the passing of vars through the abstraction layer. error: '__call() cannot take arguments by reference' - but this relates to attempting to pass the entire array by reference, rather than the individual arguments. The arguements have already lost their references by the time they are accessible from within Anonymous->__call() - so how can we do anything about it? At least for the time being the abstraction layer can still be used in any circumstances where the method being accessed via the layer does not require vars by reference.
-
-/**
- * Class for wrapping static classes as object variables.
- */
-class Anonymous {
- 
-	private $className;
-	
-	function __construct( $className ) {
-	
-		$this->className = $className;
-		
-	}
-	
-	/**
-	 * @brief Magic method for handling calls to methods
-	 * @param  string $methodName name of the method called
-	 * @param string $arguments arguments that were passed to the called method
-	 * @return return value of the method called
-	 */
-	function __call( $methodName, $arguments ) {
-	
-		// Check if namespace identifier has been used, and if so,
-		// substitute it for the real thing
-		if ( preg_match ( '/__/', $this->className ) ) {
-		
-			$classnameF = preg_replace( '/__/', '\\', $this->className );
-		
-		} else {
-		
-			$classnameF = $this->className;
-		
-		}
-		
-		return call_user_func_array( $classnameF.'::'.$methodName, $arguments );
-		
-	}
-}
-
 /**
  * Class that provides an interface object for accessing OC classes. 
  * 
@@ -76,57 +34,38 @@ class Anonymous {
  * When classes are used for the first time and autoloaded, they are 
  * automatically added to this object and can be accessed via it.
  */
-class API {
+class OC_ApiLayer {
 
 	private $version;
 	private $container = array();
 	
-	public function __construct( $version = '4.5' ) {
+	public function __construct( OC_ApiReference $apiStockClasses ) {
 		
-		$this->version = $version;
+		// Get the version number of the API we're 
+		// implementing
+		$this->version = $apiStockClasses->getVersion();
 		
-		// Manually set the class names that won't be set by the 
-		// autoloader
-		$classNames4_5 = array(
-			'OC_Lib' => 'OC_Lib'
-			, 'OC_Config' => 'OC_Config'
-			, 'OC_Request' => 'OC_Request'
-			, 'OC_Util' => 'OC_Util'
-			, 'OC_DB' => 'OC_DB'
-			, 'OC_Template' => 'OC_Template'
-			, 'OC_Minimizer_CSS' => 'OC_Minimizer_CSS'
-			, 'OC_Minimizer_JS' => 'OC_Minimizer_JS'
-			, 'OC_App' => 'OC_App'
-			, 'OC_Appconfig' => 'OC_Appconfig'
-			, 'OC_Router' => 'OC_Router'
-			, 'OC_User_Database' => 'OC_User_Database'
-			, 'OC_Group_Database' => 'OC_Group_Database'
-			, 'OC_BackgroundJob_RegularTask' => 'OC_BackgroundJob_RegularTask'
-			, 'OC_Hook' => 'OC_Hook'
-			, 'OC_Helper' => 'OC_Helper'
-			, 'OC_Response' => 'OC_Response'
-			, 'OC_Preferences' => 'OC_Preferences'
-		);
+		// Get the stock classes for this version number
+		$classes = $apiStockClasses->getClasses();
 		
-		$api = array();
-
-		if ( $version == '4.5' ) {
+		// Initialise the temporary api array
+		$container = array();
 		
-			foreach ( $classNames4_5 as $key => $value ) {
-			
-				$api['$key'] = function () { return new Anonymous( $value ); };
-			
-			}
+		// Wrap each class name in a closure to return an object when 
+		// necessary
+		foreach ( $classes as $key => $value ) {
+		
+			$container['$key'] = function () { return new OC_Anonymous( $value ); };
 		
 		}
 		
-		$this->container = $api;
+		$this->container = $container;
 	
 	}
 	
 	/**
-	 * @brief Get the API version being used
-	 * @return string $version API version
+	 * @brief Return the version number of the implemented API
+	 * @return string $this->version API version
 	 */
 	public function getVersion() {
 	
@@ -141,13 +80,16 @@ class API {
 	 */
 	public function __get( $className ) {
 	
+		// If the object key is already registered, return it. Else
+		// assume that the referenced class has the same name as the
+		// key and return a new Anonymous object using that.
 		if ( array_key_exists( $className, $this->container ) ) {
 			
 			return $this->container[$className];
 			
 		} else {
 			
-			return new Anonymous( $className );
+			return new OC_Anonymous( $className );
 		
 		}
 		
@@ -163,7 +105,7 @@ class API {
 	 */
 	public function registerObject( $key, $object ) {
 
-		$this->container[$key] = function () { return new Anonymous( $object ); };
+		$this->container[$key] = function () { return new OC_Anonymous( $object ); };
 		
 		return true;
 		

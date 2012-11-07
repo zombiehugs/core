@@ -6,18 +6,17 @@
  * See the COPYING-README file.
  */
 
-
-
 require_once "PHPUnit/Framework/TestCase.php";
+// require_once realpath( dirname(__FILE__).'/../../lib/apireference.php' );
+// require_once realpath( dirname(__FILE__).'/../../lib/apilayer.php' );
 require_once realpath( dirname(__FILE__).'/../../lib/base.php' );
 
-use OCA\Encryption;
-
-class Test_Apilayer extends \PHPUnit_Framework_TestCase {
+class Test_OC_ApiLayer extends \PHPUnit_Framework_TestCase {
 	
 	function setUp() {
 	
-		$this->api = new API( '4.5' );
+		$stockClasses = new ApiV4_5();
+		$this->api = new OC_ApiLayer( $stockClasses );
 	
 	}
 	
@@ -58,7 +57,7 @@ class Test_Apilayer extends \PHPUnit_Framework_TestCase {
 		
 		$container = $this->api->getObjects();
 		
-		$this->assertEquals( 'Anonymous', get_class( $container['obName']() ) );
+		$this->assertEquals( 'OC_Anonymous', get_class( $container['obName']() ) );
 		
 		// This test creates a fatal error, and so requires phpunit to 
 		// be run with the --process-isolation option
