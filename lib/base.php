@@ -84,10 +84,10 @@ class OC{
 	 */
 	public static function autoload($className) {
 	
-		require_once realpath( dirname(__FILE__).'/apilayer.php' );
-		require_once realpath( dirname(__FILE__).'/anonymous.php' );
-		require_once realpath( dirname(__FILE__).'/apireference.php' );
-		require_once realpath( dirname(__FILE__).'/apireference/v4_5.php' );
+		require_once 'apilayer.php' ;
+		require_once 'anonymous.php' ;
+		require_once 'apireference.php' ;
+		require_once 'apireference/v4_5.php' ;
 		
 		$stockClasses = new ApiV4_5();
 	
