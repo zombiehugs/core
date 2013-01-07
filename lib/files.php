@@ -64,9 +64,11 @@ class OC_Files {
 	}
 
 	/**
-	* get the content of a directory
-	* @param dir $directory path under datadirectory
-	*/
+	 * get the content of a directory
+	 * @param dir $directory path under datadirectory
+	 * @param string $mimetype_filter
+	 * @return array
+	 */
 	public static function getDirectoryContent($directory, $mimetype_filter = '') {
 		$directory=OC_Filesystem::normalizePath($directory);
 		if($directory=='/') {
@@ -133,12 +135,13 @@ class OC_Files {
 	}
 
 	/**
-	* return the content of a file or return a zip file containning multiply files
-	*
-	* @param dir  $dir
-	* @param file $file ; seperated list of files to download
-	* @param boolean $only_header ; boolean to only send header of the request
-	*/
+	 * return the content of a file or return a zip file containing multiply files
+	 *
+	 * @param dir  $dir
+	 * @param $files
+	 * @param boolean $only_header ; boolean to only send header of the request
+	 * @internal param \file $file ; separated list of files to download
+	 */
 	public static function get($dir, $files, $only_header = false) {
 		$xsendfile = false;
 		if (isset($_SERVER['MOD_X_SENDFILE_ENABLED']) || 
@@ -153,21 +156,18 @@ class OC_Files {
 			self::validateZipDownload($dir, $files);
 			$executionTime = intval(ini_get('max_execution_time'));
 			set_time_limit(0);
-			$zip = new ZipArchive();
 			if ($xsendfile) {
 				$filename = OC_Helper::tmpFileNoClean('.zip');
 			}else{
 				$filename = OC_Helper::tmpFile('.zip');
 			}
-			if ($zip->open($filename, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE)!==true) {
-				exit("cannot open <$filename>\n");
-			}
+			$zip = new OC_Archive_ZIP($filename);
 			foreach($files as $file) {
 				$file=$dir.'/'.$file;
 				if(OC_Filesystem::is_file($file)) {
 					$tmpFile=OC_Filesystem::toTmpFile($file);
 					self::$tmpFiles[]=$tmpFile;
-					$zip->addFile($tmpFile, basename($file));
+					$zip->addFile(basename($file), $tmpFile);
 				}elseif(OC_Filesystem::is_dir($file)) {
 					self::zipAddDir($file, $zip);
 				}
@@ -178,15 +178,12 @@ class OC_Files {
 			self::validateZipDownload($dir, $files);
 			$executionTime = intval(ini_get('max_execution_time'));
 			set_time_limit(0);
-			$zip = new ZipArchive();
 			if ($xsendfile) {
 				$filename = OC_Helper::tmpFileNoClean('.zip');
 			}else{
 				$filename = OC_Helper::tmpFile('.zip');
 			}
-			if ($zip->open($filename, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE)!==true) {
-				exit("cannot open <$filename>\n");
-			}
+			$zip = new OC_Archive_ZIP($filename);
 			$file=$dir.'/'.$files;
 			self::zipAddDir($file, $zip);
 			$zip->close();
@@ -261,9 +258,14 @@ class OC_Files {
 		}
 	}
 
+	/**
+	 * @param $dir
+	 * @param OC_Archive_ZIP $zip
+	 * @param string $internalDir
+	 */
 	public static function zipAddDir($dir, $zip, $internalDir='') {
 		$dirname=basename($dir);
-		$zip->addEmptyDir($internalDir.$dirname);
+		$zip->addFolder($internalDir.$dirname);
 		$internalDir.=$dirname.='/';
 		$files=OC_Files::getDirectoryContent($dir);
 		foreach($files as $file) {
@@ -272,7 +274,7 @@ class OC_Files {
 			if(OC_Filesystem::is_file($file)) {
 				$tmpFile=OC_Filesystem::toTmpFile($file);
 				OC_Files::$tmpFiles[]=$tmpFile;
-				$zip->addFile($tmpFile, $internalDir.$filename);
+				$zip->addFile($internalDir.$filename, $tmpFile);
 			}elseif(OC_Filesystem::is_dir($file)) {
 				self::zipAddDir($file, $zip, $internalDir);
 			}
@@ -285,6 +287,7 @@ class OC_Files {
 	* @param file $source
 	* @param dir  $targetDir
 	* @param file $target
+	* @return bool
 	*/
 	public static function move($sourceDir, $source, $targetDir, $target) {
 		if(OC_User::isLoggedIn() && ($sourceDir != '' || $source != 'Shared')) {
@@ -318,6 +321,7 @@ class OC_Files {
 	* @param dir  $dir
 	* @param file $name
 	* @param type $type
+	* @return bool
 	*/
 	public static function newFile($dir, $name, $type) {
 		if(OC_User::isLoggedIn()) {
@@ -340,7 +344,9 @@ class OC_Files {
 	* deletes a file or folder
 	*
 	* @param dir  $dir
-	* @param file $name
+	* @param $file
+	* @return
+	* @internal param \file $name
 	*/
 	public static function delete($dir, $file) {
 		if(OC_User::isLoggedIn() && ($dir!= '' || $file != 'Shared')) {
@@ -448,7 +454,7 @@ class OC_Files {
 
 	/**
 	 * set the maximum upload size limit for apache hosts using .htaccess
-	 * @param int size filesisze in bytes
+	 * @param int size filesize in bytes
 	 * @return false on failure, size on success
 	 */
 	static function setUploadLimit($size) {
@@ -469,7 +475,8 @@ class OC_Files {
 			return false;
 		}
 
-		$htaccess = @file_get_contents(OC::$SERVERROOT.'/.htaccess'); //supress errors in case we don't have permissions for
+		//suppress errors in case we don't have permissions for
+		$htaccess = @file_get_contents(OC::$SERVERROOT.'/.htaccess');
 		if(!$htaccess) {
 			return false;
 		}
