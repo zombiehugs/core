@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-# André Koot <meneer@tken.net>, 2012.
+# André Koot <meneer@tken.net>, 2012-2013.
 #   <bart.formosus@gmail.com>, 2011.
 #   <bramdv@me.com>, 2012.
 #   <didi.debian@cknow.org>, 2012.
@@ -18,8 +18,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: http://bugs.owncloud.org/\n"
-"POT-Creation-Date: 2012-12-30 00:04+0100\n"
-"PO-Revision-Date: 2012-12-29 23:05+0000\n"
+"POT-Creation-Date: 2013-01-31 00:27+0100\n"
+"PO-Revision-Date: 2013-01-30 23:28+0000\n"
 "Last-Translator: I Robot <owncloud-bot@tmit.eu>\n"
 "Language-Team: Dutch (http://www.transifex.com/projects/p/owncloud/language/nl/)\n"
 "MIME-Version: 1.0\n"
@@ -40,7 +40,7 @@ msgstr "Groep bestaat al"
 msgid "Unable to add group"
 msgstr "Niet in staat om groep toe te voegen"
 
-#: ajax/enableapp.php:12
+#: ajax/enableapp.php:11
 msgid "Could not enable app. "
 msgstr "Kan de app. niet activeren"
 
@@ -51,14 +51,6 @@ msgstr "E-mail bewaard"
 #: ajax/lostpassword.php:14
 msgid "Invalid email"
 msgstr "Ongeldige e-mail"
-
-#: ajax/openid.php:13
-msgid "OpenID Changed"
-msgstr "OpenID is aangepast"
-
-#: ajax/openid.php:15 ajax/setlanguage.php:17 ajax/setlanguage.php:20
-msgid "Invalid request"
-msgstr "Ongeldig verzoek"
 
 #: ajax/removegroup.php:13
 msgid "Unable to delete group"
@@ -75,6 +67,10 @@ msgstr "Niet in staat om gebruiker te verwijderen"
 #: ajax/setlanguage.php:15
 msgid "Language changed"
 msgstr "Taal aangepast"
+
+#: ajax/setlanguage.php:17 ajax/setlanguage.php:20
+msgid "Invalid request"
+msgstr "Ongeldig verzoek"
 
 #: ajax/togglegroups.php:12
 msgid "Admins can't remove themself from the admin group"
@@ -102,7 +98,7 @@ msgstr "Inschakelen"
 msgid "Saving..."
 msgstr "Aan het bewaren....."
 
-#: personal.php:42 personal.php:43
+#: personal.php:34 personal.php:35
 msgid "__language_name__"
 msgstr "Nederlands"
 
@@ -114,15 +110,15 @@ msgstr "App toevoegen"
 msgid "More Apps"
 msgstr "Meer apps"
 
-#: templates/apps.php:27
+#: templates/apps.php:24
 msgid "Select an App"
 msgstr "Selecteer een app"
 
-#: templates/apps.php:31
+#: templates/apps.php:28
 msgid "See application page at apps.owncloud.com"
 msgstr "Zie de applicatiepagina op apps.owncloud.com"
 
-#: templates/apps.php:32
+#: templates/apps.php:29
 msgid "<span class=\"licence\"></span>-licensed by <span class=\"author\"></span>"
 msgstr "<span class=\"licence\"></span>-Gelicenseerd door <span class=\"author\"></span>"
 
@@ -171,7 +167,7 @@ msgstr "Download Android Client"
 msgid "Download iOS Client"
 msgstr "Download iOS Client"
 
-#: templates/personal.php:21 templates/users.php:23 templates/users.php:82
+#: templates/personal.php:21 templates/users.php:23 templates/users.php:81
 msgid "Password"
 msgstr "Wachtwoord"
 
@@ -241,11 +237,11 @@ msgid ""
 "License\">AGPL</abbr></a>."
 msgstr "Ontwikkeld door de <a href=\"http://ownCloud.org/contact\" target=\"_blank\">ownCloud gemeenschap</a>, de <a href=\"https://github.com/owncloud\" target=\"_blank\">bron code</a> is gelicenseerd onder de <a href=\"http://www.gnu.org/licenses/agpl-3.0.html\" target=\"_blank\"><abbr title=\"Affero General Public License\">AGPL</abbr></a>."
 
-#: templates/users.php:21 templates/users.php:81
-msgid "Name"
-msgstr "Naam"
+#: templates/users.php:21 templates/users.php:79
+msgid "Login Name"
+msgstr ""
 
-#: templates/users.php:26 templates/users.php:83 templates/users.php:103
+#: templates/users.php:26 templates/users.php:82 templates/users.php:107
 msgid "Groups"
 msgstr "Groepen"
 
@@ -255,28 +251,40 @@ msgstr "Creëer"
 
 #: templates/users.php:35
 msgid "Default Storage"
-msgstr ""
+msgstr "Default opslag"
 
-#: templates/users.php:42 templates/users.php:138
+#: templates/users.php:42 templates/users.php:142
 msgid "Unlimited"
-msgstr ""
+msgstr "Ongelimiteerd"
 
-#: templates/users.php:60 templates/users.php:153
+#: templates/users.php:60 templates/users.php:157
 msgid "Other"
 msgstr "Andere"
 
-#: templates/users.php:85 templates/users.php:117
+#: templates/users.php:80
+msgid "Display Name"
+msgstr ""
+
+#: templates/users.php:84 templates/users.php:121
 msgid "Group Admin"
 msgstr "Groep beheerder"
 
-#: templates/users.php:87
+#: templates/users.php:86
 msgid "Storage"
+msgstr "Opslag"
+
+#: templates/users.php:97
+msgid "change display name"
 msgstr ""
 
-#: templates/users.php:133
+#: templates/users.php:101
+msgid "set new password"
+msgstr ""
+
+#: templates/users.php:137
 msgid "Default"
-msgstr ""
+msgstr "Default"
 
-#: templates/users.php:161
+#: templates/users.php:165
 msgid "Delete"
 msgstr "verwijderen"
