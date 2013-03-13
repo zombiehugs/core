@@ -48,3 +48,9 @@
 .ie8 .oc-dialog {
 	border: 1px solid #888888;
 }
+
+/* IE8 doesn't have rounded corners, so the strengthify bar should be wider */
+.lte8 #body-login .strengthify-wrapper {
+	width: 271px;
+	left: 6px;
+}

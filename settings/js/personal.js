@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2011, Robin Appelman <icewind1991@gmail.com>
+ *               2013, Morris Jobke <morris.jobke@gmail.com>
  * This file is licensed under the Affero General Public License version 3 or later.
  * See the COPYING-README file.
  */
@@ -190,7 +191,7 @@ $(document).ready(function(){
 		var privateKeyPassword = $('#decryptAll input:password[id="privateKeyPassword"]').val();
 		OC.Encryption.decryptAll(privateKeyPassword);
 	});
-	
+
 	$('#decryptAll input:password[name="privateKeyPassword"]').keyup(function(event) {
 		var privateKeyPassword = $('#decryptAll input:password[id="privateKeyPassword"]').val();
 		if (privateKeyPassword !== '' ) {
@@ -202,7 +203,7 @@ $(document).ready(function(){
 			$('#decryptAll button:button[name="submitDecryptAll"]').attr("disabled", "true");
 		}
 	});
-	
+
 	var uploadparms = {
 		done: function(e, data) {
 			avatarResponseHandler(data.result);
@@ -242,6 +243,17 @@ $(document).ready(function(){
 
 	$('#sendcropperbutton').click(function(){
 		sendCropData();
+	});
+
+	$('#pass2').strengthify({
+		zxcvbn: OC.linkTo('3rdparty','zxcvbn/js/zxcvbn.js'),
+		titles: [
+			t('core', 'Very weak password'),
+			t('core', 'Weak password'),
+			t('core', 'So-so password'),
+			t('core', 'Good password'),
+			t('core', 'Strong password')
+		]
 	});
 } );
 
