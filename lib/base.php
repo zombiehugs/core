@@ -66,6 +66,10 @@ class OC {
 	 */
 	public static $REQUESTEDFILE = '';
 	/**
+	 */
+	public static $session = false;
+
+	/**
 	 * check if owncloud runs in cli mode
 	 */
 	public static $CLI = false;
@@ -318,14 +322,17 @@ class OC {
 	}
 
 	public static function initSession() {
+		// (re)-initialize session
+		OC::$session = new OC\Session();
+
 		// prevents javascript from accessing php session cookies
 		ini_set('session.cookie_httponly', '1;');
 
 		// set the session name to the instance id - which is unique
-		session_name(OC_Util::getInstanceId());
+		OC::$session->setName(OC_Util::getInstanceId());
 
 		// if session cant be started break with http 500 error
-		if (session_start() === false){
+		if (OC::$session->start() === false){
 			OC_Log::write('core', 'Session could not be initialized', 
 				OC_Log::ERROR);
 			
@@ -342,23 +349,21 @@ class OC {
 		}
 
 		// regenerate session id periodically to avoid session fixation
-		if (!isset($_SESSION['SID_CREATED'])) {
-			$_SESSION['SID_CREATED'] = time();
-		} else if (time() - $_SESSION['SID_CREATED'] > 60*60*12) {
-			session_regenerate_id(true);
-			$_SESSION['SID_CREATED'] = time();
+		if (!OC::$session->has('SID_CREATED')) {
+			OC::$session->set('SID_CREATED', time());
+		} else if (time() - OC::$session->get('SID_CREATED') > 60*60*12) {
+			OC::$session->migrate(true);
+			OC::$session->set('SID_CREATED', time());
 		}
 
 		// session timeout
-		if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 60*60*24)) {
-			if (isset($_COOKIE[session_name()])) {
-				setcookie(session_name(), '', time() - 42000, '/');
+		if (OC::$session->has('LAST_ACTIVITY') && (time() - OC::$session->get('LAST_ACTIVITY') > 60*60*24)) {
+			if (isset($_COOKIE[OC::$session->getName()])) {
+				setcookie(OC::$session->getName(), '', time() - 42000, '/');
 			}
-			session_unset();
-			session_destroy();
-			session_start();
+			OC::$session->invalidate();
 		}
-		$_SESSION['LAST_ACTIVITY'] = time();
+		OC::$session->set('LAST_ACTIVITY', time());
 	}
 
 	public static function getRouter() {
@@ -475,14 +480,14 @@ class OC {
 
 		// User and Groups
 		if (!OC_Config::getValue("installed", false)) {
-			$_SESSION['user_id'] = '';
+			OC::$session->set('user_id', '');
 		}
 
 		OC_User::useBackend(new OC_User_Database());
 		OC_Group::useBackend(new OC_Group_Database());
 
-		if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SESSION['user_id'])
-			&& $_SERVER['PHP_AUTH_USER'] != $_SESSION['user_id']) {
+		if (isset($_SERVER['PHP_AUTH_USER']) && OC::$session->has('user_id')
+			&& $_SERVER['PHP_AUTH_USER'] != OC::$session->get('user_id')) {
 			OC_User::logout();
 		}
 
@@ -770,7 +775,7 @@ class OC {
 		if (OC_User::login($_POST["user"], $_POST["password"])) {
 			// setting up the time zone
 			if (isset($_POST['timezone-offset'])) {
-				$_SESSION['timezone'] = $_POST['timezone-offset'];
+				OC::$session->set('timezone', $_POST['timezone-offset']);
 			}
 
 			self::cleanupLoginTokens($_POST['user']);

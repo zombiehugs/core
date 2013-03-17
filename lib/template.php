@@ -247,7 +247,7 @@ class OC_Template{
 		if(isset($_GET['formfactor'])) {
 			$_SESSION['formfactor']=$_GET['formfactor'];
 		}
-		$formfactor=$_SESSION['formfactor'];
+		$formfactor=OC::$session->get('formfactor');
 		if($formfactor=='default') {
 			$fext='';
 		}elseif($formfactor=='mobile') {
