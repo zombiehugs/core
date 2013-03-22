@@ -183,7 +183,7 @@ class Google extends \OC\Files\Storage\Common {
 	private function getExtension($entry) {
 		$mimetype = $this->getMimeType('', $entry);
 		switch ($mimetype) {
-			case 'httpd/unix-directory':
+			case \OC\Files\FOLDER_MIMETYPE:
 				return '';
 			case 'application/vnd.oasis.opendocument.text':
 				return 'odt';
@@ -540,7 +540,7 @@ class Google extends \OC\Files\Storage\Common {
 		// and the entry can't be cached without the extension
 		if ($entry == null) {
 			if ($path == '' || $path == '/') {
-				return 'httpd/unix-directory';
+				return \OC\Files\FOLDER_MIMETYPE;
 			} else {
 				$entry = $this->getResource($path);
 			}
@@ -557,7 +557,7 @@ class Google extends \OC\Files\Storage\Common {
 					if ($category->getAttribute('scheme') == 'http://schemas.google.com/g/2005#kind') {
 						$type = $category->getAttribute('label');
 						if (strlen(strstr($type, 'folder')) > 0) {
-							return 'httpd/unix-directory';
+							return \OC\Files\FOLDER_MIMETYPE;
 						} else if (strlen(strstr($type, 'document')) > 0) {
 							return 'application/vnd.oasis.opendocument.text';
 						} else if (strlen(strstr($type, 'spreadsheet')) > 0) {

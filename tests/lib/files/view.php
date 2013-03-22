@@ -47,11 +47,11 @@ class View extends \PHPUnit_Framework_TestCase {
 
 		$cachedData = $rootView->getFileInfo('/');
 		$this->assertEquals($storageSize * 3, $cachedData['size']);
-		$this->assertEquals('httpd/unix-directory', $cachedData['mimetype']);
+		$this->assertEquals(\OC\Files\FOLDER_MIMETYPE, $cachedData['mimetype']);
 
 		$cachedData = $rootView->getFileInfo('/folder');
 		$this->assertEquals($storageSize + $textSize, $cachedData['size']);
-		$this->assertEquals('httpd/unix-directory', $cachedData['mimetype']);
+		$this->assertEquals(\OC\Files\FOLDER_MIMETYPE, $cachedData['mimetype']);
 
 		$folderData = $rootView->getDirectoryContent('/');
 		/**
@@ -156,7 +156,7 @@ class View extends \PHPUnit_Framework_TestCase {
 		$rootView = new \OC\Files\View('');
 
 		$cachedData = $rootView->getFileInfo('/');
-		$this->assertEquals('httpd/unix-directory', $cachedData['mimetype']);
+		$this->assertEquals(\OC\Files\FOLDER_MIMETYPE, $cachedData['mimetype']);
 		$this->assertEquals(-1, $cachedData['size']);
 
 		$folderData = $rootView->getDirectoryContent('/substorage/folder');

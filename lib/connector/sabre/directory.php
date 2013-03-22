@@ -131,7 +131,7 @@ class OC_Connector_Sabre_Directory extends OC_Connector_Sabre_Node implements Sa
 			throw new Sabre_DAV_Exception_NotFound('File with name ' . $path . ' could not be located');
 		}
 
-		if ($info['mimetype'] == 'httpd/unix-directory') {
+		if ($info['mimetype'] == \OC\Files\FOLDER_MIMETYPE) {
 			$node = new OC_Connector_Sabre_Directory($path);
 		} else {
 			$node = new OC_Connector_Sabre_File($path);

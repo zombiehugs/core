@@ -47,7 +47,7 @@ class Test_Helper extends PHPUnit_Framework_TestCase {
 	function testGetMimeType() {
 		$dir=OC::$SERVERROOT.'/tests/data';
 		$result = OC_Helper::getMimeType($dir."/");
-		$expected = 'httpd/unix-directory';
+		$expected = \OC\Files\FOLDER_MIMETYPE;
 		$this->assertEquals($result, $expected);
 
 		$result = OC_Helper::getMimeType($dir."/data.tar.gz");

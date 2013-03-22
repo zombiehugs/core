@@ -32,6 +32,8 @@ namespace OC\Files;
 const FREE_SPACE_UNKNOWN = -2;
 const FREE_SPACE_UNLIMITED = -3;
 
+const FOLDER_MIMETYPE ='httpd/unix-directory';
+
 class Filesystem {
 	public static $loaded = false;
 	/**

@@ -76,7 +76,7 @@ class Watcher extends \PHPUnit_Framework_TestCase {
 		$updater->checkUpdate('');
 
 		$entry = $cache->get('foo.txt');
-		$this->assertEquals('httpd/unix-directory', $entry['mimetype']);
+		$this->assertEquals(\OC\Files\FOLDER_MIMETYPE, $entry['mimetype']);
 		$this->assertFalse($cache->inCache('folder'));
 		$this->assertFalse($cache->inCache('folder/bar.txt'));
 
@@ -92,7 +92,7 @@ class Watcher extends \PHPUnit_Framework_TestCase {
 		$updater->checkUpdate('foo.txt');
 
 		$entry = $cache->get('foo.txt');
-		$this->assertEquals('httpd/unix-directory', $entry['mimetype']);
+		$this->assertEquals(\OC\Files\FOLDER_MIMETYPE, $entry['mimetype']);
 		$this->assertTrue($cache->inCache('foo.txt/bar.txt'));
 	}
 

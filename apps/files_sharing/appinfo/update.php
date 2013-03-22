@@ -15,7 +15,7 @@ if (version_compare($installedVersion, '0.3', '<')) {
 		$itemSource = $meta['fileid'];
 		if ($itemSource != -1) {
 			$file = $meta;
-			if ($file['mimetype'] == 'httpd/unix-directory') {
+			if ($file['mimetype'] == \OC\Files\FOLDER_MIMETYPE) {
 				$itemType = 'folder';
 			} else {
 				$itemType = 'file';

@@ -88,7 +88,7 @@ class Cache extends \PHPUnit_Framework_TestCase {
 		$file1 = 'folder';
 		$file2 = 'folder/bar';
 		$file3 = 'folder/foo';
-		$data1 = array('size' => 100, 'mtime' => 50, 'mimetype' => 'httpd/unix-directory');
+		$data1 = array('size' => 100, 'mtime' => 50, 'mimetype' => \OC\Files\FOLDER_MIMETYPE);
 		$fileData = array();
 		$fileData['bar'] = array('size' => 1000, 'mtime' => 20, 'mimetype' => 'foo/file');
 		$fileData['foo'] = array('size' => 20, 'mtime' => 25, 'mimetype' => 'foo/file');

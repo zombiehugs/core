@@ -49,7 +49,7 @@ class Watcher {
 			} else {
 				$this->scanner->scanFile($path);
 			}
-			if ($cachedEntry['mimetype'] === 'httpd/unix-directory') {
+			if ($cachedEntry['mimetype'] === \OC\Files\FOLDER_MIMETYPE) {
 				$this->cleanFolder($path);
 			}
 			$this->cache->correctFolderSize($path);

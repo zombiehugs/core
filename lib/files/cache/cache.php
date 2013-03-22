@@ -308,7 +308,7 @@ class Cache {
 	 */
 	public function remove($file) {
 		$entry = $this->get($file);
-		if ($entry['mimetype'] === 'httpd/unix-directory') {
+		if ($entry['mimetype'] === \OC\Files\FOLDER_MIMETYPE) {
 			$children = $this->getFolderContents($file);
 			foreach ($children as $child) {
 				$this->remove($child['path']);

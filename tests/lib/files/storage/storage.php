@@ -102,7 +102,7 @@ abstract class Storage extends \PHPUnit_Framework_TestCase {
 	 * test various known mimetypes
 	 */
 	public function testMimeType() {
-		$this->assertEquals('httpd/unix-directory', $this->instance->getMimeType('/'));
+		$this->assertEquals(\OC\Files\FOLDER_MIMETYPE, $this->instance->getMimeType('/'));
 		$this->assertEquals(false, $this->instance->getMimeType('/non/existing/file'));
 
 		$textFile = \OC::$SERVERROOT . '/tests/data/lorem.txt';

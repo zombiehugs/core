@@ -306,7 +306,7 @@ class DAV extends \OC\Files\Storage\Common{
 			$responseType=$response["{DAV:}resourcetype"]->resourceType;
 			$type=(count($responseType)>0 and $responseType[0]=="{DAV:}collection")?'dir':'file';
 			if ($type=='dir') {
-				return 'httpd/unix-directory';
+				return \OC\Files\FOLDER_MIMETYPE;
 			} elseif (isset($response['{DAV:}getcontenttype'])) {
 				return $response['{DAV:}getcontenttype'];
 			} else {

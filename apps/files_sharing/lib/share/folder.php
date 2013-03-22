@@ -25,7 +25,7 @@ class OC_Share_Backend_Folder extends OC_Share_Backend_File implements OCP\Share
 		$children = array();
 		$parents = array($itemSource);
 		$query = \OC_DB::prepare('SELECT `id` FROM `*PREFIX*mimetypes` WHERE `mimetype` = ?');
-		$result = $query->execute(array('httpd/unix-directory'));
+		$result = $query->execute(array(\OC\Files\FOLDER_MIMETYPE));
 		if ($row = $result->fetchRow()) {
 			$mimetype = $row['id'];
 		} else {

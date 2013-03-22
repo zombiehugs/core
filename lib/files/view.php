@@ -703,7 +703,7 @@ class View {
 			$data = $cache->get($internalPath);
 
 			if ($data and $data['fileid']) {
-				if ($data['mimetype'] === 'httpd/unix-directory') {
+				if ($data['mimetype'] === \OC\Files\FOLDER_MIMETYPE) {
 					//add the sizes of other mountpoints to the folder
 					$mountPoints = Filesystem::getMountPoints($path);
 					foreach ($mountPoints as $mountPoint) {
@@ -761,7 +761,7 @@ class View {
 
 			$ids = array();
 			foreach ($files as $i => $file) {
-				$files[$i]['type'] = $file['mimetype'] === 'httpd/unix-directory' ? 'dir' : 'file';
+				$files[$i]['type'] = $file['mimetype'] === \OC\Files\FOLDER_MIMETYPE ? 'dir' : 'file';
 				$ids[] = $file['fileid'];
 
 				$permissions = $permissionsCache->get($file['fileid'], $user);
@@ -798,7 +798,7 @@ class View {
 							}
 						} else { //mountpoint in this folder, add an entry for it
 							$rootEntry['name'] = $relativePath;
-							$rootEntry['type'] = $rootEntry['mimetype'] === 'httpd/unix-directory' ? 'dir' : 'file';
+							$rootEntry['type'] = $rootEntry['mimetype'] === \OC\Files\FOLDER_MIMETYPE ? 'dir' : 'file';
 							$subPermissionsCache = $subStorage->getPermissionsCache('');
 							$permissions = $subPermissionsCache->get($rootEntry['fileid'], $user);
 							if ($permissions === -1) {

@@ -215,7 +215,7 @@ interface Storage {
 
 	/**
 	 * get the mimetype for a file or folder
-	 * The mimetype for a folder is required to be "httpd/unix-directory"
+	 * The mimetype for a folder is required to be "httpd/unix-directory", use \OC\Files\FOLDER_MIMETYPE for this
 	 *
 	 * @param string $path
 	 * @return string

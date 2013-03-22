@@ -223,7 +223,7 @@ class AmazonS3 extends \OC\Files\Storage\Common {
 
 	public function getMimeType($path) {
 		if ($this->filetype($path) == 'dir') {
-			return 'httpd/unix-directory';
+			return \OC\Files\FOLDER_MIMETYPE;
 		} else {
 			$object = $this->getObject($path);
 			if ($object) {

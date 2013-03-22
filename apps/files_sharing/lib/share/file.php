@@ -110,7 +110,7 @@ class OC_Share_Backend_File implements OCP\Share_Backend_File_Dependent {
 				'fileid' => -1,
 				'name' => 'Shared',
 				'mtime' => $mtime,
-				'mimetype' => 'httpd/unix-directory',
+				'mimetype' => \OC\Files\FOLDER_MIMETYPE,
 				'size' => $size
 			);
 		} else if ($format == self::FORMAT_OPENDIR) {

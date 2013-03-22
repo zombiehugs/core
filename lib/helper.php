@@ -366,7 +366,7 @@ class OC_Helper {
 
 		if (@is_dir($path)) {
 			// directories are easy
-			return "httpd/unix-directory";
+			return \OC\Files\FOLDER_MIMETYPE;
 		}
 
 		if(strpos($path, '.')) {

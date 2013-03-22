@@ -168,7 +168,7 @@ abstract class Common implements \OC\Files\Storage\Storage {
 			return false;
 		}
 		if ($this->is_dir($path)) {
-			return 'httpd/unix-directory';
+			return \OC\Files\FOLDER_MIMETYPE;
 		}
 		$source = $this->fopen($path, 'r');
 		if (!$source) {

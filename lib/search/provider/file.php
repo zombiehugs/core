@@ -12,7 +12,7 @@ class OC_Search_Provider_File extends OC_Search_Provider{
 			$name = basename($path);
 			$text = '';
 			$skip = false;
-			if($mime=='httpd/unix-directory') {
+			if($mime==\OC\Files\FOLDER_MIMETYPE) {
 				$link = OC_Helper::linkTo( 'files', 'index.php', array('dir' => $path));
 				$type = (string)$l->t('Files');
 			}else{
