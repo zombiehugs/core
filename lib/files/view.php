@@ -170,29 +170,27 @@ class View {
 	}
 
 	public function is_dir($path) {
-		if ($path == '/') {
-			return true;
-		}
-		return $this->basicOperation('is_dir', $path);
+		$meta = $this->getFileInfo($path);
+		return isset($meta['mimetype']) and $meta['mimetype'] === FOLDER_MIMETYPE;
 	}
 
 	public function is_file($path) {
-		if ($path == '/') {
-			return false;
-		}
-		return $this->basicOperation('is_file', $path);
+		$meta = $this->getFileInfo($path);
+		return isset($meta['mimetype']) and $meta['mimetype'] !== FOLDER_MIMETYPE;
 	}
 
 	public function stat($path) {
-		return $this->basicOperation('stat', $path);
+		return $this->getFileInfo($path);
 	}
 
 	public function filetype($path) {
-		return $this->basicOperation('filetype', $path);
+		$meta = $this->getFileInfo($path);
+		return ($meta['mimetype'] === FOLDER_MIMETYPE) ? 'dir' : 'file';
 	}
 
 	public function filesize($path) {
-		return $this->basicOperation('filesize', $path);
+		$meta = $this->getFileInfo($path);
+		return $meta['size'];
 	}
 
 	public function readfile($path) {
@@ -211,47 +209,51 @@ class View {
 	}
 
 	public function isCreatable($path) {
-		return $this->basicOperation('isCreatable', $path);
+		$meta = $this->getFileInfo($path);
+		return $meta['permissions'] & \OCP\PERMISSION_CREATE;
 	}
 
 	public function isReadable($path) {
-		return $this->basicOperation('isReadable', $path);
+		$meta = $this->getFileInfo($path);
+		return $meta['permissions'] & \OCP\PERMISSION_READ;
 	}
 
 	public function isUpdatable($path) {
-		return $this->basicOperation('isUpdatable', $path);
+		$meta = $this->getFileInfo($path);
+		return $meta['permissions'] & \OCP\PERMISSION_UPDATE;
 	}
 
 	public function isDeletable($path) {
-		return $this->basicOperation('isDeletable', $path);
+		$meta = $this->getFileInfo($path);
+		return $meta['permissions'] & \OCP\PERMISSION_DELETE;
 	}
 
 	public function isSharable($path) {
-		return $this->basicOperation('isSharable', $path);
+		$meta = $this->getFileInfo($path);
+		return $meta['permissions'] & \OCP\PERMISSION_SHARE;
 	}
 
 	public function file_exists($path) {
-		if ($path == '/') {
-			return true;
-		}
-		return $this->basicOperation('file_exists', $path);
+		$meta = $this->getFileInfo($path);
+		return is_array($meta) and isset($meta['fileid']);
 	}
 
 	public function filemtime($path) {
-		return $this->basicOperation('filemtime', $path);
+		$meta = $this->getFileInfo($path);
+		return $meta['mtime'];
 	}
 
 	public function touch($path, $mtime = null) {
 		if (!is_null($mtime) and !is_numeric($mtime)) {
 			$mtime = strtotime($mtime);
 		}
-		
+
 		$hooks = array('touch');
-		
+
 		if (!$this->file_exists($path)) {
 			$hooks[] = 'write';
 		}
-		
+
 		return $this->basicOperation('touch', $path, $hooks, $mtime);
 	}
 
@@ -263,7 +265,8 @@ class View {
 		if (is_resource($data)) { //not having to deal with streams in file_put_contents makes life easier
 			$absolutePath = Filesystem::normalizePath($this->getAbsolutePath($path));
 			if (\OC_FileProxy::runPreProxies('file_put_contents', $absolutePath, $data)
-				&& Filesystem::isValidPath($path)) {
+				&& Filesystem::isValidPath($path)
+			) {
 				$path = $this->getRelativePath($absolutePath);
 				$exists = $this->file_exists($path);
 				$run = true;
@@ -336,7 +339,8 @@ class View {
 		$absolutePath1 = Filesystem::normalizePath($this->getAbsolutePath($path1));
 		$absolutePath2 = Filesystem::normalizePath($this->getAbsolutePath($path2));
 		if (\OC_FileProxy::runPreProxies('rename', $absolutePath1, $absolutePath2)
-			and Filesystem::isValidPath($path2)) {
+			and Filesystem::isValidPath($path2)
+		) {
 			$path1 = $this->getRelativePath($absolutePath1);
 			$path2 = $this->getRelativePath($absolutePath2);
 
@@ -551,7 +555,8 @@ class View {
 	}
 
 	public function getMimeType($path) {
-		return $this->basicOperation('getMimeType', $path);
+		$meta = $this->getFileInfo($path);
+		return $meta['mimetype'];
 	}
 
 	public function hash($type, $path, $raw = false) {
@@ -930,11 +935,11 @@ class View {
 	}
 
 	/**
-	* Get the owner for a file or folder
-	*
-	* @param string $path
-	* @return string
-	*/
+	 * Get the owner for a file or folder
+	 *
+	 * @param string $path
+	 * @return string
+	 */
 	public function getOwner($path) {
 		return $this->basicOperation('getOwner', $path);
 	}
@@ -946,16 +951,8 @@ class View {
 	 * @return string
 	 */
 	public function getETag($path) {
-		/**
-		 * @var Storage\Storage $storage
-		 * @var string $internalPath
-		 */
-		list($storage, $internalPath) = $this->resolvePath($path);
-		if ($storage) {
-			return $storage->getETag($internalPath);
-		} else {
-			return null;
-		}
+		$meta = $this->getFileInfo($path);
+		return $meta['etag'];
 	}
 
 	/**
