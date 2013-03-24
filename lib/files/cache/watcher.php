@@ -28,12 +28,20 @@ class Watcher {
 	private $scanner;
 
 	/**
+	 * @var array $checked list of paths already checked for all storages
+	 */
+	static private $checked = array();
+
+	/**
 	 * @param \OC\Files\Storage\Storage $storage
 	 */
 	public function __construct(\OC\Files\Storage\Storage $storage) {
 		$this->storage = $storage;
 		$this->cache = $storage->getCache();
 		$this->scanner = $storage->getScanner();
+		if (!isset(self::$checked[$this->storage->getId()])) {
+			self::$checked[$this->storage->getId()] = array();
+		}
 	}
 
 	/**
@@ -42,17 +50,20 @@ class Watcher {
 	 * @param string $path
 	 */
 	public function checkUpdate($path) {
-		$cachedEntry = $this->cache->get($path);
-		if ($this->storage->hasUpdated($path, $cachedEntry['mtime'])) {
-			if ($this->storage->is_dir($path)) {
-				$this->scanner->scan($path, Scanner::SCAN_SHALLOW);
-			} else {
-				$this->scanner->scanFile($path);
+		if (array_search($path, self::$checked[$this->storage->getId()]) === false) {
+			$cachedEntry = $this->cache->get($path);
+			if ($this->storage->hasUpdated($path, $cachedEntry['mtime'])) {
+				if ($this->storage->is_dir($path)) {
+					$this->scanner->scan($path, Scanner::SCAN_SHALLOW);
+				} else {
+					$this->scanner->scanFile($path);
+				}
+				if ($cachedEntry['mimetype'] === \OC\Files\FOLDER_MIMETYPE) {
+					$this->cleanFolder($path);
+				}
+				$this->cache->correctFolderSize($path);
 			}
-			if ($cachedEntry['mimetype'] === \OC\Files\FOLDER_MIMETYPE) {
-				$this->cleanFolder($path);
-			}
-			$this->cache->correctFolderSize($path);
+			self::$checked[$this->storage->getId()][] = $path;
 		}
 	}
 
