@@ -349,6 +349,14 @@ class View {
 			if ($path1 == null or $path2 == null) {
 				return false;
 			}
+			// Prevent renaming of mount points
+			$parent1 = substr($path1, 0, strrpos($path1, '/'));
+			$parent2 = substr($path2, 0, strrpos($path2, '/'));
+			$mountPoints1 = Filesystem::getMountPoints($parent1);
+			$mountPoints2 = Filesystem::getMountPoints($parent2);
+			if (in_array($path1, $mountPoints1) || in_array($path2, $mountPoints2)) {
+				return false;
+			}
 			$run = true;
 			if ($this->fakeRoot == Filesystem::getRoot() && !Cache\Scanner::isPartialFile($path1)) {
 				\OC_Hook::emit(
