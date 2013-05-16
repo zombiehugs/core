@@ -76,7 +76,10 @@ class Connection {
 		$this->configPrefix = $configPrefix;
 		$this->configID = $configID;
 		$this->cache = \OC_Cache::getGlobalCache();
-		$this->config['hasPagedResultSupport'] = (function_exists('ldap_control_paged_result')
+		$pagedSearchDisabled = $this->getValue('ldap_paged_search_disabled');
+		$this->config['hasPagedResultSupport'] = (
+			!$pagedSearchDisabled
+			&& function_exists('ldap_control_paged_result')
 			&& function_exists('ldap_control_paged_result_response'));
 	}
 
@@ -110,6 +113,13 @@ class Connection {
 		if($changed) {
 			$this->validateConfiguration();
 		}
+	}
+
+	/**
+	 * Disables Paged Search permanently
+	 */
+	public function disablePagedSearch() {
+		$this->setValue('ldap_paged_search_disabled', 1);
 	}
 
 	/**
@@ -377,6 +387,7 @@ class Connection {
 
 		    $this->setValue($trans[$key], $value);
 		}
+		$this->setValue('ldap_paged_search_disabled', 0);
 		$this->clearCache();
 	}
 
@@ -543,6 +554,7 @@ class Connection {
 			'ldap_configuration_active'			=> 1,
 			'ldap_attributes_for_user_search'	=> '',
 			'ldap_attributes_for_group_search'	=> '',
+			'ldap_paged_search_disabled'		=> 0,
 		);
 	}
 

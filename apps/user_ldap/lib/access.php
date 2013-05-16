@@ -682,6 +682,11 @@ abstract class Access {
 				if(ldap_control_paged_result_response($link_resource, $res, $cookie)) {
 					\OCP\Util::writeLog('user_ldap', 'Set paged search cookie', \OCP\Util::INFO);
 					$this->setPagedResultCookie($base[$key], $filter, $limit, $offset, $cookie);
+				} else {
+					$error = ldap_errno($link_resource);
+					if($error === 2) {
+						$this->connection->disablePagedSearch();
+					}
 				}
 			}
 
