@@ -8,6 +8,7 @@
 
 namespace OC\Files\Mount;
 
+use OC\Files\Cache\Storage;
 use \OC\Files\Filesystem;
 
 class Manager {
@@ -21,6 +22,27 @@ class Manager {
 	 */
 	public function addMount($mount) {
 		$this->mounts[$mount->getMountPoint()] = $mount;
+	}
+
+	/**
+	 * get the mount mounted at $path
+	 *
+	 * @param string $path
+	 * @return Mount
+	 */
+	public function get($path) {
+		if (isset($this->mounts[$path])) {
+			return $this->mounts[$path];
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * @param Mount $mount
+	 */
+	public function remove($mount) {
+		unset($this->mounts[$mount->getMountPoint()]);
 	}
 
 	/**
@@ -99,10 +121,10 @@ class Manager {
 	 * Find mounts by numeric storage id
 	 *
 	 * @param string $id
-	 * @return Mount
+	 * @return Mount[]
 	 */
 	public function findByNumericId($id) {
-		$storageId = \OC\Files\Cache\Storage::getStorageId($id);
+		$storageId = Storage::getStorageId($id);
 		return $this->findByStorageId($storageId);
 	}
 

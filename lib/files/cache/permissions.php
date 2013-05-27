@@ -132,6 +132,7 @@ class Permissions {
 	 * get the list of users which have permissions stored for a file
 	 *
 	 * @param int $fileId
+	 * @return string[]
 	 */
 	public function getUsers($fileId) {
 		$query = \OC_DB::prepare('SELECT `user` FROM `*PREFIX*permissions` WHERE `fileid` = ?');
