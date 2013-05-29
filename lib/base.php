@@ -360,7 +360,7 @@ class OC {
 		self::$loader->registerPrefix('Doctrine\\DBAL', 'doctrine/dbal/lib');
 		self::$loader->registerPrefix('Symfony\\Component\\Routing', 'symfony/routing');
 		self::$loader->registerPrefix('Sabre\\VObject', '3rdparty');
-		self::$loader->registerPrefix('Sabre_', '3rdparty');
+		self::$loader->registerPrefix('Sabre', '3rdparty');
 		spl_autoload_register(array(self::$loader, 'load'));
 
 		// set some stuff

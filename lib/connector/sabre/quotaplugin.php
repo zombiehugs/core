@@ -7,7 +7,7 @@
  * @author Sergio Cambra
  * @license http://code.google.com/p/sabredav/wiki/License Modified BSD License
  */
-class OC_Connector_Sabre_QuotaPlugin extends Sabre_DAV_ServerPlugin {
+class OC_Connector_Sabre_QuotaPlugin extends \Sabre\DAV\ServerPlugin {
 
 	/**
 		* Reference to main server object
@@ -24,10 +24,10 @@ class OC_Connector_Sabre_QuotaPlugin extends Sabre_DAV_ServerPlugin {
 		*
 		* This method should set up the requires event subscriptions.
 		*
-		* @param Sabre_DAV_Server $server
+		* @param \Sabre\DAV\Server $server
 		* @return void
 		*/
-	public function initialize(Sabre_DAV_Server $server) {
+	public function initialize(\Sabre\DAV\Server $server) {
 
 			$this->server = $server;
 			$this->server->subscribeEvent('beforeWriteContent', array($this, 'checkQuota'), 10);
@@ -36,12 +36,13 @@ class OC_Connector_Sabre_QuotaPlugin extends Sabre_DAV_ServerPlugin {
 	}
 
 	/**
-		* This method is called before any HTTP method and forces users to be authenticated
-		*
-		* @param string $method
-		* @throws Sabre_DAV_Exception
-		* @return bool
-		*/
+	 * This method is called before any HTTP method and forces users to be authenticated
+	 *
+	 * @param string $method
+	 * @param mixed $data
+	 * @throws \Sabre\DAV\Exception\InsufficientStorage
+	 * @return bool
+	 */
 	public function checkQuota($uri, $data = null) {
 		$expected = $this->server->httpRequest->getHeader('X-Expected-Entity-Length');
 		$length = $expected ? $expected : $this->server->httpRequest->getHeader('Content-Length');
@@ -49,10 +50,10 @@ class OC_Connector_Sabre_QuotaPlugin extends Sabre_DAV_ServerPlugin {
 			if (substr($uri, 0, 1)!=='/') {
 				$uri='/'.$uri;
 			}
-			list($parentUri, $newName) = Sabre_DAV_URLUtil::splitPath($uri);
+			list($parentUri, $newName) = \Sabre\DAV\URLUtil::splitPath($uri);
 			$freeSpace = \OC\Files\Filesystem::free_space($parentUri);
 			if ($freeSpace !== \OC\Files\FREE_SPACE_UNKNOWN && $length > $freeSpace) {
-				throw new Sabre_DAV_Exception_InsufficientStorage();
+				throw new \Sabre\DAV\Exception\InsufficientStorage();
 			}
 		}
 		return true;

@@ -8,7 +8,7 @@
  * @license AGPL3
  */
 
-class Sabre_DAV_Exception_ServiceUnavailable extends Sabre_DAV_Exception {
+class Sabre_DAV_Exception_ServiceUnavailable extends \Sabre\DAV\Exception {
 
 	/**
 	 * Returns the HTTP statuscode for this exception

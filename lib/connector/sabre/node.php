@@ -21,7 +21,7 @@
  *
  */
 
-abstract class OC_Connector_Sabre_Node implements Sabre_DAV_INode, Sabre_DAV_IProperties {
+abstract class OC_Connector_Sabre_Node implements \Sabre\DAV\INode, \Sabre\DAV\IProperties {
 	const GETETAG_PROPERTYNAME = '{DAV:}getetag';
 	const LASTMODIFIED_PROPERTYNAME = '{DAV:}lastmodified';
 
@@ -66,7 +66,7 @@ abstract class OC_Connector_Sabre_Node implements Sabre_DAV_INode, Sabre_DAV_IPr
 	 */
 	public function getName() {
 
-		list(, $name)  = Sabre_DAV_URLUtil::splitPath($this->path);
+		list(, $name)  = \Sabre\DAV\URLUtil::splitPath($this->path);
 		return $name;
 
 	}
@@ -78,8 +78,8 @@ abstract class OC_Connector_Sabre_Node implements Sabre_DAV_INode, Sabre_DAV_IPr
 	 */
 	public function setName($name) {
 
-		list($parentPath, ) = Sabre_DAV_URLUtil::splitPath($this->path);
-		list(, $newName) = Sabre_DAV_URLUtil::splitPath($name);
+		list($parentPath, ) = \Sabre\DAV\URLUtil::splitPath($this->path);
+		list(, $newName) = \Sabre\DAV\URLUtil::splitPath($name);
 
 		$newPath = $parentPath . '/' . $newName;
 		$oldPath = $this->path;

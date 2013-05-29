@@ -38,14 +38,14 @@ $requestBackend = new OC_Connector_Sabre_Request();
 $publicDir = new OC_Connector_Sabre_Directory('');
 
 // Fire up server
-$server = new Sabre_DAV_Server($publicDir);
+$server = new \Sabre\DAV\Server($publicDir);
 $server->httpRequest = $requestBackend;
 $server->setBaseUri($baseuri);
 
 // Load plugins
-$server->addPlugin(new Sabre_DAV_Auth_Plugin($authBackend, 'ownCloud'));
-$server->addPlugin(new Sabre_DAV_Locks_Plugin($lockBackend));
-$server->addPlugin(new Sabre_DAV_Browser_Plugin(false)); // Show something in the Browser, but no upload
+$server->addPlugin(new \Sabre\DAV\Auth\Plugin($authBackend, 'ownCloud'));
+$server->addPlugin(new \Sabre\DAV\Locks\Plugin($lockBackend));
+$server->addPlugin(new \Sabre\DAV\Browser\Plugin(false)); // Show something in the Browser, but no upload
 $server->addPlugin(new OC_Connector_Sabre_QuotaPlugin());
 $server->addPlugin(new OC_Connector_Sabre_MaintenancePlugin());
 

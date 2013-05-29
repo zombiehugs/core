@@ -21,7 +21,7 @@
  *
  */
 
-class OC_Connector_Sabre_Directory extends OC_Connector_Sabre_Node implements Sabre_DAV_ICollection, Sabre_DAV_IQuota {
+class OC_Connector_Sabre_Directory extends OC_Connector_Sabre_Node implements \Sabre\DAV\ICollection, \Sabre\DAV\IQuota {
 
 	/**
 	 * Creates a new file in the directory
@@ -51,7 +51,7 @@ class OC_Connector_Sabre_Directory extends OC_Connector_Sabre_Node implements Sa
 		if (isset($_SERVER['HTTP_OC_CHUNKED'])) {
 			$info = OC_FileChunking::decodeName($name);
 			if (empty($info)) {
-				throw new Sabre_DAV_Exception_NotImplemented();
+				throw new \Sabre\DAV\Exception\NotImplemented();
 			}
 			$chunk_handler = new OC_FileChunking($info);
 			$chunk_handler->store($info['index'], $data);
@@ -75,7 +75,7 @@ class OC_Connector_Sabre_Directory extends OC_Connector_Sabre_Node implements Sa
 					$actual = \OC\Files\Filesystem::filesize($partpath);
 					if ($actual != $expected) {
 						\OC\Files\Filesystem::unlink($partpath);
-						throw new Sabre_DAV_Exception_BadRequest(
+						throw new \Sabre\DAV\Exception\BadRequest(
 								'expected filesize ' . $expected . ' got ' . $actual);
 					}
 				}
@@ -108,7 +108,7 @@ class OC_Connector_Sabre_Directory extends OC_Connector_Sabre_Node implements Sa
 
 		$newPath = $this->path . '/' . $name;
 		if(!\OC\Files\Filesystem::mkdir($newPath)) {
-			throw new Sabre_DAV_Exception_Forbidden('Could not create directory '.$newPath);
+			throw new \Sabre\DAV\Exception\Forbidden('Could not create directory '.$newPath);
 		}
 
 	}
@@ -128,7 +128,7 @@ class OC_Connector_Sabre_Directory extends OC_Connector_Sabre_Node implements Sa
 		}
 
 		if (!$info) {
-			throw new Sabre_DAV_Exception_NotFound('File with name ' . $path . ' could not be located');
+			throw new \Sabre\DAV\Exception\NotFound('File with name ' . $path . ' could not be located');
 		}
 
 		if ($info['mimetype'] == 'httpd/unix-directory') {

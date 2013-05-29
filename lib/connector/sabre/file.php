@@ -21,7 +21,7 @@
  *
  */
 
-class OC_Connector_Sabre_File extends OC_Connector_Sabre_Node implements Sabre_DAV_IFile {
+class OC_Connector_Sabre_File extends OC_Connector_Sabre_Node implements \Sabre\DAV\IFile {
 
 	/**
 	 * Updates the data
