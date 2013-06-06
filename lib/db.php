@@ -271,6 +271,7 @@ class OC_DB {
 						'hostspec' => $host,
 						'charset' => 'AL32UTF8',
 					);
+					//FIXME use 'quote_identifier', true: http://pear.php.net/manual/en/package.database.mdb2.intro-quote.php
 					break;
 				case 'mssql':
 					$dsn = array(
@@ -591,7 +592,7 @@ class OC_DB {
 			$oldname = $definition['name'];
 			$definition['name']=OC_Config::getValue( "dbuser", $oldname );
 		}
-
+		
 		// we should never drop a database
 		$definition['overwrite'] = false;
 
