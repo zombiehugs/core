@@ -12,7 +12,6 @@
 // \OCP\Util::addScript( 'settings', 'users' );
 // \OCP\Util::addScript( 'settings', 'users' );
 \OCP\Util::addScript( 'settings', 'users/controllers/maincontroller' );
-\OCP\Util::addScript( 'settings', 'users/directives/slidetoggle' );
 
 \OCP\Util::addScript( 'core', 'multiselect' );
 \OCP\Util::addScript( 'core', 'singleselect' );
