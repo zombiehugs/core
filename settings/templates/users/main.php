@@ -28,7 +28,7 @@
 			<?php print_unescaped($this->inc('users/user-sidebar')); ?>
 		</ul>
 	</div>
-	<div id="user-content">
+	<div id="user-content" style="margin-left:250px;"> <!--Remove Inline CSS-->
 		<div id="hascontrols" ng-controller="">
 			<?php print_unescaped($this->inc('users/add-user')); ?>
 		</div>
