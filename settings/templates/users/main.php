@@ -11,7 +11,9 @@
 \OCP\Util::addScript('settings','vendor/angular/angular');
 // \OCP\Util::addScript( 'settings', 'users' );
 // \OCP\Util::addScript( 'settings', 'users' );
+// Get a better way to get the controlers in */
 \OCP\Util::addScript('settings','users/controllers/addgroupController');
+\OCP\Util::addScript('settings','users/controllers/grouplistController');
 \OCP\Util::addScript( 'core', 'multiselect' );
 \OCP\Util::addScript( 'core', 'singleselect' );
 \OCP\Util::addScript('core', 'jquery.inview');
@@ -20,7 +22,7 @@
 
 ?>
 
-<div id="user-settings" ng-app="users">
+<div id="user-settings" ng-app="users-manage">
 	
 	<div id="app-navigation" style="position:absolute;"> <!--Remove Inline CSS-->
 		<ul>
