@@ -11,8 +11,7 @@
 \OCP\Util::addScript('settings','vendor/angular/angular');
 // \OCP\Util::addScript( 'settings', 'users' );
 // \OCP\Util::addScript( 'settings', 'users' );
-\OCP\Util::addScript( 'settings', 'users/controllers/addgroupController' );
-
+\OCP\Util::addScript('settings','users/controllers/addgroupController');
 \OCP\Util::addScript( 'core', 'multiselect' );
 \OCP\Util::addScript( 'core', 'singleselect' );
 \OCP\Util::addScript('core', 'jquery.inview');
@@ -21,18 +20,19 @@
 
 ?>
 
-<div id="user-settings" ng-app>
-	<div id="app-navigation" ng-controller="" style="position:absolute;"> <!--Remove Inline CSS-->
+<div id="user-settings" ng-app="users">
+	
+	<div id="app-navigation" style="position:absolute;"> <!--Remove Inline CSS-->
 		<ul>
 			<?php print_unescaped($this->inc('users/add-group')); ?>
 			<?php print_unescaped($this->inc('users/user-sidebar')); ?>
 		</ul>
 	</div>
 	<div id="user-content" style="margin-left:250px;"> <!--Remove Inline CSS-->
-		<div id="hascontrols" ng-controller="">
+		<div id="hascontrols">
 			<?php print_unescaped($this->inc('users/add-user')); ?>
 		</div>
-		<div id="user-table" ng-controller="">
+		<div id="user-table">
 			<?php print_unescaped($this->inc('users/user-list')); ?>
 		</div>
 	</div>
