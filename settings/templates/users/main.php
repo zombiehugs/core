@@ -8,10 +8,10 @@
 
 // Takes angular from 3rdparty angular branch.
 
-\OCP\Util::addScript('3rdParty/js/angular','angular');
+\OCP\Util::addScript('settings','vendor/angular/angular');
 // \OCP\Util::addScript( 'settings', 'users' );
 // \OCP\Util::addScript( 'settings', 'users' );
-\OCP\Util::addScript( 'settings', 'users/controllers/maincontroller' );
+\OCP\Util::addScript( 'settings', 'users/controllers/addgroupController' );
 
 \OCP\Util::addScript( 'core', 'multiselect' );
 \OCP\Util::addScript( 'core', 'singleselect' );

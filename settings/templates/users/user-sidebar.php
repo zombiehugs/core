@@ -5,7 +5,6 @@
  * See the COPYING-README file.
  */
 ?>
-<li><a>
-	List of all groups come here.
-</a>
+<li class="user-groups" ng-controller="addgroupController" ng-repeat="group in groups">
+	<a href="#"> {{ group }}</a>
 </li>

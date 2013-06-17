@@ -4,8 +4,10 @@
  * See the COPYING-README file.
  */
 var users = angular.module('users', []);
-users.controller('add-group',
-	function($scope) {
-		
+users.controller('addgroupController',
+	function($scope, $http) {
+		$http.get('/users').success(function(data, status, headers, config) {
+			$scope.groupname = data; 
+		});
 	}
-)
+);
