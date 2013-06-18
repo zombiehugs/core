@@ -6,6 +6,6 @@
  */
 ?>
 <!-- TODO: Implement Sorting-->
-<li class="user-groups" ng-controller="grouplistController" ng-repeat= "user in users">
-	<a href="#">{{user.name}}</a>
+<li class="user-groups" ng-controller="grouplistController" ng-repeat= "group in groupname">
+	<a href="#">{{group.groupname}}</a>
 </li>

@@ -6,7 +6,7 @@
 var users = angular.module('users-manage', []);
 users_manage.controller('grouplistController',
 	function($scope, $http) {
-		$http.get(OC.filePath('settings','ajax','userlist.php')).success(function(data, status, headers, config) {
-			$scope.users = data;
+		$http.post('settings_ajax_creategroup').success(function(data, status, headers, config) {
+			$scope.groupname = data;
 		});
 	});
