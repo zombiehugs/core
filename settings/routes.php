@@ -21,7 +21,7 @@ $this->create('settings_admin', '/settings/admin')
 // users
 
 OC::$CLASSPATH['PageController'] = 'settings/controller/users/pagecontroller.php';
-	$this->create('settings_users', '/settings/users')->get()->action('getUsergroups', 'index'); /* breaks Stuff in core*/
+	$this->create('settings_users', '/settings/users')->get()->action('Users_PageController', 'index'); /* breaks Stuff in core*/
 	
 $this->create('settings_ajax_userlist', '/settings/ajax/userlist')
 	->actionInclude('settings/ajax/userlist.php');
