@@ -16,8 +16,8 @@
 			<th class="table-head delete-user"><!--Place for Delete Button--></th>
 		</tr>
 	</thead>
-	<tbody>
-		<tr>
+	<tbody ng-controller="userlistController">
+		<tr ng-repeat="user in users">
 			<td class="login-name"></td>
 			<td class="display-name"></td>
 			<td class="user-pass"></td>

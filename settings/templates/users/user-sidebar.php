@@ -5,7 +5,7 @@
  * See the COPYING-README file.
  */
 ?>
-<!-- TODO: Implement Sorting-->
-<li class="user-groups" ng-controller="grouplistController" ng-repeat= "group in groupname">
-	<a href="#">{{group.groupname}}</a>
+<!-- TODO: Implement Sorting, Everyone and Admin on top-->
+<li class="user-groups" ng-controller="grouplistController" ng-repeat= "group in groups">
+	<a href="#">{{group.groups}}</a>
 </li>

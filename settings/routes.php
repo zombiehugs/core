@@ -13,14 +13,16 @@ $this->create('settings_personal', '/settings/personal')
 	->actionInclude('settings/personal.php');
 $this->create('settings_settings', '/settings')
 	->actionInclude('settings/settings.php');
-$this->create('settings_users', '/settings/users')
-	->actionInclude('settings/users.php');
 $this->create('settings_apps', '/settings/apps')
 	->actionInclude('settings/apps.php');
 $this->create('settings_admin', '/settings/admin')
 	->actionInclude('settings/admin.php');
 // Settings ajax actions
 // users
+
+OC::$CLASSPATH['PageController'] = 'settings/controller/users/pagecontroller.php';
+	$this->create('settings_users', '/settings/users')->get()->action('getUsergroups', 'index'); /* breaks Stuff in core*/
+	
 $this->create('settings_ajax_userlist', '/settings/ajax/userlist')
 	->actionInclude('settings/ajax/userlist.php');
 $this->create('settings_ajax_createuser', '/settings/ajax/createuser.php')

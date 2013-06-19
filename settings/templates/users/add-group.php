@@ -5,7 +5,7 @@
  * See the COPYING-README file.
  */
 ?>
-<li>
+<li ng-controller="addgroupController">
 	<div>
 		<!-- Todo : Add Error Message for repetition in groups.-->
 		<fieldset>

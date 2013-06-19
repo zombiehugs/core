@@ -14,6 +14,7 @@
 // Get a better way to get the controlers in */
 \OCP\Util::addScript('settings','users/controllers/addgroupController');
 \OCP\Util::addScript('settings','users/controllers/grouplistController');
+\OCP\Util::addScript('settings','users/controllers/userlistController');
 \OCP\Util::addScript( 'core', 'multiselect' );
 \OCP\Util::addScript( 'core', 'singleselect' );
 \OCP\Util::addScript('core', 'jquery.inview');
