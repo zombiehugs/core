@@ -941,4 +941,51 @@ class File extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('qwerty', fread($targetStream, 6));
 		$this->assertEquals($storage2, $node->getStorage());
 	}
+
+	public function testPutContentStream() {
+		/**
+		 * @var \OC\Files\Mount\Manager $manager
+		 */
+		$manager = $this->getMock('\OC\Files\Mount\Manager');
+		$root = $this->getMock('\OC\Files\Node\Root', array(), array($manager, $this->user));
+		/**
+		 * @var \OC\Files\Storage\Storage | \PHPUnit_Framework_MockObject_MockObject $storage
+		 */
+		$storage = $this->getMock('\OC\Files\Storage\Storage');
+
+		$scanner = $this->getMockBuilder('\OC\Files\Cache\Scanner')
+			->disableOriginalConstructor()
+			->getMock();
+
+		$cache = $this->getMockBuilder('\OC\Files\Cache\Cache')
+			->disableOriginalConstructor()
+			->getMock();
+
+
+		$storage->expects($this->any())
+			->method('getScanner')
+			->will($this->returnValue($scanner));
+		$storage->expects($this->any())
+			->method('getCache')
+			->will($this->returnValue($cache));
+
+		$storage->expects($this->never())
+			->method('file_put_contents');
+
+		$targetStream = fopen('static://target', 'w');
+		$sourceStream = fopen('static://source', 'w+');
+
+		fwrite($sourceStream, 'qwerty');
+		rewind($sourceStream);
+
+		$storage->expects($this->once())
+			->method('fopen')
+			->with('foo')
+			->will($this->returnValue($targetStream));
+
+		$node = new \OC\Files\Node\File($root, $storage, 'foo', '/bar/foo', array('fileid' => 1, 'mimetype' => 'text/plain', 'permissions' => \OCP\PERMISSION_ALL));
+
+		$node->putContent($sourceStream);
+		$this->assertEquals('qwerty', stream_get_contents(fopen('static://target', 'r')));
+	}
 }

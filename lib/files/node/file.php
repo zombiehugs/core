@@ -32,13 +32,19 @@ class File extends Node {
 	 */
 	public function putContent($data) {
 		if ($this->checkPermissions(\OCP\PERMISSION_UPDATE)) {
-			/**
-			 * @var \OC\Files\Storage\Storage $storage;
-			 */
-			$this->sendHooks(array('preWrite'));
-			$this->storage->file_put_contents($this->internalPath, $data);
-			$this->updateCache();
-			$this->sendHooks(array('postWrite'));
+			if (is_resource($data)) {
+				$fh = $this->fopen('w');
+				stream_copy_to_stream($data, $fh);
+				fclose($fh);
+			} else {
+				/**
+				 * @var \OC\Files\Storage\Storage $storage;
+				 */
+				$this->sendHooks(array('preWrite'));
+				$this->storage->file_put_contents($this->internalPath, $data);
+				$this->updateCache();
+				$this->sendHooks(array('postWrite'));
+			}
 		} else {
 			throw new NotPermittedException();
 		}
