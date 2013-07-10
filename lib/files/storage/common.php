@@ -133,7 +133,7 @@ abstract class Common implements \OC\Files\Storage\Storage {
 			if ($this->file_exists($path2)) {
 				if ($this->is_dir($path2)) {
 					$this->rmdir($path2);
-				} else if ($this->is_file($path2)) {
+				} else {
 					$this->unlink($path2);
 				}
 			}
