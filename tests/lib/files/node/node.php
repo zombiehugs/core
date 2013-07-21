@@ -30,7 +30,8 @@ class Node extends \PHPUnit_Framework_TestCase {
 			'fileid' => 1,
 			'size' => 100,
 			'etag' => 'qwerty',
-			'mtime' => 50
+			'mtime' => 50,
+			'permissions' => 0
 		);
 		$node = new \OC\Files\Node\File($root, $storage, 'foo', '/bar/foo', $stat);
 		$this->assertEquals($stat, $node->stat());

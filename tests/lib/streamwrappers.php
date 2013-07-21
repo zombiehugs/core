@@ -72,14 +72,14 @@ class Test_StreamWrappers extends PHPUnit_Framework_TestCase {
 
 		$this->assertTrue(file_exists('oc:///foo.txt'));
 		$this->assertEquals('asd', file_get_contents('oc:///foo.txt'));
-		$this->assertEquals(array('.', '..', 'foo.txt'), scandir('oc:///'));
+		$this->assertEquals(array('foo.txt'), scandir('oc:///'));
 
 		file_put_contents('oc:///bar.txt', 'qwerty');
 		$this->assertEquals('qwerty', $storage->file_get_contents('bar.txt'));
-		$this->assertEquals(array('.', '..', 'bar.txt', 'foo.txt'), scandir('oc:///'));
+		$this->assertEquals(array('bar.txt', 'foo.txt'), scandir('oc:///'));
 		$this->assertEquals('qwerty', file_get_contents('oc:///bar.txt'));
 
 		unlink('oc:///foo.txt');
-		$this->assertEquals(array('.', '..', 'bar.txt'), scandir('oc:///'));
+		$this->assertEquals(array('bar.txt'), scandir('oc:///'));
 	}
 }
