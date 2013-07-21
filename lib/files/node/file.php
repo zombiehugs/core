@@ -32,19 +32,16 @@ class File extends Node {
 	 */
 	public function putContent($data) {
 		if ($this->checkPermissions(\OCP\PERMISSION_UPDATE)) {
+			$this->sendHooks(array('preWrite'));
 			if (is_resource($data)) {
 				$fh = $this->fopen('w');
 				stream_copy_to_stream($data, $fh);
 				fclose($fh);
 			} else {
-				/**
-				 * @var \OC\Files\Storage\Storage $storage;
-				 */
-				$this->sendHooks(array('preWrite'));
 				$this->storage->file_put_contents($this->internalPath, $data);
-				$this->updateCache();
-				$this->sendHooks(array('postWrite'));
 			}
+			$this->updateCache();
+			$this->sendHooks(array('postWrite'));
 		} else {
 			throw new NotPermittedException();
 		}
@@ -116,6 +113,7 @@ class File extends Node {
 	 * @return \OC\Files\Node\Node
 	 */
 	public function copy($targetPath) {
+		$targetPath = $this->normalizePath($targetPath);
 		$parent = $this->root->get(dirname($targetPath));
 		if ($parent instanceof Folder and $this->isValidPath($targetPath) and $parent->isCreatable()) {
 			/**
@@ -154,6 +152,7 @@ class File extends Node {
 	 * @return \OC\Files\Node\Node
 	 */
 	public function move($targetPath) {
+		$targetPath = $this->normalizePath($targetPath);
 		$parent = $this->root->get(dirname($targetPath));
 		if ($parent instanceof Folder and $this->isValidPath($targetPath) and $parent->isCreatable()) {
 			/**
@@ -190,5 +189,14 @@ class File extends Node {
 		} else {
 			throw new NotPermittedException();
 		}
+	}
+
+	/**
+	 * @param string $type
+	 * @param bool $raw
+	 * @return string
+	 */
+	public function hash($type, $raw = false) {
+		return $this->storage->hash($type, $this->internalPath, $raw);
 	}
 }

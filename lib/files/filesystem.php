@@ -30,7 +30,9 @@
 
 namespace OC\Files;
 
+use OC\Files\Node\Root;
 use OC\Files\Storage\Loader;
+use OC\User\User;
 const FREE_SPACE_UNKNOWN = -2;
 const FREE_SPACE_UNLIMITED = -3;
 
@@ -45,6 +47,11 @@ class Filesystem {
 	 * @var \OC\Files\View $defaultInstance
 	 */
 	static private $defaultInstance;
+
+	/**
+	 * @var \OC\Files\Node\Root $rootNode
+	 */
+	static private $rootNode;
 
 
 	/**
@@ -148,7 +155,7 @@ class Filesystem {
 	 */
 	private static $loader;
 
-	public static function getLoader(){
+	public static function getLoader() {
 		if (!self::$loader) {
 			self::$loader = new Loader();
 		}
@@ -248,16 +255,27 @@ class Filesystem {
 		}
 	}
 
+	/**
+	 * @return \OC\Files\Node\Root
+	 */
+	static public function getRootNode(){
+		if (!self::$loaded) {
+			\OC_Util::setupFS();
+		}
+		return self::$rootNode;
+	}
+
 	static public function init($user, $root) {
 		if (self::$defaultInstance) {
 			return false;
 		}
 		self::getLoader();
-		self::$defaultInstance = new View($root);
 
-		if (!self::$mounts) {
-			self::$mounts = new Mount\Manager();
-		}
+		self::initMounts();
+		$userObject = new User($user, null);
+		self::$rootNode=new Root(self::$mounts, $userObject);
+
+		self::$defaultInstance = new View($root);
 
 		//load custom mount config
 		self::initMountPoints($user);

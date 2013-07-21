@@ -15,15 +15,36 @@ use OC\Files\NotPermittedException;
 
 class Folder extends Node {
 	/**
-	 * @param string $path
+	 * @param string $path path relative to the folder
 	 * @return string
 	 * @throws \OC\Files\NotPermittedException
 	 */
-	protected function getFullPath($path) {
+	public function getFullPath($path) {
 		if (!$this->isValidPath($path)) {
 			throw new NotPermittedException();
 		}
 		return $this->path . $this->normalizePath($path);
+	}
+
+	/**
+	 * @param string $path
+	 * @throws \OC\Files\NotFoundException
+	 * @return string
+	 */
+	public function getRelativePath($path) {
+		if ($this->path === '' or $this->path === '/') {
+			return $this->normalizePath($path);
+		}
+		if (strpos($path, $this->path) !== 0) {
+			throw new NotFoundException();
+		} else {
+			$path = substr($path, strlen($this->path));
+			if (strlen($path) === 0) {
+				return '/';
+			} else {
+				return $this->normalizePath($path);
+			}
+		}
 	}
 
 	/**
@@ -214,7 +235,8 @@ class Folder extends Node {
 
 		$results = $cache->$method($query);
 		foreach ($results as $result) {
-			if (substr($result['path'], 0, $internalRootLength) === $this->internalPath) {
+			if ($internalRootLength === 0 or substr($result['path'], 0, $internalRootLength) === $this->internalPath) {
+				$result['internalPath'] = $result['path'];
 				$result['path'] = substr($result['path'], $internalRootLength);
 				$result['storage'] = $this->storage;
 				$files[] = $result;
@@ -230,6 +252,7 @@ class Folder extends Node {
 				$relativeMountPoint = substr($mount->getMountPoint(), $rootLength);
 				$results = $cache->$method($query);
 				foreach ($results as $result) {
+					$result['internalPath'] = $result['path'];
 					$result['path'] = $relativeMountPoint . $result['path'];
 					$result['storage'] = $storage;
 					$files[] = $result;
@@ -239,7 +262,7 @@ class Folder extends Node {
 
 		$result = array();
 		foreach ($files as $file) {
-			$result[] = $this->createNode($file['storage'], $file['path'], $this->path . '/' . $file['name'], $file);
+			$result[] = $this->createNode($file['storage'], $file['internalPath'], $this->normalizePath($this->path . '/' . $file['path']), $file);
 		}
 
 		return $result;
@@ -253,7 +276,8 @@ class Folder extends Node {
 		$nodes = $this->root->getById($id);
 		$result = array();
 		foreach ($nodes as $node) {
-			if (substr($node->getPath(), strlen($this->getPath()) + 1) === $this->getPath() . '/') {
+			$pathPart = substr($node->getPath(), 0, strlen($this->getPath()) + 1);
+			if ($this->path === '/' or $pathPart === $this->getPath() . '/') {
 				$result[] = $node;
 			}
 		}
@@ -309,6 +333,7 @@ class Folder extends Node {
 	 * @return \OC\Files\Node\Node
 	 */
 	public function copy($targetPath) {
+		$targetPath = $this->normalizePath($targetPath);
 		$parent = $this->root->get(dirname($targetPath));
 		if ($parent instanceof Folder and $this->isValidPath($targetPath) and $parent->isCreatable()) {
 			/**
@@ -343,6 +368,7 @@ class Folder extends Node {
 	 * @return \OC\Files\Node\Node
 	 */
 	public function move($targetPath) {
+		$targetPath = $this->normalizePath($targetPath);
 		$parent = $this->root->get(dirname($targetPath));
 		if ($parent instanceof Folder and $this->isValidPath($targetPath) and $parent->isCreatable()) {
 			/**

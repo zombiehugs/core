@@ -116,8 +116,12 @@ class Node {
 	public function touch($mtime = null) {
 		if ($this->checkPermissions(\OCP\PERMISSION_UPDATE)) {
 			$this->sendHooks(array('preTouch'));
-			$this->storage->touch($this->internalPath, $mtime);
-			$this->updateCache();
+			if ($this->storage->touch($this->internalPath, $mtime) !== false) {
+				$this->updateCache();
+			} else {
+				$this->storage->getCache()->put($this->internalPath, array('mtime' => $mtime));
+				$this->data['mtime'] = $mtime;
+			}
 			$this->sendHooks(array('postTouch'));
 		} else {
 			throw new NotPermittedException();
@@ -157,7 +161,9 @@ class Node {
 	 * @return array
 	 */
 	public function stat() {
-		return $this->data;
+		$stat = $this->data;
+		$stat['permissions'] = $this->permissions;
+		return $stat;
 	}
 
 	/**
