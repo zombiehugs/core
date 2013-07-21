@@ -356,7 +356,7 @@ class Folder extends Node {
 			$targetData['parent'] = $parent->getId();
 			unset($targetData['fileid']);
 			$nonExisting = new NonExistingFolder($this->root, $targetStorage, $targetInternalPath, $targetPath, $targetData);
-			$this->root->emit('\OC\Files', 'preCopy', array($nonExisting));
+			$this->root->emit('\OC\Files', 'preCopy', array($this, $nonExisting));
 			$this->root->emit('\OC\Files', 'preWrite', array($nonExisting));
 			if ($targetStorage === $this->storage) {
 				$this->storage->copy($this->internalPath, $targetInternalPath);
@@ -364,7 +364,7 @@ class Folder extends Node {
 				$this->copyCrossStorage($targetPath, $targetStorage, $targetInternalPath);
 			}
 			$targetNode = $this->root->get($targetPath);
-			$this->root->emit('\OC\Files', 'postCopy', array($targetNode));
+			$this->root->emit('\OC\Files', 'postCopy', array($this, $targetNode));
 			$this->root->emit('\OC\Files', 'postWrite', array($targetNode));
 			return $targetNode;
 		} else {
@@ -390,7 +390,7 @@ class Folder extends Node {
 			$targetData['path'] = $targetInternalPath;
 			$targetData['parent'] = $parent->getId();
 			$nonExisting = new NonExistingFolder($this->root, $targetStorage, $targetInternalPath, $targetPath, $targetData);
-			$this->root->emit('\OC\Files', 'preRename', array($nonExisting));
+			$this->root->emit('\OC\Files', 'preRename', array($this, $nonExisting));
 			$this->root->emit('\OC\Files', 'preWrite', array($nonExisting));
 			if ($targetStorage === $this->storage) {
 				$targetNode = new Folder($this->root, $targetStorage, $targetInternalPath, $targetPath, $targetData);
@@ -402,7 +402,7 @@ class Folder extends Node {
 				$targetNode = $this->root->get($targetPath);
 				$this->data['fileid'] = $targetNode->getId();
 			}
-			$this->root->emit('\OC\Files', 'postRename', array($targetNode));
+			$this->root->emit('\OC\Files', 'postRename', array($this, $targetNode));
 			$this->root->emit('\OC\Files', 'postWrite', array($targetNode));
 			$this->internalPath = $targetInternalPath;
 			$this->path = $targetPath;
