@@ -362,8 +362,13 @@ class View {
 			} else {
 				return false;
 			}
-		} catch (\Exception $e) {
-			return false;
+		} catch (NotFoundException $e) {
+			if ($mode !== 'r' and $mode !== 'rb') {
+				$node = $this->rootFolder->newFile($path);
+				return $node->fopen($mode);
+			} else {
+				return false;
+			}
 		}
 	}
 
