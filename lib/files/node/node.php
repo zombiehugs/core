@@ -244,7 +244,7 @@ class Node {
 	 * @return string
 	 */
 	protected function normalizePath($path) {
-		if ($path == '') {
+		if ($path === '' or $path === '/') {
 			return '/';
 		}
 		//no windows style slashes

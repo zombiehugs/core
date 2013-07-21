@@ -397,7 +397,7 @@ class View extends BasicEmitter {
 
 	public function rename($path1, $path2) {
 		try {
-			$this->rootFolder->get($path1)->move($path2);
+			$this->rootFolder->get($path1)->move($this->getAbsolutePath($path2));
 			return true;
 		} catch (\Exception $e) {
 			return false;
@@ -406,7 +406,7 @@ class View extends BasicEmitter {
 
 	public function copy($path1, $path2) {
 		try {
-			$this->rootFolder->get($path1)->copy($path2);
+			$this->rootFolder->get($path1)->copy($this->getAbsolutePath($path2));
 			return true;
 		} catch (\Exception $e) {
 			return false;
