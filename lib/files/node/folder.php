@@ -174,12 +174,12 @@ class Folder extends Node {
 			 */
 			list($storage, $internalPath) = $this->resolvePath($fullPath);
 			$nonExisting = new NonExistingFolder($this->root, $storage, $internalPath, $fullPath, array());
-			$this->root->emit('OC\Files', 'preWrite', array($nonExisting));
-			$this->root->emit('OC\Files', 'preCreate', array($nonExisting));
+			$this->root->emit('\OC\Files', 'preWrite', array($nonExisting));
+			$this->root->emit('\OC\Files', 'preCreate', array($nonExisting));
 			$storage->mkdir($internalPath);
 			$node = $this->root->get($fullPath);
-			$this->root->emit('OC\Files', 'postWrite', array($node));
-			$this->root->emit('OC\Files', 'postCreate', array($node));
+			$this->root->emit('\OC\Files', 'postWrite', array($node));
+			$this->root->emit('\OC\Files', 'postCreate', array($node));
 			return $node;
 		} else {
 			throw new NotPermittedException();
@@ -199,12 +199,12 @@ class Folder extends Node {
 			 */
 			list($storage, $internalPath) = $this->resolvePath($fullPath);
 			$nonExisting = new NonExistingFile($this->root, $storage, $internalPath, $fullPath, array());
-			$this->root->emit('OC\Files', 'preWrite', array($nonExisting));
-			$this->root->emit('OC\Files', 'preCreate', array($nonExisting));
+			$this->root->emit('\OC\Files', 'preWrite', array($nonExisting));
+			$this->root->emit('\OC\Files', 'preCreate', array($nonExisting));
 			$storage->touch($internalPath);
 			$node = $this->root->get($fullPath);
-			$this->root->emit('OC\Files', 'postWrite', array($node));
-			$this->root->emit('OC\Files', 'postCreate', array($node));
+			$this->root->emit('\OC\Files', 'postWrite', array($node));
+			$this->root->emit('\OC\Files', 'postCreate', array($node));
 			return $node;
 		} else {
 			throw new NotPermittedException();
