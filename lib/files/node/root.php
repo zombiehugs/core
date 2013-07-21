@@ -17,6 +17,25 @@ use OC\Files\NotPermittedException;
 use OC\Hooks\Emitter;
 use OC\Hooks\PublicEmitter;
 
+/**
+ * Class Root
+ *
+ * Hooks available in scope \OC\Files
+ * - preWrite(\OC\Files\Node\Node $node)
+ * - postWrite(\OC\Files\Node\Node $node)
+ * - preCreate(\OC\Files\Node\Node $node)
+ * - postCreate(\OC\Files\Node\Node $node)
+ * - preDelete(\OC\Files\Node\Node $node)
+ * - postDelete(\OC\Files\Node\Node $node)
+ * - preCopy(\OC\Files\Node\Node $source, \OC\Files\Node\Node $target)
+ * - postCopy(\OC\Files\Node\Node $source, \OC\Files\Node\Node $target)
+ * - preRename(\OC\Files\Node\Node $source, \OC\Files\Node\Node $target)
+ * - postRename(\OC\Files\Node\Node $source, \OC\Files\Node\Node $target)
+ * - preCreate(\OC\Files\Node\Node $node)
+ * - postCreate(\OC\Files\Node\Node $node)
+ *
+ * @package OC\Files\Node
+ */
 class Root extends Folder implements Emitter {
 
 	/**
