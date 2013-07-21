@@ -390,7 +390,7 @@ class Node {
 		clearstatcache();
 		$scanner = $this->storage->getScanner($this->internalPath);
 		$cache = $this->storage->getCache($this->internalPath);
-		$scanner->scanFile($this->internalPath, true);
+		$scanner->scanFile($this->internalPath);
 		$this->data = $cache->get($this->internalPath);
 	}
 
