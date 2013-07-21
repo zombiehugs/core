@@ -66,66 +66,36 @@ class View extends BasicEmitter {
 	 * @param \OC\Files\Node\Root $root
 	 */
 	private function connectHooks($root) {
-		$root->listen('\OC\Files', 'preWrite', function ($node) {
-			if ($this->rootFolder->isSubNode($node)) {
-				$this->emit('\OC\Files', 'preWrite', array($node));
-			}
-		});
-		$root->listen('\OC\Files', 'postWrite', function ($node) {
-			if ($this->rootFolder->isSubNode($node)) {
-				$this->emit('\OC\Files', 'postWrite', array($node));
-			}
-		});
-		$root->listen('\OC\Files', 'preCreate', function ($node) {
-			if ($this->rootFolder->isSubNode($node)) {
-				$this->emit('\OC\Files', 'preCreate', array($node));
-			}
-		});
-		$root->listen('\OC\Files', 'postCreate', function ($node) {
-			if ($this->rootFolder->isSubNode($node)) {
-				$this->emit('\OC\Files', 'postCreate', array($node));
-			}
-		});
-		$root->listen('\OC\Files', 'preDelete', function ($node) {
-			if ($this->rootFolder->isSubNode($node)) {
-				$this->emit('\OC\Files', 'preDelete', array($node));
-			}
-		});
-		$root->listen('\OC\Files', 'postDelete', function ($node) {
-			if ($this->rootFolder->isSubNode($node)) {
-				$this->emit('\OC\Files', 'postDelete', array($node));
-			}
-		});
-		$root->listen('\OC\Files', 'preTouch', function ($node) {
-			if ($this->rootFolder->isSubNode($node)) {
-				$this->emit('\OC\Files', 'preTouch', array($node));
-			}
-		});
-		$root->listen('\OC\Files', 'postTouch', function ($node) {
-			if ($this->rootFolder->isSubNode($node)) {
-				$this->emit('\OC\Files', 'postTouch', array($node));
-			}
-		});
-		$root->listen('\OC\Files', 'preCopy', function ($source, $target) {
-			if ($this->rootFolder->isSubNode($source) and $this->rootFolder->isSubNode($target)) {
-				$this->emit('\OC\Files', 'preCopy', array($source, $target));
-			}
-		});
-		$root->listen('\OC\Files', 'postCopy', function ($source, $target) {
-			if ($this->rootFolder->isSubNode($source) and $this->rootFolder->isSubNode($target)) {
-				$this->emit('\OC\Files', 'postCopy', array($source, $target));
-			}
-		});
-		$root->listen('\OC\Files', 'preRename', function ($source, $target) {
-			if ($this->rootFolder->isSubNode($source) and $this->rootFolder->isSubNode($target)) {
-				$this->emit('\OC\Files', 'preRename', array($source, $target));
-			}
-		});
-		$root->listen('\OC\Files', 'postRename', function ($source, $target) {
-			if ($this->rootFolder->isSubNode($source) and $this->rootFolder->isSubNode($target)) {
-				$this->emit('\OC\Files', 'postRename', array($source, $target));
-			}
-		});
+		$basicHooks = array(
+			'preWrite',
+			'postWrite',
+			'preCreate',
+			'postCreate',
+			'preDelete',
+			'postDelete',
+			'preTouch',
+			'postTouch'
+		);
+		foreach ($basicHooks as $hook) {
+			$root->listen('\OC\Files', $hook, function ($node) use ($hook) {
+				if ($this->rootFolder->isSubNode($node)) {
+					$this->emit('\OC\Files', $hook, array($node));
+				}
+			});
+		}
+		$doubleHooks = array(
+			'preCopy',
+			'postCopy',
+			'preRename',
+			'postRename'
+		);
+		foreach ($doubleHooks as $hook) {
+			$root->listen('\OC\Files', $hook, function ($source, $target) use ($hook) {
+				if ($this->rootFolder->isSubNode($source) and $this->rootFolder->isSubNode($target)) {
+					$this->emit('\OC\Files', $hook, array($source, $target));
+				}
+			});
+		}
 	}
 
 	public function getAbsolutePath($path = '/') {
