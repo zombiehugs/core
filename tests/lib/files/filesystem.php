@@ -78,20 +78,16 @@ class Filesystem extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testHooks() {
-		if(\OC\Files\Filesystem::getView()){
-			$user = \OC_User::getUser();
-		}else{
-			$user=uniqid();
-			\OC\Files\Filesystem::init($user, '/'.$user.'/files');
-		}
 		\OC_Hook::clear('OC_Filesystem');
 		\OC_Hook::connect('OC_Filesystem', 'post_write', $this, 'dummyHook');
+		\OC_Util::setupFS();
 
 		\OC\Files\Filesystem::mount('OC\Files\Storage\Temporary', array(), '/');
 
 		$rootView=new \OC\Files\View('');
-		$rootView->mkdir('/'.$user);
-		$rootView->mkdir('/'.$user.'/files');
+		$rootView->mkdir('/test');
+		$rootView->mkdir('/test/files');
+		\OC\Files\Filesystem::init('test','/test/files');
 
 //		\OC\Files\Filesystem::file_put_contents('/foo', 'foo');
 		\OC\Files\Filesystem::mkdir('/bar');

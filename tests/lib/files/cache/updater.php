@@ -46,10 +46,10 @@ class Updater extends \PHPUnit_Framework_TestCase {
 		if (!self::$user) {
 			self::$user = uniqid();
 		}
-		\OC\Files\Filesystem::init(self::$user, '/' . self::$user . '/files');
 
 		Filesystem::clearMounts();
 		Filesystem::mount($this->storage, array(), '/' . self::$user . '/files');
+		\OC\Files\Filesystem::init(self::$user, '/' . self::$user . '/files');
 
 		\OC_Hook::clear('OC_Filesystem');
 
