@@ -48,6 +48,16 @@ class Folder extends Node {
 	}
 
 	/**
+	 * check if a node is a (grand-)child of the folder
+	 *
+	 * @param \OC\Files\Node\Node $node
+	 * @return bool
+	 */
+	public function isSubNode($node) {
+		return strpos($node->getPath(), $this->path . '/') === 0;
+	}
+
+	/**
 	 * get the content of this directory
 	 *
 	 * @throws \OC\Files\NotFoundException

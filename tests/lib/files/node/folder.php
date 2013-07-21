@@ -9,6 +9,7 @@
 namespace Test\Files\Node;
 
 use OC\Files\Cache\Cache;
+use OC\Files\Node\Node;
 use OC\Files\NotFoundException;
 use OC\Files\NotPermittedException;
 
@@ -484,5 +485,15 @@ class Folder extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(2, count($result));
 		$this->assertEquals(3, $result[0]->getId());
 		$this->assertEquals(4, $result[1]->getId());
+	}
+
+	public function testIsSubNode() {
+		$file = new Node(null, null, 'foo/bar', '/foo/bar', array());
+		$folder = new \OC\Files\Node\Folder(null, null, 'foo', '/foo', array());
+		$this->assertTrue($folder->isSubNode($file));
+		$this->assertFalse($folder->isSubNode($folder));
+
+		$file = new Node(null, null, 'foobar', '/foobar', array());
+		$this->assertFalse($folder->isSubNode($file));
 	}
 }
