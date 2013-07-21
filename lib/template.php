@@ -84,24 +84,6 @@ function human_file_size( $bytes ) {
 	return OC_Helper::humanFileSize( $bytes );
 }
 
-function simple_file_size($bytes) {
-	if ($bytes < 0) {
-		return '?';
-	}
-	$mbytes = round($bytes / (1024 * 1024), 1);
-	if ($bytes == 0) {
-		return '0';
-	}
-	if ($mbytes < 0.1) {
-		return '&lt; 0.1';
-	}
-	if ($mbytes > 1000) {
-		return '&gt; 1000';
-	} else {
-		return number_format($mbytes, 1);
-	}
-}
-
 function relative_modified_date($timestamp) {
 	$l=OC_L10N::get('lib');
 	$timediff = time() - $timestamp;
@@ -534,5 +516,26 @@ class OC_Template{
 		$content->assign( 'errors', $errors );
 		$content->printPage();
 		die();
+	}
+	
+	/**
+	 * print error page using Exception details
+	 * @param Exception $exception
+	 */
+	
+	public static function printExceptionErrorPage(Exception $exception) {
+		$error_msg = $exception->getMessage();
+		if ($exception->getCode()) {
+			$error_msg = '['.$exception->getCode().'] '.$error_msg;
+		}
+		$hint = $exception->getTraceAsString();
+		while (method_exists($exception,'previous') && $exception = $exception->previous()) {
+			$error_msg .= '<br/>Caused by: ';
+			if ($exception->getCode()) {
+				$error_msg .= '['.$exception->getCode().'] ';
+			}
+			$error_msg .= $exception->getMessage();
+		};
+		self::printErrorPage($error_msg, $hint);
 	}
 }
