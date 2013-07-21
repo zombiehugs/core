@@ -298,7 +298,9 @@ class Filesystem {
 			'preCreate' => 'create',
 			'postCreate' => 'post_create',
 			'preDelete' => 'delete',
-			'postDelete' => 'post_delete'
+			'postDelete' => 'post_delete',
+			'preTouch' => 'touch',
+			'postTouch' => 'post_touch'
 		);
 		foreach ($basicHooks as $newHook => $oldHook) {
 			$view->listen('\OC\Files', $newHook, function ($node) use ($view, $oldHook) {

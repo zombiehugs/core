@@ -40,6 +40,8 @@ use OC\Hooks\BasicEmitter;
  * - postCreate(\OC\Files\Node\Node $node)
  * - preDelete(\OC\Files\Node\Node $node)
  * - postDelete(\OC\Files\Node\Node $node)
+ * - preTouch(\OC\Files\Node\Node $node)
+ * - postTouch(\OC\Files\Node\Node $node)
  * - preCopy(\OC\Files\Node\Node $source, \OC\Files\Node\Node $target)
  * - postCopy(\OC\Files\Node\Node $source, \OC\Files\Node\Node $target)
  * - preRename(\OC\Files\Node\Node $source, \OC\Files\Node\Node $target)
@@ -92,6 +94,16 @@ class View extends BasicEmitter {
 		$root->listen('\OC\Files', 'postDelete', function ($node) {
 			if ($this->rootFolder->isSubNode($node)) {
 				$this->emit('\OC\Files', 'postDelete', array($node));
+			}
+		});
+		$root->listen('\OC\Files', 'preTouch', function ($node) {
+			if ($this->rootFolder->isSubNode($node)) {
+				$this->emit('\OC\Files', 'preTouch', array($node));
+			}
+		});
+		$root->listen('\OC\Files', 'postTouch', function ($node) {
+			if ($this->rootFolder->isSubNode($node)) {
+				$this->emit('\OC\Files', 'postTouch', array($node));
 			}
 		});
 		$root->listen('\OC\Files', 'preCopy', function ($source, $target) {

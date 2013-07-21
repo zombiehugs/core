@@ -27,6 +27,8 @@ use OC\Hooks\PublicEmitter;
  * - postCreate(\OC\Files\Node\Node $node)
  * - preDelete(\OC\Files\Node\Node $node)
  * - postDelete(\OC\Files\Node\Node $node)
+ * - preTouch(\OC\Files\Node\Node $node, int $mtime)
+ * - postTouch(\OC\Files\Node\Node $node)
  * - preCopy(\OC\Files\Node\Node $source, \OC\Files\Node\Node $target)
  * - postCopy(\OC\Files\Node\Node $source, \OC\Files\Node\Node $target)
  * - preRename(\OC\Files\Node\Node $source, \OC\Files\Node\Node $target)
