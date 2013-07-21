@@ -13,6 +13,7 @@ use OC\Files\Mount\Manager;
 use OC\Files\Node\Root;
 use OC\Files\NotFoundException;
 use OC\Files\NotPermittedException;
+use OC\Files\Storage\Temporary;
 use OC\User\User;
 
 class IntegrationTests extends \PHPUnit_Framework_TestCase {
@@ -30,8 +31,8 @@ class IntegrationTests extends \PHPUnit_Framework_TestCase {
 		$manager = new Manager();
 		$user = new User('', new \OC_User_Dummy);
 		$this->root = new Root($manager, $user);
-		$storage = new \OC\Files\Storage\Temporary(array());
-		$subStorage = new \OC\Files\Storage\Temporary(array());
+		$storage = new Temporary(array());
+		$subStorage = new Temporary(array());
 		$this->storages[] = $storage;
 		$this->storages[] = $subStorage;
 		$this->root->mount($storage, '/');
@@ -46,6 +47,7 @@ class IntegrationTests extends \PHPUnit_Framework_TestCase {
 
 	public function testBasicFile() {
 		$file = $this->root->newFile('/foo.txt');
+		$this->assertCount(2, $this->root->getDirectoryListing());
 		$this->assertTrue($this->root->nodeExists('/foo.txt'));
 		$id = $file->getId();
 		$this->assertInstanceOf('\OC\Files\Node\File', $file);
@@ -66,6 +68,7 @@ class IntegrationTests extends \PHPUnit_Framework_TestCase {
 		$file->move('/substorage/bar.txt');
 		$this->assertNotEquals($id, $file->getId());
 		$this->assertEquals('qwerty', $file->getContent());
+		$this->assertCount(1, $this->root->getDirectoryListing());
 	}
 
 	public function testBasicFolder() {
