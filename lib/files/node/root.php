@@ -31,8 +31,6 @@ use OC\Hooks\PublicEmitter;
  * - postCopy(\OC\Files\Node\Node $source, \OC\Files\Node\Node $target)
  * - preRename(\OC\Files\Node\Node $source, \OC\Files\Node\Node $target)
  * - postRename(\OC\Files\Node\Node $source, \OC\Files\Node\Node $target)
- * - preCreate(\OC\Files\Node\Node $node)
- * - postCreate(\OC\Files\Node\Node $node)
  *
  * @package OC\Files\Node
  */
