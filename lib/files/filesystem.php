@@ -258,7 +258,7 @@ class Filesystem {
 	/**
 	 * @return \OC\Files\Node\Root
 	 */
-	static public function getRootNode(){
+	static public function getRootNode() {
 		if (!self::$loaded) {
 			\OC_Util::setupFS();
 		}
@@ -273,9 +273,10 @@ class Filesystem {
 
 		self::initMounts();
 		$userObject = new User($user, null);
-		self::$rootNode=new Root(self::$mounts, $userObject);
+		self::$rootNode = new Root(self::$mounts, $userObject);
 
 		self::$defaultInstance = new View($root);
+		self::connectHooks(self::$defaultInstance);
 
 		//load custom mount config
 		self::initMountPoints($user);
@@ -283,6 +284,49 @@ class Filesystem {
 		self::$loaded = true;
 
 		return true;
+	}
+
+	/**
+	 * connect the new hooks to the legacy file hooks
+	 *
+	 * @param \OC\Files\View $view
+	 */
+	static private function connectHooks($view) {
+		$basicHooks = array(
+			'preWrite' => 'write',
+			'postWrite' => 'post_write',
+			'preCreate' => 'create',
+			'postCreate' => 'post_create',
+			'preDelete' => 'delete',
+			'postDelete' => 'post_delete'
+		);
+		foreach ($basicHooks as $newHook => $oldHook) {
+			$view->listen('\OC\Files', $newHook, function ($node) use ($view, $oldHook) {
+				/**
+				 * @var \OC\Files\Node\Node $node
+				 */
+				\OC_Hook::emit(self::CLASSNAME, $oldHook, array('run' => true, 'path' => $view->getRelativePath($node->getPath())));
+			});
+		}
+		$doubleHooks = array(
+			'preCopy' => 'copy',
+			'postCopy' => 'post_copy',
+			'preRename' => 'rename',
+			'postRename' => 'post_rename'
+		);
+		foreach ($doubleHooks as $newHook => $oldHook) {
+			$view->listen('\OC\Files', $newHook, function ($source, $target) use ($view, $oldHook) {
+				/**
+				 * @var \OC\Files\Node\Node $source
+				 * @var \OC\Files\Node\Node $target
+				 */
+				\OC_Hook::emit(self::CLASSNAME, $oldHook, array(
+					'run' => true,
+					'oldpath' => $view->getRelativePath($source->getPath()),
+					'newpath' => $view->getRelativePath($target->getPath())
+				));
+			});
+		}
 	}
 
 	static public function initMounts() {
