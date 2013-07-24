@@ -353,12 +353,12 @@ class OC {
 		// register autoloader
 		require_once __DIR__ . '/autoloader.php';
 		self::$loader=new \OC\Autoloader();
-		self::$loader->registerPrefix('Doctrine\\Common', 'doctrine/common/lib');
-		self::$loader->registerPrefix('Doctrine\\DBAL', 'doctrine/dbal/lib');
-		self::$loader->registerPrefix('Symfony\\Component\\Routing', 'symfony/routing');
-		self::$loader->registerPrefix('Sabre\\VObject', '3rdparty');
-		self::$loader->registerPrefix('Sabre_', '3rdparty');
-		self::$loader->registerPrefix('Patchwork', '3rdparty');
+//		self::$loader->registerPrefix('Doctrine\\Common', 'doctrine/common/lib');
+//		self::$loader->registerPrefix('Doctrine\\DBAL', 'doctrine/dbal/lib');
+//		self::$loader->registerPrefix('Symfony\\Component\\Routing', 'symfony/routing');
+//		self::$loader->registerPrefix('Sabre\\VObject', '3rdparty');
+//		self::$loader->registerPrefix('Sabre_', '3rdparty');
+//		self::$loader->registerPrefix('Patchwork', '3rdparty');
 		spl_autoload_register(array(self::$loader, 'load'));
 
 		// set some stuff
@@ -414,6 +414,9 @@ class OC {
 
 		self::initPaths();
 		OC_Util::issetlocaleworking();
+
+		// 3rdparty folder is known now - let's load 3rdparty/vendor now
+		require_once OC::$THIRDPARTYROOT . '/3rdparty/vendor/autoload.php';
 
 		// set debug mode if an xdebug session is active
 		if (!defined('DEBUG') || !DEBUG) {
