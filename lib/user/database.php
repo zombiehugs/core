@@ -33,7 +33,9 @@
  *
  */
 
-require_once 'phpass/PasswordHash.php';
+use Hautelook\Phpass\PasswordHash;
+
+//require_once 'phpass/PasswordHash.php';
 
 /**
  * Class for user management in a SQL Database (e.g. MySQL, SQLite)
