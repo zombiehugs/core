@@ -51,10 +51,16 @@
  	white-space:nowrap;
  }
 
+ #searchresults td.result {
+	width:250px;
+ }
  #searchresults td.result * {
  	cursor:pointer;
  }
 
+ #searchresults td.container {
+	width:20px;
+ }
  #searchresults td.type {
  	border-bottom:none;
  	border-right:1px solid #aaa;
