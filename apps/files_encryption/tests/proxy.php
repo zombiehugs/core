@@ -9,19 +9,19 @@
 
 // require_once "PHPUnit/Framework/TestCase.php";
 // require_once realpath( dirname(__FILE__).'/../../../lib/base.php' );
-// require_once realpath( dirname(__FILE__).'/../../../3rdparty/mockery/Mockery.php' );
-// require_once realpath( dirname(__FILE__).'/../../../3rdparty/mockery/Mockery/Generator.php' );
-// require_once realpath( dirname(__FILE__).'/../../../3rdparty/mockery/Mockery/MockInterface.php' );
-// require_once realpath( dirname(__FILE__).'/../../../3rdparty/mockery/Mockery/Mock.php' );
-// require_once realpath( dirname(__FILE__).'/../../../3rdparty/mockery/Mockery/Container.php' );
-// require_once realpath( dirname(__FILE__).'/../../../3rdparty/mockery/Mockery/Configuration.php' );
-// require_once realpath( dirname(__FILE__).'/../../../3rdparty/mockery/Mockery/CompositeExpectation.php' );
-// require_once realpath( dirname(__FILE__).'/../../../3rdparty/mockery/Mockery/ExpectationDirector.php' );
-// require_once realpath( dirname(__FILE__).'/../../../3rdparty/mockery/Mockery/Expectation.php' );
-// require_once realpath( dirname(__FILE__).'/../../../3rdparty/mockery/Mockery/Exception.php' );
-// require_once realpath( dirname(__FILE__).'/../../../3rdparty/mockery/Mockery/CountValidator/CountValidatorAbstract.php' );
-// require_once realpath( dirname(__FILE__).'/../../../3rdparty/mockery/Mockery/CountValidator/Exception.php' );
-// require_once realpath( dirname(__FILE__).'/../../../3rdparty/mockery/Mockery/CountValidator/Exact.php' );
+// require_once OC::$THIRDPARTYROOT . '/3rdparty/mockery/Mockery.php';
+// require_once OC::$THIRDPARTYROOT . '/3rdparty/mockery/Mockery/Generator.php';
+// require_once OC::$THIRDPARTYROOT . '/3rdparty/mockery/Mockery/MockInterface.php';
+// require_once OC::$THIRDPARTYROOT . '/3rdparty/mockery/Mockery/Mock.php';
+// require_once OC::$THIRDPARTYROOT . '/3rdparty/mockery/Mockery/Container.php';
+// require_once OC::$THIRDPARTYROOT . '/3rdparty/mockery/Mockery/Configuration.php';
+// require_once OC::$THIRDPARTYROOT . '/3rdparty/mockery/Mockery/CompositeExpectation.php';
+// require_once OC::$THIRDPARTYROOT . '/3rdparty/mockery/Mockery/ExpectationDirector.php';
+// require_once OC::$THIRDPARTYROOT . '/3rdparty/mockery/Mockery/Expectation.php';
+// require_once OC::$THIRDPARTYROOT . '/3rdparty/mockery/Mockery/Exception.php';
+// require_once OC::$THIRDPARTYROOT . '/3rdparty/mockery/Mockery/CountValidator/CountValidatorAbstract.php';
+// require_once OC::$THIRDPARTYROOT . '/3rdparty/mockery/Mockery/CountValidator/Exception.php';
+// require_once OC::$THIRDPARTYROOT . '/3rdparty/mockery/Mockery/CountValidator/Exact.php';
 // 
 // use \Mockery as m;
 // use OCA\Encryption;
@@ -151,7 +151,7 @@
 // 	}
 // 
 // 	public function testSimple(){
-// 		$file=OC::$SERVERROOT.'/3rdparty/MDB2.php';
+// 		$file=OC::$THIRDPARTYROOT.'/3rdparty/MDB2.php';
 // 		$original=file_get_contents($file);
 // 
 // 		OC_Filesystem::file_put_contents('/file',$original);
@@ -168,7 +168,7 @@
 // 	}
 // 
 // 	public function testView(){
-// 		$file=OC::$SERVERROOT.'/3rdparty/MDB2.php';
+// 		$file=OC::$THIRDPARTYROOT.'/3rdparty/MDB2.php';
 // 		$original=file_get_contents($file);
 // 
 // 		$rootView=new OC_FilesystemView('');
