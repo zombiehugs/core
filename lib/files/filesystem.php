@@ -162,6 +162,13 @@ class Filesystem {
 		return self::$loader;
 	}
 
+	public static function getMountManager() {
+		if (!self::$mounts) {
+			\OC_Util::setupFS();
+		}
+		return self::$mounts;
+	}
+
 	/**
 	 * get the mountpoint of the storage object for a path
 	 * ( note: because a storage is not always mounted inside the fakeroot, the

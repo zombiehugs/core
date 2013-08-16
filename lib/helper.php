@@ -176,8 +176,7 @@ class OC_Helper {
 		}elseif( file_exists( OC::$SERVERROOT."/core/img/$image" )) {
 			return OC::$WEBROOT."/core/img/$image";
 		}else{
-			echo('image not found: image:'.$image.' webroot:'.OC::$WEBROOT.' serverroot:'.OC::$SERVERROOT);
-			die();
+			throw new RuntimeException('image not found: image:'.$image.' webroot:'.OC::$WEBROOT.' serverroot:'.OC::$SERVERROOT);
 		}
 	}
 
@@ -233,7 +232,7 @@ class OC_Helper {
 	public static function humanFileSize( $bytes ) {
 		if( $bytes < 0 ) {
 			$l = OC_L10N::get('lib');
-			return $l->t("couldn't be determined");
+			return "?";
 		}
 		if( $bytes < 1024 ) {
 			return "$bytes B";
