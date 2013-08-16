@@ -155,7 +155,11 @@ if (\OC_Util::runningOnWindows()) {
 		}
 
 		public function unlink($path) {
-			return unlink($this->datadir . $path);
+			if ($this->is_dir($path)) {
+				return $this->rmdir($path);
+			} else {
+				return unlink($this->datadir . $path);
+			}
 		}
 
 		public function rename($path1, $path2) {
