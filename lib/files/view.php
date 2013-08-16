@@ -563,7 +563,10 @@ class View extends BasicEmitter {
 				$files = array();
 				$content = $node->getDirectoryListing();
 				foreach ($content as $node) {
-					$files[] = $node->stat();
+					$file = $node->stat();
+					$file['permissions'] = $node->getPermissions();
+					$file['type'] = ($node instanceof Folder) ? 'dir' : 'file';
+					$files[] = $file;
 				}
 				if ($mimetype_filter) {
 					foreach ($files as $file) {
