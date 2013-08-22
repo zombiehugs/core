@@ -24,6 +24,8 @@ OCP\JSON::callCheck();
 OC_App::loadApps();
 
 $shareManager = OCP\Share::getShareManager();
+$defaults = new \OCP\Defaults();
+
 if (isset($_POST['action']) && isset($_POST['itemType']) && isset($_POST['itemSource'])) {
 	switch ($_POST['action']) {
 		case 'share':
@@ -123,6 +125,57 @@ if (isset($_POST['action']) && isset($_POST['itemType']) && isset($_POST['itemSo
 			if (isset($_POST['date'])) {
 				$return = OCP\Share::setExpirationDate($_POST['itemType'], $_POST['itemSource'], $_POST['date']);
 				($return) ? OC_JSON::success() : OC_JSON::error();
+			}
+			break;
+		case 'informRecipients':
+			// enable l10n support
+			$l = OC_L10N::get('core');
+
+			$shareType = (int) $_POST['shareType'];
+			$itemType = $_POST['itemType'];
+			$recipient = $_POST['recipient'];
+			$from = \OCP\Util::getDefaultEmailAddress('sharing-noreply');
+			$url = \OCP\Util::linkToAbsolute('files', array("dir" => "testfolder"));
+			$subject = $defaults->getShareNotificationSubject($itemType);
+			$text = $defaults->getShareNotificationText(\OCP\User::getDisplayName(), "foo.txt", $itemType, $url);
+
+			$noMail = array();
+
+			if ($shareType === \OCP\Share::SHARE_TYPE_GROUP) {
+				$subject = $defaults->getShareNotificationSubject();
+				$text = $defaults->getShareNotificationText();
+				$users = \OC_Group::usersInGroup($recipient);
+				foreach ($users as $user) {
+					$email = OC_Preferences::getValue($user, 'settings', 'email', '');
+					if ($email !== '') {
+						try {
+							OCP\Util::sendMail($email, \OCP\User::getDisplayName($user), $subject, $text, $from, \OCP\User::getDisplayName());
+						} catch (Exception $exception) {
+							$noMail[] = \OCP\User::getDisplayName($user);
+						}
+					} else {
+						$noMail[] = \OCP\User::getDisplayName($user);
+					}
+				}
+			} else {  // shared to a single user
+				$email = OC_Preferences::getValue($recipient, 'settings', 'email', '');
+				if ($email !== '') {
+					try {
+						OCP\Util::sendMail($email, \OCP\User::getDisplayName($recipient), $subject, $text, $from, \OCP\User::getDisplayName());
+					} catch (Exception $exception) {
+						$noMail[] = \OCP\User::getDisplayName($recipient);
+					}
+				} else {
+					$noMail[] = \OCP\User::getDisplayName($recipient);
+				}
+			}
+
+			if (empty($noMail)) {
+				error_log("return success");
+				OCP\JSON::success();
+			} else {
+				error_log("return error!");
+				OCP\JSON::error(array('data' => array('message' => $l->t("Couldn't send mail to following users: %s ", implode(', ', $noMail)))));
 			}
 			break;
 		case 'email':

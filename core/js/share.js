@@ -208,6 +208,9 @@ OC.Share={
 			html += '<input type="checkbox" name="expirationCheckbox" id="expirationCheckbox" value="1" /><label for="expirationCheckbox">'+t('core', 'Set expiration date')+'</label>';
 			html += '<input id="expirationDate" type="text" placeholder="'+t('core', 'Expiration date')+'" style="display:none; width:90%;" />';
 			html += '</div>';
+			html += '<div id="mailAll">';
+			html += '<input type="checkbox" name="mailAllCheckbox" id="mailAllCheckbox" value="1" /><label for="mailAllCheckbox">'+t('core', 'Inform users by E-Mail')+'</label>';
+			html += '</div>';
 			$(html).appendTo(appendTo);
 			// Reset item shares
 			OC.Share.itemShares = [];
@@ -319,6 +322,7 @@ OC.Share={
 			}
 		} else {
 			var editChecked = createChecked = updateChecked = deleteChecked = shareChecked = '';
+			var mailNotificationChecked = '';
 			if (permissions & OC.PERMISSION_CREATE) {
 				createChecked = 'checked="checked"';
 				editChecked = 'checked="checked"';
@@ -341,6 +345,7 @@ OC.Share={
 			}else{
 				html += escapeHTML(shareWithDisplayName);
 			}
+			html += '<input type="checkbox" name="mailNotification" class="mailNotification" '+mailNotificationChecked+' />'+t('core', 'notify user by email')+'</label>';
 			if (possiblePermissions & OC.PERMISSION_CREATE || possiblePermissions & OC.PERMISSION_UPDATE || possiblePermissions & OC.PERMISSION_DELETE) {
 				if (editChecked == '') {
 					html += '<label style="display:none;">';
@@ -594,6 +599,25 @@ $(document).ready(function() {
 		// Update the share information
 		OC.Share.share(itemType, itemSource, OC.Share.SHARE_TYPE_LINK, '', permissions, function(data) {
 		});
+	});
+
+	$(document).on('click', '#dropdown input[name=mailNotification]', function() {
+		var li = $(this).parent();
+		var itemType = $('#dropdown').data('item-type');
+		var itemSource = $('#dropdown').data('item-source');
+		if (this.checked) {
+			console.log(li);
+			shareType = $(li).data('share-type');
+			shareWith = $(li).data('share-with');
+
+			$.post(OC.filePath('core', 'ajax', 'share.php'), { action: 'informRecipients', recipient: shareWith, shareType: shareType, itemSource : itemSource, itemType : itemType }, function(result) {
+				if (result.status !== 'success') {
+					OC.dialogs.alert(t('core', result.data.message), t('core', 'Warning'));
+				}
+			});
+
+			//TODO Update status in db!
+		}
 	});
 
 	$(document).on('click', '#dropdown #showPassword', function() {
