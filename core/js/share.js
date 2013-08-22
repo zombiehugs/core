@@ -345,7 +345,10 @@ OC.Share={
 			}else{
 				html += escapeHTML(shareWithDisplayName);
 			}
-			html += '<input type="checkbox" name="mailNotification" class="mailNotification" '+mailNotificationChecked+' />'+t('core', 'notify user by email')+'</label>';
+			mailNotificationEnabled = $('input:hidden[name=mailNotificationEnabled]').val();
+			if (mailNotificationEnabled === 'yes') {
+				html += '<input type="checkbox" name="mailNotification" class="mailNotification" '+mailNotificationChecked+' />'+t('core', 'notify user by email')+'</label>';
+			}
 			if (possiblePermissions & OC.PERMISSION_CREATE || possiblePermissions & OC.PERMISSION_UPDATE || possiblePermissions & OC.PERMISSION_DELETE) {
 				if (editChecked == '') {
 					html += '<label style="display:none;">';
