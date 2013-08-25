@@ -133,88 +133,63 @@ class Test_Appconfig extends PHPUnit_Framework_TestCase {
 }
 
 class Test_AppConfig_Object extends PHPUnit_Framework_TestCase {
-	public function testGetApps()
+	public function setUp()
 	{
 		$statementMock = $this->getMock('\Doctrine\DBAL\Statement', array(), array(), '', false);
-		$statementMock->expects($this->exactly(2))
-			->method('fetchColumn')
-			->will($this->onConsecutiveCalls('foo', false));
+		$statementMock->expects($this->any())
+			->method('fetch')
+			->will($this->onConsecutiveCalls(
+			array('appid'=>'foo', 'configkey' => 'bar', 'configvalue' => 'moo'),
+			false));
 		$connectionMock = $this->getMock('\OC\DB\Connection', array(), array(), '', false);
-		$connectionMock->expects($this->once())
+		$connectionMock->expects($this->any())
 			->method('executeQuery')
-			->with($this->equalTo('SELECT DISTINCT `appid` FROM `*PREFIX*appconfig`'))
+			->with($this->equalTo('SELECT * FROM `*PREFIX*appconfig`'))
 			->will($this->returnValue($statementMock));
+		$this->connectionMock = $connectionMock;
 
-		$appconfig = new OC\AppConfig($connectionMock);
-		$apps = $appconfig->getApps();
+		$this->appconfig = new OC\AppConfig($connectionMock);
+	}
+
+	public function testLoadConfig()
+	{
+		$apps = $this->appconfig->getApps();
+		$this->assertAttributeEquals(array('foo' => array('bar' => 'moo')), 'config', $this->appconfig);
+	}
+
+	public function testGetApps()
+	{
+		$apps = $this->appconfig->getApps();
 		$this->assertEquals(array('foo'), $apps);
 	}
 
 	public function testGetKeys()
 	{
-		$statementMock = $this->getMock('\Doctrine\DBAL\Statement', array(), array(), '', false);
-		$statementMock->expects($this->exactly(2))
-			->method('fetchColumn')
-			->will($this->onConsecutiveCalls('foo', false));
-		$connectionMock = $this->getMock('\OC\DB\Connection', array(), array(), '', false);
-		$connectionMock->expects($this->once())
-			->method('executeQuery')
-			->with($this->equalTo('SELECT `configkey` FROM `*PREFIX*appconfig` WHERE `appid` = ?'),
-				$this->equalTo(array('bar')))
-			->will($this->returnValue($statementMock));
-
-		$appconfig = new OC\AppConfig($connectionMock);
-		$keys = $appconfig->getKeys('bar');
-		$this->assertEquals(array('foo'), $keys);
+		$keys = $this->appconfig->getKeys('foo');
+		$this->assertEquals(array('bar'), $keys);
 	}
 
 	public function testGetValue()
 	{
-		$connectionMock = $this->getMock('\OC\DB\Connection', array(), array(), '', false);
-		$connectionMock->expects($this->exactly(2))
-			->method('fetchAssoc')
-			->with($this->equalTo('SELECT `configvalue` FROM `*PREFIX*appconfig` WHERE `appid` = ? AND `configkey` = ?'),
-				$this->equalTo(array('bar', 'red')))
-			->will($this->onConsecutiveCalls(array('configvalue'=>'foo'), null));
-
-		$appconfig = new OC\AppConfig($connectionMock);
-		$value = $appconfig->getValue('bar', 'red');
-		$this->assertEquals('foo', $value);
-		$value = $appconfig->getValue('bar', 'red', 'def');
+		$value = $this->appconfig->getValue('foo', 'bar');
+		$this->assertEquals('moo', $value);
+		$value = $this->appconfig->getValue('foo', 'red', 'def');
+		$this->assertEquals('def', $value);
+		$value = $this->appconfig->getValue('bla', 'red', 'def');
 		$this->assertEquals('def', $value);
 	}
 
 	public function testHasKey()
 	{
-		$statementMock = $this->getMock('\Doctrine\DBAL\Statement', array(), array(), '', false);
-		$statementMock->expects($this->exactly(3))
-			->method('fetchColumn')
-			->will($this->onConsecutiveCalls('foo', false, false));
-		$connectionMock = $this->getMock('\OC\DB\Connection', array(), array(), '', false);
-		$connectionMock->expects($this->exactly(2))
-			->method('executeQuery')
-			->with($this->equalTo('SELECT `configkey` FROM `*PREFIX*appconfig` WHERE `appid` = ?'),
-				$this->equalTo(array('bar')))
-			->will($this->returnValue($statementMock));
-
-		$appconfig = new OC\AppConfig($connectionMock);
-		$this->assertTrue($appconfig->hasKey('bar', 'foo'));
-		$this->assertFalse($appconfig->hasKey('bar', 'foo'));
+		$this->assertTrue($this->appconfig->hasKey('foo', 'bar'));
+		$this->assertFalse($this->appconfig->hasKey('foo', 'foo'));
+		$this->assertFalse($this->appconfig->hasKey('bar', 'foo'));
+		$this->assertFalse($this->appconfig->hasKey('bar', 'bar'));
 	}
 
 	public function testSetValue()
 	{
-		$statementMock = $this->getMock('\Doctrine\DBAL\Statement', array(), array(), '', false);
-		$statementMock->expects($this->exactly(4))
-			->method('fetchColumn')
-			->will($this->onConsecutiveCalls('foo', false, 'foo', false));
-		$connectionMock = $this->getMock('\OC\DB\Connection', array(), array(), '', false);
-		$connectionMock->expects($this->exactly(2))
-			->method('executeQuery')
-			->with($this->equalTo('SELECT `configkey` FROM `*PREFIX*appconfig` WHERE `appid` = ?'),
-				$this->equalTo(array('bar')))
-			->will($this->returnValue($statementMock));
-		$connectionMock->expects($this->once())
+		$this->connectionMock->expects($this->once())
 			->method('insert')
 			->with($this->equalTo('*PREFIX*appconfig'),
 				$this->equalTo(
@@ -224,7 +199,7 @@ class Test_AppConfig_Object extends PHPUnit_Framework_TestCase {
 						'configvalue' => 'v1',
 					)
 				));
-		$connectionMock->expects($this->once())
+		$this->connectionMock->expects($this->once())
 			->method('update')
 			->with($this->equalTo('*PREFIX*appconfig'),
 				$this->equalTo(
@@ -233,47 +208,52 @@ class Test_AppConfig_Object extends PHPUnit_Framework_TestCase {
 					)),
 				$this->equalTo(
 					array(
-						'appid' => 'bar',
-						'configkey' => 'foo',
+						'appid' => 'foo',
+						'configkey' => 'bar',
 					)
 				));
 
-		$appconfig = new OC\AppConfig($connectionMock);
-		$appconfig->setValue('bar', 'moo', 'v1');
-		$appconfig->setValue('bar', 'foo', 'v2');
+		$this->appconfig->setValue('bar', 'moo', 'v1');
+		$this->assertAttributeEquals(array(
+				'foo' => array('bar' => 'moo'),
+				'bar' => array('moo' => 'v1')
+			), 'config', $this->appconfig);
+		$this->appconfig->setValue('foo', 'bar', 'v2');
+		$this->assertAttributeEquals(array(
+				'foo' => array('bar' => 'v2'),
+				'bar' => array('moo' => 'v1')
+			), 'config', $this->appconfig);
 	}
 
 	public function testDeleteKey()
 	{
-		$connectionMock = $this->getMock('\OC\DB\Connection', array(), array(), '', false);
-		$connectionMock->expects($this->once())
+		$this->connectionMock->expects($this->once())
 			->method('delete')
 			->with($this->equalTo('*PREFIX*appconfig'),
 				$this->equalTo(
 					array(
-						'appid' => 'bar',
-						'configkey' => 'foo',
+						'appid' => 'foo',
+						'configkey' => 'bar',
 					)
 				));
 
-		$appconfig = new OC\AppConfig($connectionMock);
-		$appconfig->deleteKey('bar', 'foo');
+		$this->appconfig->deleteKey('foo', 'bar');
+		$this->assertAttributeEquals(array('foo' => array()), 'config', $this->appconfig);
 	}
 
 	public function testDeleteApp()
 	{
-		$connectionMock = $this->getMock('\OC\DB\Connection', array(), array(), '', false);
-		$connectionMock->expects($this->once())
+		$this->connectionMock->expects($this->once())
 			->method('delete')
 			->with($this->equalTo('*PREFIX*appconfig'),
 				$this->equalTo(
 					array(
-						'appid' => 'bar',
+						'appid' => 'foo',
 					)
 				));
 
-		$appconfig = new OC\AppConfig($connectionMock);
-		$appconfig->deleteApp('bar');
+		$this->appconfig->deleteApp('foo');
+		$this->assertAttributeEquals(array(), 'config', $this->appconfig);
 	}
 
 	public function testGetValues()

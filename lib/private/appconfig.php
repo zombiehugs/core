@@ -4,6 +4,7 @@
  *
  * @author Frank Karlitschek
  * @author Jakob Sack
+ * @author Bart Visscher
  * @copyright 2012 Frank Karlitschek frank@owncloud.org
  *
  * This library is free software; you can redistribute it and/or
@@ -47,11 +48,25 @@ class AppConfig {
 	 */
 	protected $conn;
 
+	protected $config;
+
 	/**
 	 * @param \OC\DB\Connection $conn
 	 */
 	public function __construct(Connection $conn) {
 		$this->conn = $conn;
+	}
+
+	private function loadConfig() {
+		if (!isset($this->config)) {
+			$query = 'SELECT * FROM `*PREFIX*appconfig`';
+			$result = $this->conn->executeQuery( $query );
+
+			$this->config = array();
+			while ($row = $result->fetch()) {
+				$this->config[$row['appid']][$row['configkey']] = $row['configvalue'];
+			}
+		}
 	}
 
 	/**
@@ -62,14 +77,8 @@ class AppConfig {
 	 * entry in the appconfig table.
 	 */
 	public function getApps() {
-		$query = 'SELECT DISTINCT `appid` FROM `*PREFIX*appconfig`';
-		$result = $this->conn->executeQuery($query);
-
-		$apps = array();
-		while ($appid = $result->fetchColumn()) {
-			$apps[] = $appid;
-		}
-		return $apps;
+		$this->loadConfig();
+		return array_keys($this->config);
 	}
 
 	/**
@@ -81,15 +90,8 @@ class AppConfig {
 	 * not returned.
 	 */
 	public function getKeys($app) {
-		$query = 'SELECT `configkey` FROM `*PREFIX*appconfig` WHERE `appid` = ?';
-		$result = $this->conn->executeQuery($query, array($app));
-
-		$keys = array();
-		while ($key = $result->fetchColumn()) {
-			$keys[] = $key;
-		}
-
-		return $keys;
+		$this->loadConfig();
+		return array_keys($this->config[$app]);
 	}
 
 	/**
@@ -103,11 +105,9 @@ class AppConfig {
 	 * not exist the default value will be returned
 	 */
 	public function getValue($app, $key, $default = null) {
-		$query = 'SELECT `configvalue` FROM `*PREFIX*appconfig`'
-			.' WHERE `appid` = ? AND `configkey` = ?';
-		$row = $this->conn->fetchAssoc($query, array($app, $key));
-		if ($row) {
-			return $row['configvalue'];
+		$this->loadConfig();
+		if (isset($this->config[$app][$key])) {
+			return $this->config[$app][$key];
 		} else {
 			return $default;
 		}
@@ -120,8 +120,8 @@ class AppConfig {
 	 * @return bool
 	 */
 	public function hasKey($app, $key) {
-		$exists = $this->getKeys($app);
-		return in_array($key, $exists);
+		$this->loadConfig();
+		return isset($this->config[$app][$key]);
 	}
 
 	/**
@@ -133,6 +133,7 @@ class AppConfig {
 	 * Sets a value. If the key did not exist before it will be created.
 	 */
 	public function setValue($app, $key, $value) {
+		$this->loadConfig();
 		// Does the key exist? no: insert, yes: update.
 		if (!$this->hasKey($app, $key)) {
 			$data = array(
@@ -151,6 +152,7 @@ class AppConfig {
 			);
 			$this->conn->update('*PREFIX*appconfig', $data, $where);
 		}
+		$this->config[$app][$key] = $value;
 	}
 
 	/**
@@ -162,11 +164,13 @@ class AppConfig {
 	 * Deletes a key.
 	 */
 	public function deleteKey($app, $key) {
+		$this->loadConfig();
 		$where = array(
 			'appid' => $app,
 			'configkey' => $key,
 		);
 		$this->conn->delete('*PREFIX*appconfig', $where);
+		unset($this->config[$app][$key]);
 	}
 
 	/**
@@ -177,10 +181,12 @@ class AppConfig {
 	 * Removes all keys in appconfig belonging to the app.
 	 */
 	public function deleteApp($app) {
+		$this->loadConfig();
 		$where = array(
 			'appid' => $app,
 		);
 		$this->conn->delete('*PREFIX*appconfig', $where);
+		unset($this->config[$app]);
 	}
 
 	/**
