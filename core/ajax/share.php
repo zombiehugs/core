@@ -234,6 +234,7 @@ if (isset($_POST['action']) && isset($_POST['itemType']) && isset($_POST['itemSo
 			$share = $shareManager->getShares($itemType, array('shareWith' => $recipient, 'isShareWithUser' => true, 'itemSource' => $itemSource));
 			$share[0]->setMailSend(0);
 			$shareManager->update($share[0]);
+			OCP\JSON::success();
 			break;
 
 		case 'email':
