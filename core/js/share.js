@@ -208,9 +208,6 @@ OC.Share={
 			html += '<input type="checkbox" name="expirationCheckbox" id="expirationCheckbox" value="1" /><label for="expirationCheckbox">'+t('core', 'Set expiration date')+'</label>';
 			html += '<input id="expirationDate" type="text" placeholder="'+t('core', 'Expiration date')+'" style="display:none; width:90%;" />';
 			html += '</div>';
-			html += '<div id="mailAll">';
-			html += '<input type="checkbox" name="mailAllCheckbox" id="mailAllCheckbox" value="1" /><label for="mailAllCheckbox">'+t('core', 'Inform users by E-Mail')+'</label>';
-			html += '</div>';
 			$(html).appendTo(appendTo);
 			// Reset item shares
 			OC.Share.itemShares = [];

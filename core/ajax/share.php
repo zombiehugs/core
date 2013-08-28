@@ -151,6 +151,7 @@ if (isset($_POST['action']) && isset($_POST['itemType']) && isset($_POST['itemSo
 
 			$shareType = (int) $_POST['shareType'];
 			$itemType = $_POST['itemType'];
+			$itemSource = $_POST['itemSource'];
 			$recipient = $_POST['recipient'];
 			$from = \OCP\Util::getDefaultEmailAddress('sharing-noreply');
 			$subject = $defaults->getShareNotificationSubject($itemType);
@@ -188,16 +189,16 @@ if (isset($_POST['action']) && isset($_POST['itemType']) && isset($_POST['itemSo
 			// send mail to all recipients with an email address
 			foreach ($recipientList as $recipient) {
 				//get correct target folder name
+				$share = $shareManager->getShares($itemType, array('shareWith' => $recipient['uid'], 'isShareWithUser' => true, 'itemSource' => $itemSource));
+				$targetName = $share[0]->getItemTarget();
 				if ($itemType === 'folder') {
-					// TODO get user specific folder name
-					$foldername = "testfolder";
-					$filename = $foldername;
+					$foldername = "/Shared/" . $targetName;
+					$filename = $targetName;
 				} else {
 					// if it is a file we can just link to the Shared folder,
 					// that's the place where the user will find the file
 					$foldername = "/Shared";
-					//TODO get for every user the correct filename name
-					$filename = "foo.txt";
+					$filename = $targetName;
 				}
 
 				$url = \OCP\Util::linkToAbsolute('files', 'index.php', array("dir" => $foldername));
@@ -214,7 +215,7 @@ if (isset($_POST['action']) && isset($_POST['itemType']) && isset($_POST['itemSo
 					);
 				} catch (Exception $exception) {
 					$noMail[] = \OCP\User::getDisplayName($recipient['displayName']);
-				}
+				} 
 			}
 
 			if (empty($noMail)) {
