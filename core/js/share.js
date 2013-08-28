@@ -217,9 +217,9 @@ OC.Share={
 						OC.Share.showLink(share.token, share.share_with, itemSource);
 					} else {
 						if (share.collection) {
-							OC.Share.addShareWith(share.share_type, share.share_with, share.share_with_displayname, share.permissions, possiblePermissions, share.collection);
+							OC.Share.addShareWith(share.share_type, share.share_with, share.share_with_displayname, share.permissions, possiblePermissions, share.mailSend, share.collection);
 						} else {
-							OC.Share.addShareWith(share.share_type, share.share_with, share.share_with_displayname,  share.permissions, possiblePermissions, false);
+							OC.Share.addShareWith(share.share_type, share.share_with, share.share_with_displayname,  share.permissions, possiblePermissions, share.mailSend, false);
 						}
 					}
 					if (share.expiration != null) {
@@ -299,7 +299,7 @@ OC.Share={
 			}
 		});
 	},
-	addShareWith:function(shareType, shareWith, shareWithDisplayName, permissions, possiblePermissions, collection) {
+	addShareWith:function(shareType, shareWith, shareWithDisplayName, permissions, possiblePermissions, mailSend ,collection) {
 		if (!OC.Share.itemShares[shareType]) {
 			OC.Share.itemShares[shareType] = [];
 		}
@@ -344,7 +344,11 @@ OC.Share={
 			}
 			mailNotificationEnabled = $('input:hidden[name=mailNotificationEnabled]').val();
 			if (mailNotificationEnabled === 'yes') {
-				html += '<input type="checkbox" name="mailNotification" class="mailNotification" '+mailNotificationChecked+' />'+t('core', 'notify user by email')+'</label>';
+				checked = '';
+				if (mailSend === '1') {
+					checked = 'checked';
+				}
+				html += '<input type="checkbox" name="mailNotification" class="mailNotification" '+mailNotificationChecked+ ' ' + checked +  ' />'+t('core', 'notify user by email')+'</label>';
 			}
 			if (possiblePermissions & OC.PERMISSION_CREATE || possiblePermissions & OC.PERMISSION_UPDATE || possiblePermissions & OC.PERMISSION_DELETE) {
 				if (editChecked == '') {
@@ -606,18 +610,20 @@ $(document).ready(function() {
 		var itemType = $('#dropdown').data('item-type');
 		var itemSource = $('#dropdown').data('item-source');
 		if (this.checked) {
-			console.log(li);
-			shareType = $(li).data('share-type');
-			shareWith = $(li).data('share-with');
-
-			$.post(OC.filePath('core', 'ajax', 'share.php'), { action: 'informRecipients', recipient: shareWith, shareType: shareType, itemSource : itemSource, itemType : itemType }, function(result) {
-				if (result.status !== 'success') {
-					OC.dialogs.alert(t('core', result.data.message), t('core', 'Warning'));
-				}
-			});
-
-			//TODO Update status in db!
+			action='informRecipients';
+		} else {
+			action='informRecipientsDisabled';
 		}
+
+		shareType = $(li).data('share-type');
+		shareWith = $(li).data('share-with');
+
+		$.post(OC.filePath('core', 'ajax', 'share.php'), { action: action, recipient: shareWith, shareType: shareType, itemSource : itemSource, itemType : itemType }, function(result) {
+			if (result.status !== 'success') {
+				OC.dialogs.alert(t('core', result.data.message), t('core', 'Warning'));
+			}
+		});
+
 	});
 
 	$(document).on('click', '#dropdown #showPassword', function() {

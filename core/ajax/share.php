@@ -215,8 +215,11 @@ if (isset($_POST['action']) && isset($_POST['itemType']) && isset($_POST['itemSo
 					);
 				} catch (Exception $exception) {
 					$noMail[] = \OCP\User::getDisplayName($recipient['displayName']);
-				} 
+				}
 			}
+
+			$share[0]->setMailSend(1);
+			$shareManager->update($share[0]);
 
 			if (empty($noMail)) {
 				OCP\JSON::success();
@@ -224,6 +227,15 @@ if (isset($_POST['action']) && isset($_POST['itemType']) && isset($_POST['itemSo
 				OCP\JSON::error(array('data' => array('message' => $l->t("Couldn't send mail to following users: %s ", implode(', ', $noMail)))));
 			}
 			break;
+		case 'informRecipientsDisabled':
+			$itemSource = $_POST['itemSource'];
+			$itemType = $_POST['itemType'];
+			$recipient = $_POST['recipient'];
+			$share = $shareManager->getShares($itemType, array('shareWith' => $recipient, 'isShareWithUser' => true, 'itemSource' => $itemSource));
+			$share[0]->setMailSend(0);
+			$shareManager->update($share[0]);
+			break;
+
 		case 'email':
 			// read post variables
 			$user = OCP\USER::getUser();
@@ -334,6 +346,7 @@ if (isset($_POST['action']) && isset($_POST['itemType']) && isset($_POST['itemSo
 							'permissions' => $share->getPermissions(),
 							'share_with_displayname' => $share->getShareWithDisplayName(),
 							'displayname_owner' => $share->getShareOwnerDisplayName(),
+							'mailSend' => $share->getMailSend(),
 							'expiration' => $expiration,
 						);
 					}
@@ -367,6 +380,7 @@ if (isset($_POST['action']) && isset($_POST['itemType']) && isset($_POST['itemSo
 							'permissions' => $share->getPermissions(),
 							'share_with_displayname' => $share->getShareWithDisplayName(),
 							'displayname_owner' => $share->getShareOwnerDisplayName(),
+							'mailSend' => $share->getMailSend(),
 							'expiration' => $expiration,
 						);
 					}

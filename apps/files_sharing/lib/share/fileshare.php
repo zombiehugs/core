@@ -40,6 +40,7 @@ class FileShare extends Share {
 	protected $encrypted;
 	protected $unencryptedSize;
 	protected $etag;
+	protected $mailSend;
 
 	public function __construct() {
 		$this->addType('itemSource', 'int');
@@ -228,6 +229,23 @@ class FileShare extends Share {
 	}
 
 	/**
+	 * Get the mail send status
+	 * @return string
+	 */
+	public function getMailSend() {
+		return $this->mailSend;
+	}
+
+	/**
+	 * Set the mail send statis
+	 * @param integer $mailSend (0 = not send; 1 = send)
+	 */
+	public function setMailSend($mailSend) {
+		$this->mailSend = $mailSend;
+		$this->markPropertyUpdated('mailSend');
+	}
+
+	/**
 	 * Get the metadata
 	 * @return array
 	 */
@@ -246,6 +264,7 @@ class FileShare extends Share {
 			'encrypted' => $this->getEncrypted(),
 			'unencrypted_size' => $this->getUnencryptedSize(),
 			'etag' => $this->getEtag(),
+			'mail_send' => $this->getMailNotification(),
 		);
 	}
 
