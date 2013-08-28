@@ -503,7 +503,7 @@ class View {
 				} else {
 					if ($this->is_dir($path1) && ($dh = $this->opendir($path1))) {
 						$result = $this->mkdir($path2);
-						while ($file = readdir($dh)) {
+						while (($file = readdir($dh)) !== false) {
 							if (!Filesystem::isIgnoredDir($file)) {
 								$result = $this->copy($path1 . '/' . $file, $path2 . '/' . $file);
 							}
@@ -1037,7 +1037,8 @@ class View {
 	 */
 	public function getPath($id) {
 		$mountManager = Filesystem::getMountManager();
-		$mounts = $mountManager->getAll();
+		$mounts = $mountManager->findIn($this->getRoot());
+		$mounts[] = $mountManager->find($this->getRoot());
 		foreach ($mounts as $mount) {
 			$cache = $mount->getStorage()->getCache();
 			$data = $cache->get($id);
