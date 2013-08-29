@@ -175,7 +175,7 @@ if (isset($_POST['action']) && isset($_POST['itemType']) && isset($_POST['itemSo
 				}
 			} else {  // shared to a single user
 				$email = OC_Preferences::getValue($recipient, 'settings', 'email', '');
-				if ($email !== '') {
+				if ($email !== '' || $recipient === \OCP\User::getUser()) {
 					$recipientList[] = array(
 						'email' => $email,
 						'displayName' => \OCP\User::getDisplayName($recipient),
