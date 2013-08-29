@@ -50,6 +50,7 @@ class FileShare extends Share {
 		$this->addType('mtime', 'int');
 		$this->addType('encrypted', 'bool');
 		$this->addType('unencryptedSize', 'int');
+		$this->addType('mailSend', 'bool');
 	}
 
 	/**

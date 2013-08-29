@@ -203,7 +203,7 @@ if (isset($_POST['action']) && isset($_POST['itemType']) && isset($_POST['itemSo
 
 				$url = \OCP\Util::linkToAbsolute('files', 'index.php', array("dir" => $foldername));
 				$text = $defaults->getShareNotificationText(\OCP\User::getDisplayName(), $filename, $itemType, $url);
-
+/*
 				try {
 					OCP\Util::sendMail(
 							$recipient['email'],
@@ -215,10 +215,10 @@ if (isset($_POST['action']) && isset($_POST['itemType']) && isset($_POST['itemSo
 					);
 				} catch (Exception $exception) {
 					$noMail[] = \OCP\User::getDisplayName($recipient['displayName']);
-				}
+				}*/
 			}
 
-			$share[0]->setMailSend(1);
+			$share[0]->setMailSend(true);
 			$shareManager->update($share[0]);
 
 			if (empty($noMail)) {
@@ -232,7 +232,7 @@ if (isset($_POST['action']) && isset($_POST['itemType']) && isset($_POST['itemSo
 			$itemType = $_POST['itemType'];
 			$recipient = $_POST['recipient'];
 			$share = $shareManager->getShares($itemType, array('shareWith' => $recipient, 'isShareWithUser' => true, 'itemSource' => $itemSource));
-			$share[0]->setMailSend(0);
+			$share[0]->setMailSend(false);
 			$shareManager->update($share[0]);
 			OCP\JSON::success();
 			break;

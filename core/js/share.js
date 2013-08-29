@@ -345,7 +345,7 @@ OC.Share={
 			mailNotificationEnabled = $('input:hidden[name=mailNotificationEnabled]').val();
 			if (mailNotificationEnabled === 'yes') {
 				checked = '';
-				if (mailSend === '1') {
+				if (mailSend === true) {
 					checked = 'checked';
 				}
 				html += '<input type="checkbox" name="mailNotification" class="mailNotification" '+mailNotificationChecked+ ' ' + checked +  ' />'+t('core', 'notify user by email')+'</label>';
