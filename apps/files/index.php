@@ -41,13 +41,39 @@ if (!\OC\Files\Filesystem::is_dir($dir . '/')) {
 	exit();
 }
 
+$isIE8 = false;
+preg_match('/MSIE (.*?);/', $_SERVER['HTTP_USER_AGENT'], $matches);
+if (count($matches) > 0 && $matches[1] <= 8){
+	$isIE8 = true;
+}
+
+// if IE8 and "?dir=path" was specified, reformat the URL to use a hash like "#?dir=path"
+// TODO: what about other arguments like version or tokens?
+if ($isIE8 && isset($_GET['dir'])){
+	if ($dir === ''){
+		$dir = '/';
+	}
+	header('Location: ' . OCP\Util::linkTo('files', 'index.php') . '#?dir=' . \OCP\Util::encodePath($dir));
+	exit();
+}
+
 $files = array();
 $user = OC_User::getUser();
 if (\OC\Files\Cache\Upgrade::needUpgrade($user)) { //dont load anything if we need to upgrade the cache
 	$needUpgrade = true;
 	$freeSpace = 0;
 } else {
-	$files = \OCA\files\lib\Helper::getFiles($dir);
+	if ($isIE8){
+		// after the redirect above, the URL will have a format
+		// like "files#?dir=path" which means that no path was given
+		// (dir is not set). In that specific case, we don't return any
+		// files because the client will take care of switching the dir
+		// to the one from the hash, then ajax-load the initial file list
+		$files = array();
+	}
+	else{
+		$files = \OCA\files\lib\Helper::getFiles($dir);
+	}
 	$freeSpace = \OC\Files\Filesystem::free_space($dir);
 	$needUpgrade = false;
 }

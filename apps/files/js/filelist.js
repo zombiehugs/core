@@ -160,12 +160,12 @@ var FileList={
 	 * @param targetDir target directory (non URL encoded)
 	 * @param changeUrl false if the URL must not be changed (defaults to true)
 	 */
-	changeDirectory: function(targetDir, changeUrl){
+	changeDirectory: function(targetDir, changeUrl, force){
 		var $dir = $('#dir'),
 			url,
 			currentDir = $dir.val() || '/';
 		targetDir = targetDir || '/';
-		if (currentDir === targetDir){
+		if (!force && currentDir === targetDir){
 			return;
 		}
 		FileList.setCurrentDir(targetDir, changeUrl);
@@ -855,26 +855,25 @@ $(document).ready(function(){
 		return '';
 	}
 
-	function initFromHash(){
-		// when initializing, there might be a hash already set (if the user refreshed the browser page)
-		// so use that and change the directory directly
+	function parseCurrentDirFromUrl(){
 		var query = parseHashQuery(),
-			targetDir;
+			params,
+			dir = '/';
+		// try and parse from URL hash first
 		if (query){
-			targetDir = (OC.parseQueryString(query) || {dir: '/'}).dir || '/';
-			FileList.changeDirectory(targetDir, false);
+			params = OC.parseQueryString(query);
 		}
+		// else read from query attributes
+		if (!params){
+			params = OC.parseQueryString(location.search);
+		}
+		return (params && params.dir) || '/';
 	}
 
 	// fallback to hashchange when no history support
 	if (!window.history.pushState){
 		$(window).on('hashchange', function(){
-			var query = parseHashQuery(),
-				targetDir;
-			if (query){
-				targetDir = (OC.parseQueryString(query) || {dir: '/'}).dir || '/';
-				FileList.changeDirectory(targetDir, false);
-			}
+			FileList.changeDirectory(parseCurrentDirFromUrl(), false);
 		});
 	}
 	window.onpopstate = function(e){
@@ -884,12 +883,17 @@ $(document).ready(function(){
 		}
 		else{
 			// read from URL
-			targetDir = (OC.parseQueryString(location.search) || {dir: '/'}).dir || '/';
+			targetDir = parseCurrentDirFromUrl();
+		}
+		if (targetDir){
 			FileList.changeDirectory(targetDir, false);
 		}
 	}
 
-	initFromHash();
+	if (!window.history.pushState){
+		// need to initially switch the dir to the one from the hash (IE8)
+		FileList.changeDirectory(parseCurrentDirFromUrl(), false, true);
+	}
 
 	FileList.createFileSummary();
 });
