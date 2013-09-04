@@ -160,12 +160,12 @@ var FileList={
 	 * @param targetDir target directory (non URL encoded)
 	 * @param changeUrl false if the URL must not be changed (defaults to true)
 	 */
-	changeDirectory: function(targetDir, changeUrl){
+	changeDirectory: function(targetDir, changeUrl, force){
 		var $dir = $('#dir'),
 			url,
 			currentDir = $dir.val() || '/';
 		targetDir = targetDir || '/';
-		if (currentDir === targetDir){
+		if (!force && currentDir === targetDir){
 			return;
 		}
 		FileList.setCurrentDir(targetDir, changeUrl);
@@ -845,37 +845,34 @@ $(document).ready(function(){
 		$(window).trigger('beforeunload');
 	});
 
-	function parseQuery(){
+	function parseHashQuery(){
 		var hash = window.location.hash,
 			pos = hash.indexOf('?'),
 			query;
 		if (pos >= 0){
 			return hash.substr(pos + 1);
 		}
-		return location.search;
+		return '';
 	}
 
-	function loadFiles(){
-		// when initializing, there might be a hash already set (if the user refreshed the browser page)
-		// so use that and change the directory directly
-		var query = parseQuery(),
-			targetDir;
+	function parseCurrentDirFromUrl(){
+		var query = parseHashQuery(),
+			params;
+		// try and parse from URL hash first
 		if (query){
-			targetDir = (OC.parseQueryString(query) || {dir: '/'}).dir || '/';
-			FileList.setCurrentDir(targetDir, false);
+			params = OC.parseQueryString(query);
 		}
-		FileList.reload();
+		// else read from query attributes
+		if (!params){
+			params = OC.parseQueryString(location.search);
+		}
+		return (params && params.dir) || '/';
 	}
 
 	// fallback to hashchange when no history support
 	if (!window.history.pushState){
 		$(window).on('hashchange', function(){
-			var query = parseQuery(),
-				targetDir;
-			if (query){
-				targetDir = (OC.parseQueryString(query) || {dir: '/'}).dir || '/';
-				FileList.changeDirectory(targetDir, false);
-			}
+			FileList.changeDirectory(parseCurrentDirFromUrl(), false);
 		});
 	}
 	window.onpopstate = function(e){
@@ -885,13 +882,15 @@ $(document).ready(function(){
 		}
 		else{
 			// read from URL
-			targetDir = (OC.parseQueryString(location.search) || {dir: '/'}).dir || '/';
+			targetDir = parseCurrentDirFromUrl();
+		}
+		if (targetDir){
 			FileList.changeDirectory(targetDir, false);
 		}
 	}
 
-	// first time file list loading
-	loadFiles();
+	// initially switch the dir to the one from the URL and load the files
+	FileList.changeDirectory(parseCurrentDirFromUrl(), false, true);
 
 	FileList.createFileSummary();
 });
