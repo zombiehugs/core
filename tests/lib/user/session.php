@@ -9,6 +9,15 @@
 
 namespace Test\User;
 
+use OC\Session\Memory;
+use OC\User\Manager;
+
+class ReversedLoginNameBackend extends \OC_User_Dummy {
+	public function getByLoginName($loginName) {
+		return strrev($loginName);
+	}
+}
+
 class Session extends \PHPUnit_Framework_TestCase {
 	public function testGetUser() {
 		$session = $this->getMock('\OC\Session\Memory', array(), array(''));
@@ -73,7 +82,7 @@ class Session extends \PHPUnit_Framework_TestCase {
 			->will($this->returnValue('foo'));
 
 		$manager->expects($this->once())
-			->method('get')
+			->method('getByLoginName')
 			->with('foo')
 			->will($this->returnValue($user));
 
@@ -101,7 +110,7 @@ class Session extends \PHPUnit_Framework_TestCase {
 			->will($this->returnValue(false));
 
 		$manager->expects($this->once())
-			->method('get')
+			->method('getByLoginName')
 			->with('foo')
 			->will($this->returnValue($user));
 
@@ -127,7 +136,7 @@ class Session extends \PHPUnit_Framework_TestCase {
 			->method('isEnabled');
 
 		$manager->expects($this->once())
-			->method('get')
+			->method('getByLoginName')
 			->with('foo')
 			->will($this->returnValue($user));
 
@@ -145,11 +154,65 @@ class Session extends \PHPUnit_Framework_TestCase {
 		$backend = $this->getMock('OC_User_Dummy');
 
 		$manager->expects($this->once())
-			->method('get')
+			->method('getByLoginName')
 			->with('foo')
 			->will($this->returnValue(null));
 
 		$userSession = new \OC\User\Session($manager, $session);
 		$userSession->login('foo', 'bar');
+	}
+
+	public function testLogin() {
+		$manager = new Manager();
+		$session = new Memory('');
+		$userSession = new \OC\User\Session($manager, $session);
+		$backend = new \OC_User_Dummy();
+		$backend->createUser('foo', 'bar');
+		$manager->registerBackend($backend);
+
+		$this->assertTrue($userSession->login('foo', 'bar'));
+		$user = $userSession->getUser();
+		$this->assertNotNull($user);
+		$this->assertEquals('foo', $user->getUID());
+	}
+
+	public function testLoginWrongPassword() {
+		$manager = new Manager();
+		$session = new Memory('');
+		$userSession = new \OC\User\Session($manager, $session);
+		$backend = new \OC_User_Dummy();
+		$backend->createUser('foo', 'bar');
+		$manager->registerBackend($backend);
+
+		$this->assertFalse($userSession->login('foo', 'foo'));
+		$user = $userSession->getUser();
+		$this->assertNull($user);
+	}
+
+	public function testLoginNotExisting() {
+		$manager = new Manager();
+		$session = new Memory('');
+		$userSession = new \OC\User\Session($manager, $session);
+		$backend = new \OC_User_Dummy();
+		$backend->createUser('foo', 'bar');
+		$manager->registerBackend($backend);
+
+		$this->assertFalse($userSession->login('asd', 'bar'));
+		$user = $userSession->getUser();
+		$this->assertNull($user);
+	}
+
+	public function testLoginNameNotUid() {
+		$manager = new Manager();
+		$session = new Memory('');
+		$userSession = new \OC\User\Session($manager, $session);
+		$backend = new ReversedLoginNameBackend();
+		$backend->createUser('foo', 'bar');
+		$manager->registerBackend($backend);
+
+		$this->assertTrue($userSession->login('oof', 'bar'));
+		$user = $userSession->getUser();
+		$this->assertNotNull($user);
+		$this->assertEquals('foo', $user->getUID());
 	}
 }

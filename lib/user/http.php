@@ -46,7 +46,7 @@ class OC_User_HTTP extends OC_User_Backend {
 
 	/**
 	 * check if an url is a valid login
-	 * @param string url
+	 * @param string $url
 	 * @return boolean
 	 */
 	private function matchUrl($url) {
@@ -55,9 +55,9 @@ class OC_User_HTTP extends OC_User_Backend {
 
 	/**
 	 * @brief Check if the password is correct
-	 * @param $uid The username
-	 * @param $password The password
-	 * @returns string
+	 * @param string $uid The username
+	 * @param string $password The password
+	 * @return string
 	 *
 	 * Check if the password is correct without logging in the user
 	 * returns the user id or false

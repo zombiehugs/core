@@ -77,4 +77,12 @@ interface OC_User_Interface {
 	 * @return boolean if users can be listed or not
 	 */
 	public function hasUserListings();
+
+	/**
+	 * get the uid of a user by it's login name, returns false if the user does not exist on this backend
+	 *
+	 * @param string $loginName
+	 * @return string | bool
+	 */
+	public function getByLoginName($loginName);
 }

@@ -93,6 +93,21 @@ class Manager extends PublicEmitter {
 	}
 
 	/**
+	 * get a user by login name
+	 *
+	 * @param string $loginName
+	 * @return \OC\User\User
+	 */
+	public function getByLoginName($loginName) {
+		foreach ($this->backends as $backend) {
+			if ($uid = $backend->getByLoginName($loginName)) {
+				return $this->getUserObject($uid, $backend);
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * get or construct the user object
 	 *
 	 * @param string $uid

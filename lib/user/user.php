@@ -114,7 +114,7 @@ class User {
 	public function checkPassword($password) {
 		if ($this->backend->implementsActions(\OC_USER_BACKEND_CHECK_PASSWORD)) {
 			$result = $this->backend->checkPassword($this->uid, $password);
-			if ($result !== false) {
+			if ($result !== false && $result !== true) {
 				$this->uid = $result;
 			}
 			return !($result === false);
