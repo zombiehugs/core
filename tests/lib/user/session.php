@@ -10,7 +10,6 @@
 namespace Test\User;
 
 use OC\Session\Memory;
-use OC\User\Manager;
 
 class ReversedLoginNameBackend extends \OC_User_Dummy {
 	public function getByLoginName($loginName) {
@@ -163,7 +162,7 @@ class Session extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testLogin() {
-		$manager = new Manager();
+		$manager = new \OC\User\Manager();
 		$session = new Memory('');
 		$userSession = new \OC\User\Session($manager, $session);
 		$backend = new \OC_User_Dummy();
@@ -177,7 +176,7 @@ class Session extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testLoginWrongPassword() {
-		$manager = new Manager();
+		$manager = new \OC\User\Manager();
 		$session = new Memory('');
 		$userSession = new \OC\User\Session($manager, $session);
 		$backend = new \OC_User_Dummy();
@@ -190,7 +189,7 @@ class Session extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testLoginNotExisting() {
-		$manager = new Manager();
+		$manager = new \OC\User\Manager();
 		$session = new Memory('');
 		$userSession = new \OC\User\Session($manager, $session);
 		$backend = new \OC_User_Dummy();
@@ -203,7 +202,7 @@ class Session extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testLoginNameNotUid() {
-		$manager = new Manager();
+		$manager = new \OC\User\Manager();
 		$session = new Memory('');
 		$userSession = new \OC\User\Session($manager, $session);
 		$backend = new ReversedLoginNameBackend();

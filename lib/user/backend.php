@@ -45,7 +45,7 @@ define('OC_USER_BACKEND_SET_DISPLAYNAME', 0x100000);
  *
  * Subclass this for your own backends, and see OC_User_Example for descriptions
  */
-abstract class OC_User_Backend implements OC_User_Interface {
+abstract class OC_User_Backend implements OC_User_Interface, \OC\User\ByLoginName {
 
 	protected $possibleActions = array(
 		OC_USER_BACKEND_CREATE_USER => 'createUser',

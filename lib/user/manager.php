@@ -100,8 +100,14 @@ class Manager extends PublicEmitter {
 	 */
 	public function getByLoginName($loginName) {
 		foreach ($this->backends as $backend) {
-			if ($uid = $backend->getByLoginName($loginName)) {
-				return $this->getUserObject($uid, $backend);
+			if ($backend instanceof ByLoginName) {
+				if ($uid = $backend->getByLoginName($loginName)) {
+					return $this->getUserObject($uid, $backend);
+				}
+			} else {
+				if ($backend->userExists($loginName)) {
+					return $this->getUserObject($loginName, $backend);
+				}
 			}
 		}
 		return null;
