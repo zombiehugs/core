@@ -115,8 +115,15 @@ class OC_Router {
 	 * @param string $url The url to find
 	 */
 	public function match($url) {
+		$logger = \OC::getCoreLogger();
+		if ($logger) {
+			$logger->startEvent('matchRoute', 'Match route ' . $url);
+		}
 		$matcher = new UrlMatcher($this->root, $this->context);
 		$parameters = $matcher->match($url);
+		if ($logger) {
+			$logger->endEvent('matchRoute');
+		}
 		if (isset($parameters['action'])) {
 			$action = $parameters['action'];
 			if (!is_callable($action)) {
@@ -124,7 +131,13 @@ class OC_Router {
 				throw new Exception('not a callable action');
 			}
 			unset($parameters['action']);
+			if ($logger) {
+				$logger->startEvent('handleRoute', 'Run route');
+			}
 			call_user_func($action, $parameters);
+			if ($logger) {
+				$logger->endEvent('handleRoute');
+			}
 		} elseif (isset($parameters['file'])) {
 			include $parameters['file'];
 		} else {

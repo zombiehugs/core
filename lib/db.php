@@ -149,6 +149,9 @@ class OC_DB {
 			$connectionParams['tablePrefix'] = OC_Config::getValue('dbtableprefix', 'oc_' );
 			try {
 				self::$connection = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config, $eventManager);
+				if ($logger = \OC::getCoreLogger()) {
+					self::$connection->getConfiguration()->setSQLLogger($logger);
+				}
 				if ($type === 'sqlite' || $type === 'sqlite3') {
 					// Sqlite doesn't handle query caching and schema changes
 					// TODO: find a better way to handle this

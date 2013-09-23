@@ -248,7 +248,15 @@ class OC_User {
 	 * Log in a user and regenerate a new session - if the password is ok
 	 */
 	public static function login($uid, $password) {
-		return self::getUserSession()->login($uid, $password);
+		$logger = \OC::getCoreLogger();
+		if ($logger) {
+			$logger->startEvent('login', 'Login ' . $uid);
+		}
+		$result = self::getUserSession()->login($uid, $password);
+		if ($logger) {
+			$logger->endEvent('login');
+		}
+		return $result;
 	}
 
 	/**

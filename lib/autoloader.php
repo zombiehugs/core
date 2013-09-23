@@ -98,7 +98,10 @@ class Autoloader {
 				if (0 === strpos($class, $prefix)) {
 					$path = str_replace('\\', '/', $class) . '.php';
 					$path = str_replace('_', '/', $path);
-					$paths[] = $dir . '/' . $path;
+					if ($dir) {
+						$path = $dir . '/' . $path;
+					}
+					$paths[] = $path;
 				}
 			}
 		}

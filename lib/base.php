@@ -84,6 +84,13 @@ class OC {
 	 */
 	public static $loader = null;
 
+	private static $coreLogger;
+
+	/**
+	 * @var \Clockwork\Clockwork
+	 */
+	public static $clockwork;
+
 	public static function initPaths() {
 		// calculate the root directories
 		OC::$SERVERROOT = str_replace("\\", '/', substr(__DIR__, 0, -4));
@@ -246,6 +253,13 @@ class OC {
 		}
 	}
 
+	/**
+	 * @return \OC\CoreLogger
+	 */
+	public static function getCoreLogger(){
+		return self::$coreLogger;
+	}
+
 	public static function initTemplateEngine() {
 		// Add the stuff we need always
 		OC_Util::addScript("jquery-1.10.0.min");
@@ -339,6 +353,9 @@ class OC {
 		return OC_Config::getValue('session_lifetime', 60 * 60 * 24);
 	}
 
+	/**
+	 * @return \OC_Router
+	 */
 	public static function getRouter() {
 		if (!isset(OC::$router)) {
 			OC::$router = new OC_Router();
@@ -367,6 +384,7 @@ class OC {
 		self::$loader->registerPrefix('Doctrine\\DBAL', 'doctrine/dbal/lib');
 		self::$loader->registerPrefix('Symfony\\Component\\Routing', 'symfony/routing');
 		self::$loader->registerPrefix('Symfony\\Component\\Console', 'symfony/console');
+		self::$loader->registerPrefix('Clockwork', '');
 		self::$loader->registerPrefix('Sabre\\VObject', '3rdparty');
 		self::$loader->registerPrefix('Sabre_', '3rdparty');
 		self::$loader->registerPrefix('Patchwork', '3rdparty');
@@ -442,6 +460,24 @@ class OC {
 				OC\Log\ErrorHandler::register();
 				OC\Log\ErrorHandler::setLogger(OC_Log::$object);
 			}
+		}
+
+		if (defined('DEBUG') && DEBUG) {
+			self::$clockwork = new \Clockwork\Clockwork();
+			self::$coreLogger = new \OC\CoreLogger();
+			self::$coreLogger->startEvent('boot', 'Boot');
+			self::$clockwork->addDataSource(new \Clockwork\DataSource\PhpDataSource());
+			self::$clockwork->addDataSource(self::$coreLogger);
+			$storage = new \Clockwork\Storage\FileStorage(\OC_Config::getValue('datadirectory') . '/clockwork');
+			self::$clockwork->setStorage($storage);
+			header('X-Clockwork-Id: ' . self::$clockwork->getRequest()->id);
+			header('X-Clockwork-Version: ' . \Clockwork\Clockwork::VERSION);
+			register_shutdown_function(function(){
+				if (!\OC::getCoreLogger()->getSkip()) {
+					\OC::$clockwork->resolveRequest();
+					\OC::$clockwork->storeRequest();
+				}
+			});
 		}
 
 		// register the stream wrappers
@@ -548,6 +584,10 @@ class OC {
 				OC_Util::addScript('backgroundjobs');
 			}
 		}
+
+		if (self::$coreLogger) {
+			self::$coreLogger->endEvent('boot');
+		}
 	}
 
 	/**
@@ -613,6 +653,7 @@ class OC {
 	 * @brief Handle the request
 	 */
 	public static function handleRequest() {
+		$logger = \OC::getCoreLogger();
 		// load all the classpaths from the enabled apps so they are available
 		// in the routing files of each app
 		OC::loadAppClassPaths();
@@ -652,7 +693,13 @@ class OC {
 		$param = array('app' => $app, 'file' => $file);
 		// Handle app css files
 		if (substr($file, -3) == 'css') {
+			if ($logger) {
+				$logger->startEvent('loadCss', 'Load css ' . $file);
+			}
 			self::loadCSSFile($param);
+			if ($logger) {
+				$logger->endEvent('matchRoute');
+			}
 			return;
 		}
 
@@ -660,6 +707,9 @@ class OC {
 		if (isset($_REQUEST['redirect_url']) && OC_User::isLoggedIn()) {
 			$location = OC_Helper::makeURLAbsolute(urldecode($_REQUEST['redirect_url']));
 
+			if ($logger) {
+				$logger->startEvent('redirect', 'Redirect ' . $location);
+			}
 			// Deny the redirect if the URL contains a @
 			// This prevents unvalidated redirects like ?redirect_url=:user@domain.com
 			if (strpos($location, '@') === false) {
@@ -681,6 +731,9 @@ class OC {
 				if (isset($_COOKIE['oc_token'])) {
 					OC_Preferences::deleteKey(OC_User::getUser(), 'login_token', $_COOKIE['oc_token']);
 				}
+				if ($logger) {
+					$logger->startEvent('logout', 'Logout');
+				}
 				OC_User::logout();
 				header("Location: " . OC::$WEBROOT . '/');
 			} else {
@@ -688,10 +741,16 @@ class OC {
 					$param['file'] = 'index.php';
 				}
 				$file_ext = substr($param['file'], -3);
+				if ($logger) {
+					$logger->startEvent('runAppScript', 'Run app script file ' . $param);
+				}
 				if ($file_ext != 'php'
 					|| !self::loadAppScriptFile($param)
 				) {
 					header('HTTP/1.0 404 Not Found');
+				}
+				if ($logger) {
+					$logger->endEvent('runAppScript');
 				}
 			}
 			return;

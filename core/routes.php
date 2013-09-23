@@ -91,3 +91,9 @@ $this->create('app_script', '/apps/{app}/{file}')
 $this->create('heartbeat', '/heartbeat')->action(function(){
 	// do nothing
 });
+
+// Get stored clockwork data
+$this->create('clockwork_get', '/__clockwork/{id}')
+	->action(function($params){
+		echo \OC::$clockwork->getStorage()->retrieveAsJson($params['id']);
+	});

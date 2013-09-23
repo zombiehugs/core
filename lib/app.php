@@ -90,9 +90,15 @@ class OC_App{
 	 * @param string $app
 	 */
 	public static function loadApp($app) {
+		if ($logger = \OC::getCoreLogger()) {
+			$logger->startEvent('loadApp' . $app, 'Load app ' . $app);
+		}
 		if(is_file(self::getAppPath($app).'/appinfo/app.php')) {
 			self::checkUpgrade($app);
 			require_once $app.'/appinfo/app.php';
+		}
+		if ($logger) {
+			$logger->endEvent('loadApp' . $app);
 		}
 	}
 
