@@ -200,8 +200,7 @@ class Cache {
 
 			$data['path'] = $file;
 			$data['parent'] = $this->getParentId($file);
-			$data['name'] = basename($file);
-			$data['encrypted'] = isset($data['encrypted']) ? ((int)$data['encrypted']) : 0;
+			$data['name'] = \OC_Util::basename($file);
 
 			list($queryParts, $params) = $this->buildParts($data);
 			$queryParts[] = '`storage`';
@@ -265,6 +264,9 @@ class Cache {
 						$params[] = $value;
 						$queryParts[] = '`mtime`';
 					}
+				} elseif ($name === 'encrypted') {
+					// Boolean to integer conversion
+					$value = $value ? 1 : 0;
 				}
 				$params[] = $value;
 				$queryParts[] = '`' . $name . '`';
@@ -485,27 +487,27 @@ class Cache {
 	 * @return int
 	 */
 	public function calculateFolderSize($path) {
-		$id = $this->getId($path);
-		if ($id === -1) {
-			return 0;
-		}
-		$sql = 'SELECT `size` FROM `*PREFIX*filecache` WHERE `parent` = ? AND `storage` = ?';
-		$result = \OC_DB::executeAudited($sql, array($id, $this->getNumericStorageId()));
 		$totalSize = 0;
-		$hasChilds = 0;
-		while ($row = $result->fetchRow()) {
-			$hasChilds = true;
-			$size = (int)$row['size'];
-			if ($size === -1) {
-				$totalSize = -1;
-				break;
-			} else {
-				$totalSize += $size;
+		$entry = $this->get($path);
+		if ($entry && $entry['mimetype'] === 'httpd/unix-directory') {
+			$id = $entry['fileid'];
+			$sql = 'SELECT SUM(`size`), MIN(`size`) FROM `*PREFIX*filecache` '.
+				'WHERE `parent` = ? AND `storage` = ?';
+			$result = \OC_DB::executeAudited($sql, array($id, $this->getNumericStorageId()));
+			if ($row = $result->fetchRow()) {
+				list($sum, $min) = array_values($row);
+				$sum = (int)$sum;
+				$min = (int)$min;
+				if ($min === -1) {
+					$totalSize = $min;
+				} else {
+					$totalSize = $sum;
+				}
+				if ($entry['size'] !== $totalSize) {
+					$this->update($id, array('size' => $totalSize));
+				}
+				
 			}
-		}
-
-		if ($hasChilds) {
-			$this->update($id, array('size' => $totalSize));
 		}
 		return $totalSize;
 	}

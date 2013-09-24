@@ -1,4 +1,6 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
+"group" => "گۇرۇپپا",
 "Sunday" => "يەكشەنبە",
 "Monday" => "دۈشەنبە",
 "Tuesday" => "سەيشەنبە",
@@ -19,14 +21,17 @@
 "November" => "ئوغلاق",
 "December" => "كۆنەك",
 "Settings" => "تەڭشەكلەر",
-"1 minute ago" => "1 مىنۇت ئىلگىرى",
-"1 hour ago" => "1 سائەت ئىلگىرى",
+"_%n minute ago_::_%n minutes ago_" => array(""),
+"_%n hour ago_::_%n hours ago_" => array(""),
 "today" => "بۈگۈن",
 "yesterday" => "تۈنۈگۈن",
-"Cancel" => "ۋاز كەچ",
+"_%n day ago_::_%n days ago_" => array(""),
+"_%n month ago_::_%n months ago_" => array(""),
 "Yes" => "ھەئە",
 "No" => "ياق",
 "Ok" => "جەزملە",
+"_{count} file conflict_::_{count} file conflicts_" => array(""),
+"Cancel" => "ۋاز كەچ",
 "Error" => "خاتالىق",
 "Share" => "ھەمبەھىر",
 "Share with" => "ھەمبەھىر",
@@ -41,8 +46,11 @@
 "Users" => "ئىشلەتكۈچىلەر",
 "Apps" => "ئەپلەر",
 "Help" => "ياردەم",
+"Edit categories" => "تۈر تەھرىر",
 "Add" => "قوش",
+"Security Warning" => "بىخەتەرلىك ئاگاھلاندۇرۇش",
 "Advanced" => "ئالىي",
 "Finish setup" => "تەڭشەك تامام",
 "Log out" => "تىزىمدىن چىق"
 );
+$PLURAL_FORMS = "nplurals=1; plural=0;";
