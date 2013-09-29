@@ -82,8 +82,11 @@ nbproject
 # Tests
 /tests/phpunit.xml
 
-# Node Modules
+# Node Modules for Core
 /build/node_modules/
+
+# Node Modules for Settings
+settings/build/node_modules/
 
 # Tests - auto-generated files
 /data-autotest
