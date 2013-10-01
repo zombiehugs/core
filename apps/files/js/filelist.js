@@ -737,6 +737,20 @@ $(document).ready(function(){
 			} else {
 				uploadtext.text(translatedText);
 			}
+		} else {
+			// add as stand-alone row to filelist
+			var uniqueName = data.files[0].name;
+			var size=t('files','Pending');
+			if(data.files[0].size>=0){
+				size=data.files[0].size;
+			}
+			var date=new Date();
+			var param = {};
+			if ($('#publicUploadRequestToken').length) {
+				param.download_url = document.location.href + '&download&path=/' + $('#dir').val() + '/' + uniqueName;
+			}
+			// create new file context
+			data.context = FileList.addFile(uniqueName,size,date,true,false,param);
 		}
 
 	});
@@ -754,9 +768,10 @@ $(document).ready(function(){
 			// fetch response from iframe
 			response = data.result[0].body.innerText;
 		}
-		var result=$.parseJSON(response);
+		var result=$.parseJSON(response),
+			status = result.length && result[0].status;
 
-		if(typeof result[0] !== 'undefined' && result[0].status === 'success') {
+		if(status === 'success') {
 			var file = result[0];
 
 			if (data.context && data.context.data('type') === 'dir') {
@@ -783,7 +798,10 @@ $(document).ready(function(){
 				data.context.find('td.filesize').text(humanFileSize(size));
 
 			} else {
-
+				if (data.context){
+					// remove pending file entry, it will be readded with the correct data
+					data.context.remove();
+				}
 				// add as stand-alone row to filelist
 				var size=t('files', 'Pending');
 				if (data.files[0].size>=0){
@@ -815,6 +833,9 @@ $(document).ready(function(){
 					data.context.find('td.filename').attr('style','background-image:url('+previewpath+')');
 				});
 			}
+		} else if (status === 'existserror' && data.context && data.context.data('type') !== 'dir'){
+			// remove pending file entry
+			data.context.remove();
 		}
 	});
 	file_upload_start.on('fileuploadstop', function(e, data) {
