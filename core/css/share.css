@@ -10,7 +10,7 @@
 	display:block;
 	margin-right:7em;
 	position:absolute;
-	right:0;
+	right:-80px;
 	width:19em;
 	z-index:500;
 	padding:1em;

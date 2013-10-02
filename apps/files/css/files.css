@@ -240,11 +240,16 @@ table td.filename form { font-size:.85em; margin-left:3em; margin-right:3em; }
 #uploadsize-message,#delete-confirm { display:none; }
 
 /* File actions */
-.fileactions {
+.fileactions a[data-action="Share"] {
 	position: absolute;
-	top: 16px;
-	right: 0;
+	top: 5px;
+	right: 50px;
 	font-size: 11px;
+}
+
+.fileactions a[data-action="Rename"] {
+	position:absolute;
+	left:0;
 }
 #fileList tr:hover .fileactions { /* background to distinguish when overlaying with file names */
 	background-color: rgba(240,240,240,0.898);
@@ -268,7 +273,7 @@ a.action>img { max-height:16px; max-width:16px; vertical-align:text-bottom; }
 
 /* Actions for selected files */
 .selectedActions {
-	display: none;
+	/*display: none;*/
 	position: absolute;
 	top: -1px;
 	right: 0;
