@@ -99,13 +99,20 @@ var FileActions = {
 				if (img) {
 					html += '<img class ="svg" src="' + img + '" /> ';
 				}
-				html += t('files', name) + '</a>';
-
-				var element = $(html);
-				element.data('action', name);
-				//alert(element);
-				element.on('click', {a: null, elem: parent, actionFunc: actions[name]}, actionHandler);
-				parent.find('a.name>span.fileactions').append(element);
+				if (name === 'Rename') {
+					html += '</a>';
+					var element = $(html);
+					element.data('action', name);
+					element.on('click', {a: null, elem: parent, actionFunc: actions[name]}, actionHandler);
+					parent.find('a.name>span.nametext').append(element);
+				}
+				else {
+					html += t('files', name) + '</a>';
+					var element = $(html);
+					element.data('action', name);
+					element.on('click', {a: null, elem: parent, actionFunc: actions[name]}, actionHandler);
+					parent.find('a.name>span.fileactions').append(element);
+				}
 			}
 
 		};

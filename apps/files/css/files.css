@@ -240,16 +240,11 @@ table td.filename form { font-size:.85em; margin-left:3em; margin-right:3em; }
 #uploadsize-message,#delete-confirm { display:none; }
 
 /* File actions */
-.fileactions a[data-action="Share"] {
+.fileactions {
 	position: absolute;
-	top: 5px;
-	right: 50px;
+	top: 16px;
+	right: 0px;
 	font-size: 11px;
-}
-
-.fileactions a[data-action="Rename"] {
-	position:absolute;
-	left:0;
 }
 #fileList tr:hover .fileactions { /* background to distinguish when overlaying with file names */
 	background-color: rgba(240,240,240,0.898);
