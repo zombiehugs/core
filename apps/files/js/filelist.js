@@ -392,8 +392,17 @@ var FileList={
 			}
 			form.remove();
 			td.children('a.name').show();
-			var element = $('<a href="#" class="action" data-action="Rename">Rename</a>');
-			element.data('action', name);
+			//After a succesfull rename action, hackish.
+			var element = $('<a></a>').attr({
+					"href" : "#",
+					"class" : "action",
+					"data-action" : "Rename"
+			});
+			var img = $('<img />').attr({
+					"class": "svg",
+					"src" : OC.filePath('core', 'img/actions', 'rename.svg')
+			});
+			element.data('action','Rename');
 			var actions = FileActions.get(FileActions.getCurrentMimeType(), FileActions.getCurrentType(), FileActions.getCurrentPermissions());
 			var actionHandler = function (event) {
 				event.stopPropagation();
@@ -403,6 +412,7 @@ var FileList={
 				event.data.actionFunc(file);
 			};
 			element.on('click', {a: null, elem: td, actionFunc: actions["Rename"]}, actionHandler);
+			$(img).appendTo(element);
 			td.find('a.name>span.nametext').append(element);
 			return false;
 		});
