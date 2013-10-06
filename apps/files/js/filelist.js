@@ -917,6 +917,10 @@ $(document).ready(function(){
 		$(window).trigger('beforeunload');
 	});
 
+	function decodeQuery(query){
+		return query.replace(/\+/g, ' ');
+	}
+
 	function parseHashQuery(){
 		var hash = window.location.hash,
 			pos = hash.indexOf('?'),
@@ -933,11 +937,11 @@ $(document).ready(function(){
 			dir = '/';
 		// try and parse from URL hash first
 		if (query){
-			params = OC.parseQueryString(query);
+			params = OC.parseQueryString(decodeQuery(query));
 		}
 		// else read from query attributes
 		if (!params){
-			params = OC.parseQueryString(location.search);
+			params = OC.parseQueryString(decodeQuery(location.search));
 		}
 		return (params && params.dir) || '/';
 	}
