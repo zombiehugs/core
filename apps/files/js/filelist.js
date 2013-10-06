@@ -392,6 +392,18 @@ var FileList={
 			}
 			form.remove();
 			td.children('a.name').show();
+			var element = $('<a href="#" class="action" data-action="Rename">Rename</a>');
+			element.data('action', name);
+			var actions = FileActions.get(FileActions.getCurrentMimeType(), FileActions.getCurrentType(), FileActions.getCurrentPermissions());
+			var actionHandler = function (event) {
+				event.stopPropagation();
+				event.preventDefault();
+				FileActions.currentFile = event.data.elem;
+				var file = FileActions.getCurrentFile();
+				event.data.actionFunc(file);
+			};
+			element.on('click', {a: null, elem: td, actionFunc: actions["Rename"]}, actionHandler);
+			td.find('a.name>span.nametext').append(element);
 			return false;
 		});
 		input.keyup(function(event){
