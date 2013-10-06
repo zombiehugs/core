@@ -105,8 +105,7 @@ var FileActions = {
 					element.data('action', name);
 					element.on('click', {a: null, elem: parent, actionFunc: actions[name]}, actionHandler);
 					parent.find('a.name>span.nametext').append(element);
-				}
-				else {
+				} else {
 					html += t('files', name) + '</a>';
 					var element = $(html);
 					element.data('action', name);
