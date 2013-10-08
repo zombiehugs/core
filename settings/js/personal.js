@@ -34,6 +34,7 @@ function changeDisplayName(){
                 $('#oldDisplayName').text($('#displayName').val());
                 // update displayName on the top right expand button
                 $('#expandDisplayName').text($('#displayName').val());
+                updateAvatar();
             }
             else{
                 $('#newdisplayname').val(data.data.displayName);
@@ -44,12 +45,16 @@ function changeDisplayName(){
     }
 }
 
-function updateAvatar () {
+function updateAvatar (hidedefault) {
 	$headerdiv = $('#header .avatardiv');
 	$displaydiv = $('#displayavatar .avatardiv');
 
-	$headerdiv.css({'background-color': ''});
-	$headerdiv.avatar(OC.currentUser, 32, true);
+	if(hidedefault) {
+		$headerdiv.hide();
+	} else {
+		$headerdiv.css({'background-color': ''});
+		$headerdiv.avatar(OC.currentUser, 32, true);
+	}
 	$displaydiv.css({'background-color': ''});
 	$displaydiv.avatar(OC.currentUser, 128, true);
 }
@@ -231,7 +236,7 @@ $(document).ready(function(){
 			type:	'DELETE',
 			url:	OC.Router.generate('core_avatar_delete'),
 			success: function(msg) {
-				updateAvatar();
+				updateAvatar(true);
 			}
 		});
 	});
