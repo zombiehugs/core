@@ -7,6 +7,11 @@
  */
 
 // Settings pages
+
+use \OC\Settings\App;
+use \OC\Settings\DependencyInjection\DIContainer;
+
+/** @var $this OC_Router */
 $this->create('settings_help', '/settings/help')
 	->actionInclude('settings/help.php');
 $this->create('settings_personal', '/settings/personal')
@@ -21,7 +26,18 @@ $this->create('settings_admin', '/settings/admin')
 	->actionInclude('settings/admin.php');
 // Settings ajax actions
 // users
-$this->create('settings_ajax_userlist', '/settings/ajax/userlist')
+
+$this->create('settings_user_controller_opengroup', '/settings/users/group/{groupid}')
+->get()->action(function($params){
+	App::main('UserController', 'opengroup', $params, new DIContainer());
+});
+
+$this->create('settings_user_controller_updateuser', '/settings/users/{userId}')
+->post()->action(function($params){
+	App::main('UserController', 'updateUser', $params, new DIContainer());
+});
+
+$this->create('settings_ajax_userlist', '/settings/ajax/userlist.php')
 	->actionInclude('settings/ajax/userlist.php');
 $this->create('settings_ajax_createuser', '/settings/ajax/createuser.php')
 	->actionInclude('settings/ajax/createuser.php');
@@ -38,14 +54,18 @@ $this->create('settings_ajax_togglesubadmins', '/settings/ajax/togglesubadmins.p
 $this->create('settings_ajax_removegroup', '/settings/ajax/removegroup.php')
 	->actionInclude('settings/ajax/removegroup.php');
 $this->create('settings_users_changepassword', '/settings/users/changepassword')
-	->post()
-	->action('OC\Settings\ChangePassword\Controller', 'changeUserPassword');
+    ->post()
+    ->action('OC\Settings\ChangePassword\Controller', 'changeUserPassword');
+$this->create('settings_ajax_changepassword', '/settings/ajax/changepassword.php')
+	->actionInclude('settings/ajax/changepassword.php');
 $this->create('settings_ajax_changedisplayname', '/settings/ajax/changedisplayname.php')
 	->actionInclude('settings/ajax/changedisplayname.php');
+$this->create('settings_ajax_grouplist', '/settings/ajax/grouplist.php')
+	->actionInclude('settings/ajax/grouplist.php');
 // personal
 $this->create('settings_personal_changepassword', '/settings/personal/changepassword')
-	->post()
-	->action('OC\Settings\ChangePassword\Controller', 'changePersonalPassword');
+    ->post()
+    ->action('OC\Settings\ChangePassword\Controller', 'changePersonalPassword');
 $this->create('settings_ajax_lostpassword', '/settings/ajax/lostpassword.php')
 	->actionInclude('settings/ajax/lostpassword.php');
 $this->create('settings_ajax_setlanguage', '/settings/ajax/setlanguage.php')
