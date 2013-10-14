@@ -67,7 +67,11 @@ class Cache {
 		if (empty(self::$mimetypeIds)) {
 			$this->loadMimetypes();
 		}
-		
+		// $mime is sometimes a false boolean when using invalid/broken external storage
+		if ($mime === false){
+			// mapping to an empty mimetype
+			$mime = '';
+		}
 		if (!isset(self::$mimetypeIds[$mime])) {
 			$result = \OC_DB::executeAudited('INSERT INTO `*PREFIX*mimetypes`(`mimetype`) VALUES(?)', array($mime));
 			self::$mimetypeIds[$mime] = \OC_DB::insertid('*PREFIX*mimetypes');
