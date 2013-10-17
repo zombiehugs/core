@@ -158,11 +158,24 @@ class MDB2SchemaManager {
 	 */
 	public function generateChangeScript($schema) {
 
+		$platform = $this->conn->getDatabasePlatform();
 		$script = '';
 		$sqls = $schema->toSql($this->conn->getDatabasePlatform());
 		foreach($sqls as $sql) {
-			$script .= $sql . ';';
-			$script .= PHP_EOL;
+			if ($platform->getName() === 'oracle') {
+				if (substr($sql, -1) === ';') {
+					$script .= $sql . PHP_EOL . '/';
+					$script .= PHP_EOL;
+				} else {
+					$script .= $sql . ';';
+					$script .= PHP_EOL;
+					$script .= PHP_EOL;
+				}
+			} else {
+				$script .= $sql . ';';
+				$script .= PHP_EOL;
+				$script .= PHP_EOL;
+			}
 		}
 
 		return $script;
