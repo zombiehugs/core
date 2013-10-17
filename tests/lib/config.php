@@ -79,7 +79,7 @@ class Test_Config extends PHPUnit_Framework_TestCase {
 	 * @expectedException \OC\HintException
 	 */
 	public function testWriteData() {
-		$config = new OC\Config('/non-writable');
+		$config = new OC\Config('/non-writable/');
 		$config->setValue('foo', 'bar');
 	}
 }
