@@ -15,7 +15,7 @@ class TemporaryNoTouch extends \OC\Files\Storage\Temporary {
 
 class View extends \PHPUnit_Framework_TestCase {
 	/**
-	 * @var \OC\Files\Storage\Storage[] $storages;
+	 * @var \OC\Files\Storage\Storage[] $storages ;
 	 */
 	private $storages = array();
 
@@ -27,6 +27,7 @@ class View extends \PHPUnit_Framework_TestCase {
 		\OC_User::createUser('test', 'test');
 		$this->user = \OC_User::getUser();
 		\OC_User::setUserId('test');
+		\OC_Hook::clear('OC_Filesystem');
 
 		\OC\Files\Filesystem::clearMounts();
 	}
@@ -452,6 +453,108 @@ class View extends \PHPUnit_Framework_TestCase {
 
 		$exists = $view->file_exists($result[1]);
 		$this->assertTrue($exists);
+	}
+
+	public function testEtagDontChangeOtherFilesInFolder() {
+		$storage = $this->getTestStorage();
+		$defaultRoot = \OC\Files\Filesystem::getRoot();
+		\OC\Files\Filesystem::mount($storage, array(), $defaultRoot);
+		\OC_Hook::connect('OC_Filesystem', 'post_write', '\OC\Files\Cache\Updater', 'writeHook');
+
+		$view = new \OC\Files\View($defaultRoot);
+		$view->touch('/foo.txt', 100000);
+		$imageInfo = $view->getFileInfo('/foo.png');
+		$textInfo = $view->getFileInfo('/foo.txt');
+
+		$view->file_put_contents('/foo.txt', 'asd');
+		$newTextInfo = $view->getFileInfo('/foo.txt');
+		$newImageInfo = $view->getFileInfo('/foo.png');
+
+		$this->assertNotEquals($textInfo['etag'], $newTextInfo['etag']);
+		$this->assertEquals($imageInfo['etag'], $newImageInfo['etag']);
+
+		$view->touch('/foo.txt', 100000);
+		$oldFolderData = $view->getDirectoryContent('/');
+		$view->file_put_contents('/foo.txt', 'qwerty');
+		$newFolderData = $view->getDirectoryContent('/');
+		foreach ($oldFolderData as $i => $oldItem) {
+			$newItem = $newFolderData[$i];
+			if ($oldItem['name'] === 'foo.txt') {
+				$this->assertNotEquals($oldItem['etag'], $newItem['etag']);
+			} else {
+				$this->assertEquals($oldItem['etag'], $newItem['etag']);
+			}
+		}
+
+		$oldFolderData = $view->getDirectoryContent('/');
+		$view->file_put_contents('/new.txt', 'qwerty');
+		$newFolderData = $view->getDirectoryContent('/');
+		foreach ($oldFolderData as $i => $oldItem) {
+			$newItem = $newFolderData[$i];
+			if ($oldItem['name'] !== 'new.txt') {
+				$this->assertEquals($oldItem['etag'], $newItem['etag']);
+			}
+		}
+	}
+
+	public function testDontRescanFilesInFolder() {
+		$storage = $this->getTestStorage();
+		$defaultRoot = \OC\Files\Filesystem::getRoot();
+		\OC\Files\Filesystem::mount($storage, array(), $defaultRoot);
+		\OC_Hook::connect('OC_Filesystem', 'post_write', '\OC\Files\Cache\Updater', 'writeHook');
+		\OC_Hook::connect('OC_Filesystem', 'post_touch', '\OC\Files\Cache\Updater', 'touchHook');
+
+		$scannedPaths = array();
+		$past = time() - 500;
+
+		$view = new \OC\Files\View($defaultRoot);
+		$view->touch('/folder/bar.txt', $past);
+		$view->touch('/folder', $past);
+		$view->touch('/foo.txt', $past);
+		$view->touch('/foo.png', $past);
+		$view->touch('/', $past);
+		/**
+		 * @var \OC\Files\Storage\Storage $storage
+		 */
+		list($storage,) = $view->resolvePath('/folder/bar.txt');
+		$scanner = $storage->getScanner();
+
+		$scanner->scan('');
+
+		$scanner->listen('\OC\Files\Cache\Scanner', 'scanFile', function ($path) use (&$scannedPaths) {
+			$scannedPaths[] = $path;
+		});
+
+		$info = $view->getFileInfo('/');
+		$this->assertCount(0, $scannedPaths);
+		$this->assertEquals($past, $info['storage_mtime']);
+
+		$view->file_put_contents('/folder/bar.txt', 'asd');
+
+		$this->assertCount(1, $scannedPaths);
+		$this->assertContains('folder/bar.txt', $scannedPaths);
+
+		$fileInfo = $view->getFileInfo('/folder/bar.txt');
+		$info = $view->getFileInfo('/');
+
+		$this->assertCount(1, $scannedPaths);
+		$this->assertContains('folder/bar.txt', $scannedPaths);
+
+		$this->assertEquals($info['mtime'], $fileInfo['mtime']);
+		$this->assertEquals($past, $info['storage_mtime']);
+		$this->assertGreaterThan($past, $info['mtime']);
+
+		$view->touch('/folder/bar.txt', $past);
+
+		$info = $view->getFileInfo('/');
+
+		$this->assertCount(1, $scannedPaths);
+		$this->assertContains('folder/bar.txt', $scannedPaths);
+
+		$this->assertEquals($past, $info['storage_mtime']);
+		$this->assertGreaterThan($past, $info['mtime']);
+
+
 	}
 
 	function resolvePathTestProvider() {

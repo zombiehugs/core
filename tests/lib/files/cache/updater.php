@@ -233,11 +233,9 @@ class Updater extends \PHPUnit_Framework_TestCase {
 
 		$cachedData = $this->cache->get('folder');
 		$this->assertNotEquals($folderCachedData['etag'], $cachedData['etag']);
-		$this->assertEquals($time, $cachedData['mtime']);
 
 		$cachedData = $this->cache->get('');
 		$this->assertNotEquals($rootCachedData['etag'], $cachedData['etag']);
-		$this->assertEquals($time, $cachedData['mtime']);
 	}
 
 	public function testTouchWithMountPoints() {
@@ -258,11 +256,23 @@ class Updater extends \PHPUnit_Framework_TestCase {
 
 		$cachedData = $cache2->get('');
 		$this->assertNotEquals($substorageCachedData['etag'], $cachedData['etag']);
-		$this->assertEquals($time, $cachedData['mtime']);
 
 		$cachedData = $this->cache->get('folder');
 		$this->assertNotEquals($folderCachedData['etag'], $cachedData['etag']);
-		$this->assertEquals($time, $cachedData['mtime']);
 	}
 
+	public function testKeepStoreMTimeConsistent() {
+		$past = time() - 500;
+		FileSystem::touch('', $past);
+		$rootCachedData = $this->cache->get('');
+		$this->assertEquals($past, $rootCachedData['mtime']);
+		$this->assertEquals($past, $rootCachedData['storage_mtime']);
+
+		FileSystem::mkdir('/folder/sub');
+		FileSystem::file_put_contents('/folder/sub/foo.txt', 'foobar');
+
+		$newRootCachedData = $this->cache->get('');
+		$this->assertGreaterThan($past, $newRootCachedData['mtime']);
+		$this->assertEquals($past, $newRootCachedData['storage_mtime']);
+	}
 }

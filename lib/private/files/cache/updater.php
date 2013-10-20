@@ -113,13 +113,13 @@ class Updater {
 			 */
 			list($storage, $internalPath) = self::resolvePath($parent);
 			if ($storage) {
+				$internalPath = $internalPath ? $internalPath : '';
 				$cache = $storage->getCache();
-				$id = $cache->getId($internalPath);
-				if ($id !== -1) {
-					$cache->update($id, array('mtime' => $time, 'etag' => $storage->getETag($internalPath)));
+				$data = $cache->get($internalPath);
+				$time = max($data['mtime'], $time);
+				if (is_array($data) and $data['fileid'] !== -1) {
+					$cache->update($data['fileid'], array('mtime' => $time, 'etag' => $storage->getETag($internalPath)));
 					self::correctFolder($parent, $time);
-				} else {
-					Util::writeLog('core', 'Path not in cache: ' . $internalPath, Util::ERROR);
 				}
 			}
 		}
