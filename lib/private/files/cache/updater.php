@@ -7,6 +7,7 @@
  */
 
 namespace OC\Files\Cache;
+
 use OCP\Util;
 
 /**
@@ -118,7 +119,7 @@ class Updater {
 					$cache->update($id, array('mtime' => $time, 'etag' => $storage->getETag($internalPath)));
 					self::correctFolder($parent, $time);
 				} else {
-					Util::writeLog('core', 'Path not in cache: '.$internalPath, Util::ERROR);
+					Util::writeLog('core', 'Path not in cache: ' . $internalPath, Util::ERROR);
 				}
 			}
 		}
@@ -136,13 +137,21 @@ class Updater {
 	 */
 	static public function touchHook($params) {
 		$path = $params['path'];
+		/**
+		 * @var \OC\Files\Storage\Storage $storage
+		 */
 		list($storage, $internalPath) = self::resolvePath($path);
 		$cache = $storage->getCache();
 		$id = $cache->getId($internalPath);
+		$mtime = $storage->filemtime($internalPath);
 		if ($id !== -1) {
-			$cache->update($id, array('etag' => $storage->getETag($internalPath)));
+			$cache->update($id, array(
+				'etag' => $storage->getETag($internalPath),
+				'mtime' => $mtime,
+				'storage_mtime' => $mtime
+			));
 		}
-		self::writeUpdate($path);
+		self::correctFolder($path, $mtime);
 	}
 
 	/**
