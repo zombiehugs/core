@@ -69,9 +69,12 @@ class Cache {
 		}
 		
 		if (!isset(self::$mimetypeIds[$mime])) {
-			$result = \OC_DB::executeAudited('INSERT INTO `*PREFIX*mimetypes`(`mimetype`) VALUES(?)', array($mime));
-			self::$mimetypeIds[$mime] = \OC_DB::insertid('*PREFIX*mimetypes');
-			self::$mimetypes[self::$mimetypeIds[$mime]] = $mime;
+			do {
+				$mimeId = $this->addMimetype($mime);
+			} while ($mimeId === false);
+			
+			self::$mimetypeIds[$mime] = $mimeId;
+			self::$mimetypes[$mimeId] = $mime;
 		} 
 				
 		return self::$mimetypeIds[$mime];
@@ -85,6 +88,21 @@ class Cache {
 		return isset(self::$mimetypes[$id]) ? self::$mimetypes[$id] : null;
 	}
 	
+	/**
+	 * Store mimetype into database
+	 * @param string $mime
+	 * @return boolean
+	 */
+	protected function addMimetype($mime){
+		try {
+			\OC_DB::executeAudited('INSERT INTO `*PREFIX*mimetypes`(`mimetype`) VALUES(?)', array($mime));
+		} catch (\Exception $e) {
+			return false;
+		}
+		return \OC_DB::insertid('*PREFIX*mimetypes');
+	}
+	
+
 	protected function loadMimetypes(){
 			$result = \OC_DB::executeAudited('SELECT `id`, `mimetype` FROM `*PREFIX*mimetypes`', array());
 			if ($result) {
