@@ -57,7 +57,9 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 		\OC_FileProxy::register(new OCA\Encryption\Proxy());
 
 		// create test user
-		\Test_Encryption_Util::loginHelper(\Test_Encryption_Crypt::TEST_ENCRYPTION_CRYPT_USER1, true);
+		if(!OC_User::userExists(\Test_Encryption_Crypt::TEST_ENCRYPTION_CRYPT_USER1)) {
+			\Test_Encryption_Util::loginHelper(\Test_Encryption_Crypt::TEST_ENCRYPTION_CRYPT_USER1, true);
+		}
 	}
 
 	function setUp() {
