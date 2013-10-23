@@ -84,6 +84,22 @@ if($source) {
 
 	$ctx = stream_context_create(null, array('notification' =>'progress'));
 	$sourceStream=fopen($source, 'rb', false, $ctx);
+	$sourceStreamMeta = stream_get_meta_data($sourceStream);
+	if (isset($sourceStreamMeta['wrapper_type']) && $sourceStreamMeta['wrapper_type'] === 'http' &&
+		isset($sourceStreamMeta['wrapper_data']) && is_array($sourceStreamMeta['wrapper_data']))
+	{
+		$httpHelper = new \OC\HTTPHelper;
+		$filesize = $httpHelper->getHeaderFromArray($sourceStreamMeta['wrapper_data'], 'Content-Length');
+		$freeSpace = \OC\Files\Filesystem::free_space($dir);
+		if ($filesize > $freeSpace) {
+			$eventSource->send(
+				'error',
+				"Error downloading $source. Not enough free space."
+			);
+			$eventSource->close();
+			exit();
+		}
+	}
 	$result=\OC\Files\Filesystem::file_put_contents($target, $sourceStream);
 	if($result) {
 		$meta = \OC\Files\Filesystem::getFileInfo($target);
