@@ -223,6 +223,10 @@ var FileList={
 			FileList.changeDirectory('/');
 			return;
 		}
+		// aborted ?
+		if (result.status === 0){
+			return;
+		}
 
 		if (result.data.permissions) {
 			FileList.setDirectoryPermissions(result.data.permissions);
@@ -1008,10 +1012,8 @@ $(document).ready(function() {
 			}
 		};
 
-		if (parseInt($('#ajaxLoad').val(), 10) === 1) {
-			// need to initially switch the dir to the one from the hash (IE8)
-			FileList.changeDirectory(parseCurrentDirFromUrl(), false, true);
-		}
+		// trigger ajax load
+		FileList.changeDirectory(parseCurrentDirFromUrl(), false, true);
 	}
 
 	FileList.createFileSummary();
