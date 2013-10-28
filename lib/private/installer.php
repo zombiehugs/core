@@ -226,6 +226,10 @@ class OC_Installer{
 	 * @brief Update an application
 	 * @param $data array with all information
 	 *
+	 * This function could work like described below, but currently it disables and then
+	 * enables the app again. This does result in an updated app.
+	 *
+	 *
 	 * This function installs an app. All information needed are passed in the
 	 * associative array $data.
 	 * The following keys are required:
