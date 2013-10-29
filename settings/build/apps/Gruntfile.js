@@ -1,5 +1,5 @@
 /**
- * ownCloud - Settings
+ * ownCloud - App Settings
  *
  * @author Bernhard Posselt
  * @author Raghu Nayyar
@@ -27,7 +27,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
-	grunt.loadNpmTasks('grunt-wrap');
 	grunt.loadNpmTasks('grunt-karma');
 	grunt.loadNpmTasks('grunt-phpunit');
 
@@ -35,7 +34,7 @@ module.exports = function(grunt) {
 		meta: {
 			pkg: grunt.file.readJSON('package.json'),
 			version: '<%= meta.pkg.version %>',
-			production: '../js/public/'
+			production: '../../js/apps/public/'
 		},
 
 		concat: {
@@ -46,9 +45,8 @@ module.exports = function(grunt) {
 			
 			dist: {
 				src: [
-					'../js/polyfills/**/*.js',
-					'../js/config/app.js',
-					'../js/app/**/*.js'
+					'../../js/apps/config/config.js',
+					'../../js/apps/app/**/*.js'
 				],
 				dest: '<%= meta.production %>app.js'
 			}
@@ -57,9 +55,9 @@ module.exports = function(grunt) {
 		jshint: {
 			files: [
 				'Gruntfile.js',
-				'../js/app/**/*.js',
-				'../js/config/*.js',
-				'../tests/js/unit/**/*.js'
+				'../../js/apps/**/*.js',
+				'../../js/apps/config/*.js',
+				'../../tests/apps/js/unit/**/*.js'
 			],
 			options: {
 				// options here to override JSHint defaults
@@ -74,21 +72,21 @@ module.exports = function(grunt) {
 			// and wrap tasks if something changed
 			concat: {
 				files: [
-					'../js/app/**/*.js',
-					'../js/config/*.js'
+					'../../js/apps/app/**/*.js',
+					'../../js/apps/config/*.js'
 				],
 				tasks: ['build']
 			},
 			
 			phpunit: {
-				files: '../**/*.php',
+				files: '../../**/*.php',
 				tasks: ['phpunit']
 			}
 		},
 
 		phpunit: {
 			classes: {
-				dir: '../tests/php/unit'
+				dir: '../../tests/apps/php/unit'
 			},
 			options: {
 				colors: true
@@ -97,10 +95,10 @@ module.exports = function(grunt) {
 
 		karma: {
 			unit: {
-			configFile: '../tests/js/config/karma.js'
+			configFile: '../../tests/apps/js/config/karma.js'
 			},
 			continuous: {
-				configFile: '../tests/js/config/karma.js',
+				configFile: '../../tests/js/apps/config/karma.js',
 				singleRun: true,
 				browsers: ['PhantomJS'],
 				reporters: ['progress']
@@ -109,5 +107,5 @@ module.exports = function(grunt) {
 	});
 	
 	// make tasks available under simpler commands
-	grunt.registerTask('build', ['jshint', 'concat', 'wrap:app']);
+	grunt.registerTask('build', ['jshint', 'concat']);
 };

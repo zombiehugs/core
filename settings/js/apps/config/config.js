@@ -26,7 +26,8 @@ var appSettings = angular.module('appSettings', ['restangular']).
 config(['$httpProvider', '$routeProvider', '$windowProvider', '$provide',
 	function($httpProvider,$routeProvider, $windowProvider, $provide) {
 		
-		$httpProvider.defaults.headers.common['requesttoken'] = oc_requesttoken;
+		// Always send the CSRF token by default
+		httpProvider.defaults.headers.common.requesttoken = oc_requesttoken;
 
 		var $window = $windowProvider.$get();
 		var url = $window.location.href;
