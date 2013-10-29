@@ -1,0 +1,25 @@
+{
+	"name": "Settings",
+	"description": "Core Settings",
+	"version": "1.0.1",
+	"private": true,
+	"homepage": "https://github.com/owncloud/core",
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:owncloud/core.git"
+	},
+	"bugs": "https://github.com/owncloud/core/issues",
+	"dependencies": {},
+	"devDependencies": {
+		"grunt": "*",
+		"grunt-cli": "*",
+		"grunt-contrib-concat": "*",
+		"grunt-contrib-jshint": "*",
+		"grunt-contrib-watch": "*",
+		"karma": "*",
+		"grunt-karma": "*",
+		"phantomjs": "*",
+		"grunt-phpunit": "*"
+	},
+	"engine": "node >= 0.8"
+}
