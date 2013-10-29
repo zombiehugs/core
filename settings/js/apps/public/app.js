@@ -15,3 +15,13 @@ config(['$httpProvider', '$routeProvider', '$windowProvider', '$provide',
 	
 	}
 ]);
+appSettings.controller('applistController', ['$scope',
+	function($scope){
+		
+	}
+]);
+appSettings.controller('detailController', ['$scope',
+	function($scope){
+		
+	}
+]);
