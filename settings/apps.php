@@ -28,7 +28,8 @@ OC_App::loadApps();
 OC_Util::addStyle("settings", "apps/apps");
 OC_Util::addScript("settings", "vendor/angular/angular");
 OC_Util::addScript("settings", "vendor/restangular/restangular");
-OC_Util::addScript("settings", "apps");
+OC_Util::addScript("settings", "vendor/underscore/underscore");
+OC_Util::addScript("settings", "apps/public/app");
 OC_App::setActiveNavigationEntry("core_apps");
 
 $combinedApps = OC_App::listAllApps();
