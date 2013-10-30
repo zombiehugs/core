@@ -1,4 +1,20 @@
 Files={
+	registerCreateFileType: function(label, type, iconUrl, handler) {
+		var $menu = $('#controls .createfilemenu');
+		var $entry = $('<li class="create-' + type + '" data-type="' + type + '"><p>' + label + '</p></li>');
+		if (!iconUrl){
+			iconUrl = OC.linkTo('core', 'img/filetypes/' + type);
+			if ($('html').hasClass('lte9')){
+				iconUrl += '.png';
+			}
+			else{
+				iconUrl += '.svg';
+			}
+		}
+		$entry.css('background-image', 'url(\'' + iconUrl + '\')');
+		$menu.find('.create-folder').before($entry);
+		return $entry;
+	},
 	updateMaxUploadFilesize:function(response) {
 		if (response === undefined) {
 			return;

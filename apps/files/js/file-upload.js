@@ -485,7 +485,7 @@ $(document).ready(function() {
 		$('#new>ul').toggle();
 		$('#new').toggleClass('active');
 	});
-	$('#new li').click(function() {
+	$('#new ul').on('click', 'li', function() {
 		if ($(this).children('p').length === 0) {
 			return;
 		}

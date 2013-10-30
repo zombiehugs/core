@@ -3,12 +3,12 @@
 		<div class="actions creatable <?php if (!$_['isCreatable']):?>hidden<?php endif; ?>">
 			<div id="new" class="button">
 				<a><?php p($l->t('New'));?></a>
-				<ul>
-					<li style="background-image:url('<?php p(OCP\mimetype_icon('text/plain')) ?>')"
+				<ul class="createfilemenu">
+					<li class="create-file" style="background-image:url('<?php p(OCP\mimetype_icon('text/plain')) ?>')"
 						data-type='file'><p><?php p($l->t('Text file'));?></p></li>
-					<li style="background-image:url('<?php p(OCP\mimetype_icon('dir')) ?>')"
+					<li class="create-folder" style="background-image:url('<?php p(OCP\mimetype_icon('dir')) ?>')"
 						data-type='folder'><p><?php p($l->t('Folder'));?></p></li>
-					<li style="background-image:url('<?php p(OCP\image_path('core', 'places/link.svg')) ?>')"
+					<li class="create-link" style="background-image:url('<?php p(OCP\image_path('core', 'places/link.svg')) ?>')"
 						data-type='web'><p><?php p($l->t('From link'));?></p></li>
 				</ul>
 			</div>
