@@ -18,7 +18,7 @@ config(['$httpProvider', '$routeProvider', '$windowProvider', '$provide',
 appSettings.controller('applistController', ['$scope', 'AppListService',
 	function($scope,AppListService){
 		// Returns the List of All Apps.
-		$scope.allapps = AppListService.listAllapps;
+		$scope.allapps = AppListService.listAllApps;
 		console.log($scope.allapps);
 	}
 ]);
@@ -27,10 +27,31 @@ appSettings.controller('detailController', ['$scope',
 		
 	}
 ]);
+appSettings.factory('AppActionService', ['$resource', '$q', 
+	function ($resource, $q) {
+		return {
+			enableApp : function(appId) {
+				return ($resource(OC.filePath('settings', 'ajax', 'enableapp.php')).post(
+					{ appid : appId }
+				));
+			},
+			disableApp : function(appId) {
+				return ($resource(OC.filePath('settings', 'ajax', 'disableapp.php')).post(
+					{ appid : appId }
+				));
+			},
+			updateApp : function(appId) {
+				return ($resource(OC.filePath('settings', 'ajax', 'updateApp.php')).post(
+					{ appid : appId }
+				));
+			}
+		};
+	}
+]);
 appSettings.factory('AppListService', ['$q', '$resource',
 	function($q,$resource) {
 		return {
-			listAllapps : function() {
+			listAllApps : function() {
 				var deferred = $q.defer();
 				var AppList = $resource(OC.filePath('settings', 'ajax', 'applist.php'));
 				Applist.get(function(response) {
