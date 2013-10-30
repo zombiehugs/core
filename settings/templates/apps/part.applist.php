@@ -26,8 +26,8 @@
 			<?php p($l->t('Add your App'));?> 
 		…</a>
 	</li>
-	<li class="">
-		<a href=""></a>
+	<li class="app in allapps">
+		<a href="">{{ app }}</a>
 	</li>
 	<li>
 		<a class="app-external" target="_blank" href="http://apps.owncloud.com">

@@ -19,10 +19,17 @@
  *
  */
 
-appSettings.controller('applistController', ['$scope', 'AppListService',
-	function($scope,AppListService){
-		// Returns the List of All Apps.
-		$scope.allapps = AppListService.listAllApps;
-		console.log($scope.allapps);
+appSettings.factory('AppListService', ['$q', '$resource',
+	function($q,$resource) {
+		return {
+			listAllApps : function() {
+				var deferred = $q.defer();
+				var AppList = $resource(OC.filePath('settings', 'ajax', 'applist.php'));
+				Applist.get(function(response) {
+					deferred.resolve(response);
+				});
+				return deferred.promise;
+			}
+		};
 	}
 ]);

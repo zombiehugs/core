@@ -1,4 +1,4 @@
-var appSettings = angular.module('appSettings', ['restangular']).
+var appSettings = angular.module('appSettings', ['ngResource']).
 config(['$httpProvider', '$routeProvider', '$windowProvider', '$provide',
 	function($httpProvider,$routeProvider, $windowProvider, $provide) {
 		
@@ -15,13 +15,29 @@ config(['$httpProvider', '$routeProvider', '$windowProvider', '$provide',
 	
 	}
 ]);
-appSettings.controller('applistController', ['$scope',
-	function($scope){
-		
+appSettings.controller('applistController', ['$scope', 'AppListService',
+	function($scope,AppListService){
+		// Returns the List of All Apps.
+		$scope.allapps = AppListService.listAllapps;
+		console.log($scope.allapps);
 	}
 ]);
 appSettings.controller('detailController', ['$scope',
 	function($scope){
 		
+	}
+]);
+appSettings.factory('AppListService', ['$q', '$resource',
+	function($q,$resource) {
+		return {
+			listAllapps : function() {
+				var deferred = $q.defer();
+				var AppList = $resource(OC.filePath('settings', 'ajax', 'applist.php'));
+				Applist.get(function(response) {
+					deferred.resolve(response);
+				});
+				return deferred.promise;
+			}
+		};
 	}
 ]);

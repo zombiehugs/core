@@ -22,7 +22,7 @@
  */
 
 
-var appSettings = angular.module('appSettings', ['restangular']).
+var appSettings = angular.module('appSettings', ['ngResource']).
 config(['$httpProvider', '$routeProvider', '$windowProvider', '$provide',
 	function($httpProvider,$routeProvider, $windowProvider, $provide) {
 		

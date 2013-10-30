@@ -1,3 +1,4 @@
+<?php
 /*
  * ownCloud - App Settings
  *
@@ -19,10 +20,9 @@
  *
  */
 
-appSettings.controller('applistController', ['$scope', 'AppListService',
-	function($scope,AppListService){
-		// Returns the List of All Apps.
-		$scope.allapps = AppListService.listAllApps;
-		console.log($scope.allapps);
-	}
-]);
+OC_JSON::checkAdminUser();
+OC_JSON::callCheck();
+OC_App::loadApps();
+
+$listApp = OC_App::listAllApps();
+OC_JSON::success(array('data' => $listApp));

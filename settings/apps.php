@@ -22,25 +22,14 @@
 */
 
 OC_Util::checkAdminUser();
-OC_App::loadApps();
 
 // Load the files we need
 OC_Util::addStyle("settings", "apps/apps");
 OC_Util::addScript("settings", "vendor/angular/angular");
-OC_Util::addScript("settings", "vendor/restangular/restangular");
-OC_Util::addScript("settings", "vendor/underscore/underscore");
+OC_Util::addScript("settings", "vendor/angular-resource/angular-resource");
 OC_Util::addScript("settings", "apps/public/app");
 OC_App::setActiveNavigationEntry("core_apps");
 
-$combinedApps = OC_App::listAllApps();
-
 $tmpl = new OC_Template( "settings", "apps/main", "user" );
-
-$tmpl->assign('apps', $combinedApps);
-
-$appid = (isset($_GET['appid'])?strip_tags($_GET['appid']):'');
-
-$tmpl->assign('appid', $appid);
-
 $tmpl->printPage();
 

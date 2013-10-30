@@ -55,6 +55,8 @@ $this->create('settings_ajax_decryptall', '/settings/ajax/decryptall.php')
 // apps
 $this->create('settings_ajax_apps_ocs', '/settings/ajax/apps/ocs.php')
 	->actionInclude('settings/ajax/apps/ocs.php');
+$this->create('settings_ajax_applist', '/settings/ajax/applist.php')
+	->actionInclude('settings/ajax/applist.php');
 $this->create('settings_ajax_enableapp', '/settings/ajax/enableapp.php')
 	->actionInclude('settings/ajax/enableapp.php');
 $this->create('settings_ajax_disableapp', '/settings/ajax/disableapp.php')
