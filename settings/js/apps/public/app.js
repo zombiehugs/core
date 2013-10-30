@@ -18,8 +18,11 @@ config(['$httpProvider', '$routeProvider', '$windowProvider', '$provide',
 appSettings.controller('applistController', ['$scope', 'AppListService',
 	function($scope,AppListService){
 		// Returns the List of All Apps.
-		$scope.allapps = AppListService.listAllApps;
-		console.log($scope.allapps);
+		AppListService.listAllApps().then(function(result){
+			// It's a promise, so you need to resolve it within the then function call
+			//$scope.allapps = result.data;
+			console.log(result);
+		});
 	}
 ]);
 appSettings.controller('detailController', ['$scope',
@@ -54,7 +57,7 @@ appSettings.factory('AppListService', ['$q', '$resource',
 			listAllApps : function() {
 				var deferred = $q.defer();
 				var AppList = $resource(OC.filePath('settings', 'ajax', 'applist.php'));
-				Applist.get(function(response) {
+				AppList.get(function(response) {
 					deferred.resolve(response);
 				});
 				return deferred.promise;

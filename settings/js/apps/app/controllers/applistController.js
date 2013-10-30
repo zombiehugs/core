@@ -22,7 +22,10 @@
 appSettings.controller('applistController', ['$scope', 'AppListService',
 	function($scope,AppListService){
 		// Returns the List of All Apps.
-		$scope.allapps = AppListService.listAllApps;
-		console.log($scope.allapps);
+		AppListService.listAllApps().then(function(result){
+			// It's a promise, so you need to resolve it within the then function call
+			//$scope.allapps = result.data;
+			console.log(result);
+		});
 	}
 ]);

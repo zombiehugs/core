@@ -25,7 +25,7 @@ appSettings.factory('AppListService', ['$q', '$resource',
 			listAllApps : function() {
 				var deferred = $q.defer();
 				var AppList = $resource(OC.filePath('settings', 'ajax', 'applist.php'));
-				Applist.get(function(response) {
+				AppList.get(function(response) {
 					deferred.resolve(response);
 				});
 				return deferred.promise;
