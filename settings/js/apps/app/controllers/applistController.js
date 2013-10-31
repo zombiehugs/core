@@ -21,8 +21,8 @@
 
 appSettings.controller('applistController', ['$scope', 'AppListService',
 	function($scope, AppListService){
-		$scope.loading = false;
-		$scope.allapps = AppListService.listAllApps().get();
 		$scope.loading = true;
+		$scope.allapps = AppListService.listAllApps().get();
+		$scope.loading = false;
 	}
 ]);
