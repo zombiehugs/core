@@ -43,6 +43,9 @@ li.active { color:#000; }
 #leftcontent .appwarning:hover {
 	background: #fbb;
 }
+
+#leftcontent .loading { width:35px; height:35px; margin:0 auto; }
+
 small.externalapp { color:#FFF; background-color:#BBB; font-weight:bold; font-size: 0.6em; margin: 0; padding: 0.1em 0.2em; border-radius: 4px;}
 small.externalapp.list { float: right; }
 small.recommendedapp { color:#FFF; background-color:#888; font-weight:bold; font-size: 0.6em; margin: 0; padding: 0.1em 0.2em; border-radius: 4px;}

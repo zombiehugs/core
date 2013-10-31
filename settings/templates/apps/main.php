@@ -24,7 +24,7 @@
 		src="<?php print_unescaped(OC_Helper::linkToRoute('apps_custom'));?>?appid=<?php p($_['appid']); ?>">
 	</script>
 
-	<div ng-controller="applistController" id="leftcontent">
+	<div ng-controller="applistController" id="app-navigation">
 		<?php print_unescaped($this->inc('apps/part.applist')); ?>
 	</div>
 

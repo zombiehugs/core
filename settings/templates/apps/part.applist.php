@@ -26,6 +26,7 @@
 			<?php p($l->t('Add your App'));?> 
 		…</a>
 	</li>
+	<loading></loading>
 	<li ng-repeat="app in allapps.data">
 		<a href="">{{ app.name }}</a>
 	</li>

@@ -19,10 +19,22 @@
  *
  */
 
-appSettings.controller('applistController', ['$scope', 'AppListService',
-	function($scope, AppListService){
-		$scope.loading = false;
-		$scope.allapps = AppListService.listAllApps().get();
-		$scope.loading = true;
-	}
-]);
+appSettings.directive('loading',
+	[ function() {
+		return {
+			restrict: 'E',
+			replace: true,
+			template:"<div class='loading'></div>",
+			link: function($scope, element, attr) {
+				$scope.$watch('loading', function(val) {
+					if (val) {
+						$(element).show();
+					}
+					else {
+						$(element).hide();
+					}
+				});
+			}		
+		};
+	}]
+);
