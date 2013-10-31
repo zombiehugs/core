@@ -28,7 +28,11 @@
 	</li>
 	<loading></loading>
 	<li ng-repeat="app in allapps.data">
-		<a href="">{{ app.name }}</a>
+		<a href="">
+			<span class="app-name">{{ app.name }}</span>
+			<!--Todo : Change this to display whether app is 3rdParty or not-->
+			<span class="shipping">{{ !app.shipped }}</span>
+		</a>
 	</li>
 	<li>
 		<a class="app-external" target="_blank" href="http://apps.owncloud.com">
