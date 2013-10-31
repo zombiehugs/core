@@ -22,11 +22,8 @@
 
 <div class="appinfo">
 	<h3>
-		<strong>
-			<span class="name"><?php p($l->t('Select an App'));?></span>
-		</strong>
 		<span class="version"></span>
-		<small class="externalapp" style="visibility:hidden;"></small>
+		<small class="externalapp"></small>
 	</h3>
 	<span class="score"></span>
 	<p class="description"></p>
