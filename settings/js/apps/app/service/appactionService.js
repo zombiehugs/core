@@ -19,8 +19,8 @@
  *
  */
 
-appSettings.factory('AppActionService', ['$resource', '$q', 
-	function ($resource, $q) {
+appSettings.factory('AppActionService', ['$resource',
+	function ($resource) {
 		return {
 			enableApp : function(appId) {
 				return ($resource(OC.filePath('settings', 'ajax', 'enableapp.php')).post(

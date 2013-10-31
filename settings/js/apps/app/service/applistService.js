@@ -19,16 +19,11 @@
  *
  */
 
-appSettings.factory('AppListService', ['$q', '$resource',
-	function($q,$resource) {
+appSettings.factory('AppListService', ['$resource',
+	function ($resource) {
 		return {
 			listAllApps : function() {
-				var deferred = $q.defer();
-				var AppList = $resource(OC.filePath('settings', 'ajax', 'applist.php'));
-				AppList.get(function(response) {
-					deferred.resolve(response);
-				});
-				return deferred.promise;
+				return ($resource(OC.filePath('settings', 'ajax', 'applist.php')));
 			}
 		};
 	}
