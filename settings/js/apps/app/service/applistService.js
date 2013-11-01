@@ -24,6 +24,12 @@ appSettings.factory('AppListService', ['$resource',
 		return {
 			listAllApps : function() {
 				return ($resource(OC.filePath('settings', 'ajax', 'applist.php')));
+			},
+			selectApp : function(appId,appName,appAuthor,appDesc,appLisence,appReq,appVer) {
+				var details = [appId,appName,appAuthor,appDesc,appLisence,appReq,appVer];
+			},
+			returnApp : function() {
+				return details;
 			}
 		};
 	}
