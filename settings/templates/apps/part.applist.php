@@ -28,10 +28,7 @@
 	</li>
 	<loading></loading>
 	<li ng-repeat="app in allapps.data">
-		<a ng-click="selectApp(
-			app.id,app.name,app.author,
-			app.description,app.lisence,
-			app.require,app.version)">
+		<a href="#/{{app.id}}">
 			<span class="app-name">{{ app.name }}</span>
 			<!--Todo : Change this to display whether app is 3rdParty or not-->
 			<span class="shipping">{{ !app.shipped }}</span>
