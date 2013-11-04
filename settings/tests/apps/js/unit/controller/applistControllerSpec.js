@@ -20,13 +20,14 @@
  */
 
 describe('applistController', function() {
-	var controller,scope,service,http,routeParams,location;
+	var controller,scope,service,http,routeParams,location,any_valid_app;
 
 	beforeEach(module('appSettings'));
 
 	beforeEach(inject(function ($controller, $routeScope, $httpBackend, AppListService) {
 		http = $httpBackend;
 		scope = $routeScope.$new();
+		any_valid_app = "any_valid_app_id";
 		routeParams = {
 			appId: any_valid_app
 		};
@@ -42,7 +43,7 @@ describe('applistController', function() {
 		];
 		http.expectGET('/').respond(200, apps);
 
-		controller = controller('applistController', {
+		controller = controller('applistController', function() {
 			$routeParams: routeParams,
 			$scope : scope,
 			$location : location,

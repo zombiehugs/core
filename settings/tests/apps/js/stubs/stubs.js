@@ -1,10 +1,8 @@
 /*
- * ownCloud - App Settings
+ * ownCloud - Core
  *
  * @author Raghu Nayyar
- * @author Bernhard Posselt
  * @copyright 2013 Raghu Nayyar <raghu.nayyar.007@gmail.com>
- * @copyright 2013 Bernhard Posselt <dev@bernhard-posselt.com> 
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -21,28 +19,4 @@
  *
  */
 
-module.exports = function(config) {
-	config.set({
-		frameworks: ['jasmine'],
-		basePath: '../../../../',
-		files: [
-			'../core/js/jquery-1.10.0.min.js',
-			'js/vendor/angular/angular.js',
-			'js/vendor/angular-resource/angular-resource.js',
-			'js/vendor/angular-mocks/angular-mocks.js',
-			'tests/apps/js/stubs/stubs.js',
-			'js/apps/config/config.js',
-			'js/apps/app/**/*.js',
-			'tests/apps/js/unit/**/*.js'
-		],
-
-		exclude: [],
-		port: 8000,
-		reporters: ['progress'],
-		colors: true,
-		autoWatch: true,
-		browsers: ['Chrome'],
-		captureTimeout: 5000,
-		singleRun: false
-	});
-}
+angular.module('appSettings', ['ngMock']);
