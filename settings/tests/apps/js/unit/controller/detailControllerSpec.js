@@ -19,12 +19,13 @@
  *
  */
 
-appSettings.factory('AppListService', ['$resource',
-	function ($resource) {
-		return {
-			listAllApps : function() {
-				return ($resource(OC.filePath('settings', 'ajax', 'applist.php')));
-			}
-		};
-	}
-]);
+
+ describe('detailController', function() {
+
+ 	beforeEach(module('appSettings'));
+ 	
+ 	afterEach(function() {
+ 		http.verifyNoOutstandingExpectation();
+ 		http.verifyNoOutstandingRequest();
+ 	});
+ });

@@ -98,7 +98,7 @@ module.exports = function(grunt) {
 			configFile: '../../tests/apps/js/config/karma.js'
 			},
 			continuous: {
-				configFile: '../../tests/js/apps/config/karma.js',
+				configFile: '../../tests/apps/js/config/karma.js',
 				singleRun: true,
 				browsers: ['PhantomJS'],
 				reporters: ['progress']
@@ -108,4 +108,5 @@ module.exports = function(grunt) {
 	
 	// make tasks available under simpler commands
 	grunt.registerTask('build', ['jshint', 'concat']);
+	grunt.registerTask('test', ['karma']);
 };

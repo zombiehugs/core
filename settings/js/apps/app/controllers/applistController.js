@@ -21,10 +21,8 @@
 
 appSettings.controller('applistController', ['$scope', 'AppListService',
 	function($scope, AppListService){
-		$scope.loading = true;
+		
 		$scope.allapps = AppListService.listAllApps().get();
-		$scope.loading = false;
 
-		$scope.selectApp = AppListService.selectApp(appId,appName,appAuthor,appDesc,appLisence,appReq,appVer);
 	}
 ]);

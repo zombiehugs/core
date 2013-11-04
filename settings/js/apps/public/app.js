@@ -31,11 +31,9 @@ config(['$httpProvider', '$routeProvider', '$windowProvider', '$provide',
 ]);
 appSettings.controller('applistController', ['$scope', 'AppListService',
 	function($scope, AppListService){
-		$scope.loading = true;
+		
 		$scope.allapps = AppListService.listAllApps().get();
-		$scope.loading = false;
 
-		$scope.selectApp = AppListService.selectApp(appId,appName,appAuthor,appDesc,appLisence,appReq,appVer);
 	}
 ]);
 appSettings.controller('detailController', ['$scope',
@@ -88,13 +86,6 @@ appSettings.factory('AppListService', ['$resource',
 		return {
 			listAllApps : function() {
 				return ($resource(OC.filePath('settings', 'ajax', 'applist.php')));
-			},
-			selectApp : function(appId,appName,appAuthor,appDesc,appLisence,appReq,appVer) {
-				var details = [appId,appName,appAuthor,appDesc,appLisence,appReq,appVer];
-			},
-			returnApp : function() {
-				console.log(details);
-				return details;
 			}
 		};
 	}
