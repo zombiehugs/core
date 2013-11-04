@@ -20,12 +20,12 @@
  */
 
 
- describe('detailController', function() {
+describe('detailController', function() {
 
- 	beforeEach(module('appSettings'));
- 	
- 	afterEach(function() {
- 		http.verifyNoOutstandingExpectation();
- 		http.verifyNoOutstandingRequest();
- 	});
- });
+	beforeEach(module('appSettings'));
+	
+	afterEach(function() {
+		http.verifyNoOutstandingExpectation();
+		http.verifyNoOutstandingRequest();
+	});
+});

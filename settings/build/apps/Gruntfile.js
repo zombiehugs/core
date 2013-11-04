@@ -39,7 +39,6 @@ module.exports = function(grunt) {
 
 		concat: {
 			options: {
-				// remove license headers
 				stripBanners: true
 			},
 			
@@ -60,7 +59,6 @@ module.exports = function(grunt) {
 				'../../tests/apps/js/unit/**/*.js'
 			],
 			options: {
-				// options here to override JSHint defaults
 				globals: {
 					console: true
 				}
@@ -68,8 +66,6 @@ module.exports = function(grunt) {
 		},
 
 		watch: {
-			// this watches for changes in the app directory and runs the concat
-			// and wrap tasks if something changed
 			concat: {
 				files: [
 					'../../js/apps/app/**/*.js',
@@ -95,8 +91,9 @@ module.exports = function(grunt) {
 
 		karma: {
 			unit: {
-			configFile: '../../tests/apps/js/config/karma.js'
+				configFile: '../../tests/apps/js/config/karma.js'
 			},
+
 			continuous: {
 				configFile: '../../tests/apps/js/config/karma.js',
 				singleRun: true,
