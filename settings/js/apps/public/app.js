@@ -12,7 +12,21 @@ config(['$httpProvider', '$routeProvider', '$windowProvider', '$provide',
 		$provide.value('Config', {
 			baseUrl: baseUrl
 		});
-	
+
+		$routeProvider.when('/:appId', {
+			template : 'detail.html',
+			controller : 'detailcontroller',
+			resolve : {
+				app : ['$route', '$q', function ($route, $q) {
+					var deferred = $q.defer();
+					var appId = $route.current.params.appId;
+
+					return deferred.promise;
+				}]
+			}
+		}).otherwise({
+			redirectTo: '/'
+		});
 	}
 ]);
 appSettings.controller('applistController', ['$scope', 'AppListService',
