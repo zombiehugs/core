@@ -31,9 +31,8 @@ config(['$httpProvider', '$routeProvider', '$windowProvider', '$provide',
 ]);
 appSettings.controller('applistController', ['$scope', 'AppListService',
 	function($scope, AppListService){
-		
+		/* Displays the list of files in the Left Sidebar */
 		$scope.allapps = AppListService.listAllApps().get();
-
 	}
 ]);
 appSettings.controller('detailController', ['$scope',

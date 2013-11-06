@@ -27,11 +27,11 @@
 		…</a>
 	</li>
 	<loading></loading>
-	<li ng-repeat="app in allapps.data">
+	<li ng-repeat="app in allapps.data|orderBy:'shipped'">
 		<a href="#/{{app.id}}">
 			<span class="app-name">{{ app.name }}</span>
 			<!--Todo : Change this to display whether app is 3rdParty or not-->
-			<span class="shipping">{{ !app.shipped }}</span>
+			<span class="shipping" ng-class="{ active: app.shipped }"><?php p($l->t('3rdParty')); ?></span>
 		</a>
 	</li>
 	<li>
