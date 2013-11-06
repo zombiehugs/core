@@ -19,8 +19,19 @@
  *
  */
 
-appSettings.controller('detailController', ['$scope',
-	function($scope){
+appSettings.controller('detailController', ['$scope', 'AppListService', 'AppActionService',
+	function($scope,AppListService,AppActionService){
 		
+		$scope.enable = function (appId) {
+			AppActionService.enableApp(appId);
+		};
+
+		$scope.disable = function (appId) {
+			AppActionService.disableApp(appId);
+		};
+
+		$scope.update = function (appId) {
+			AppActionService.updateApp(appId);
+		};
 	}
 ]);

@@ -28,7 +28,7 @@
 	<span class="score"></span>
 	<p class="description"></p>
 	<img src="" class="preview hidden" />
-	<p class="appslink hidden">
+	<p class="appslink">
 		<a href="#" target="_blank">
 		<?php p($l->t('See application page at apps.owncloud.com'));?></a>
 	</p>
@@ -37,7 +37,20 @@
 			print_unescaped($l->t('<span class="licence"></span>-licensed by <span class="author"></span>'));
 		?>
 	</p>
-	<input class="enable hidden" type="submit" />
-	<input class="update hidden" type="submit" value="<?php p($l->t('Update')); ?>" />
-	<div class="warning hidden"></div>
+	
+	<!-- TODO : Put a check for already enabled app. -->
+	<button class="enable" ng-click="enable(appId)">
+		<?php p($l->t('Enable'); ?>
+	</button>
+	
+	<!-- TODO : Put a check for already enabled app. -->
+	<button class="disable" ng-click="disable(appId)">
+		<?php p($l->t('Disable'); ?>
+	</button>
+	
+	<!-- TODO :  Put a chech for already updated apps. -->
+	<button class="update" ng-click="update(appId)">
+		<?php p($l->t('Update')); ?>
+	</button>
+	<div class="warning"></div>
 </div>
