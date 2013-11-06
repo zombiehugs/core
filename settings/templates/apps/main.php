@@ -23,7 +23,7 @@
 	<script type="text/javascript"
 		src="<?php print_unescaped(OC_Helper::linkToRoute('apps_custom'));?>?appid=<?php p($_['appid']); ?>">
 	</script>
-	<script type="text/ng-template">
+	<script type="text/ng-template" id="detail.html">
 		<?php print_unescaped($this->inc('apps/part.content.php')); ?>
 	</script>
 
