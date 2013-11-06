@@ -23,12 +23,13 @@
 	<script type="text/javascript"
 		src="<?php print_unescaped(OC_Helper::linkToRoute('apps_custom'));?>?appid=<?php p($_['appid']); ?>">
 	</script>
+	<script type="text/ng-template">
+		<?php print_unescaped($this->inc('apps/part.content.php')); ?>
+	</script>
 
 	<div ng-controller="applistController" id="app-navigation">
 		<?php print_unescaped($this->inc('apps/part.applist')); ?>
 	</div>
 
-	<div ng-controller="detailController" id="rightcontent">
-		<?php print_unescaped($this->inc('apps/part.content')); ?>
-	</div>
+	<div id="rightcontent" ng-view></div>
 </div>

@@ -39,7 +39,7 @@ config(['$httpProvider', '$routeProvider', '$windowProvider', '$provide',
 
 		$routeProvider.when('/:appId', {
 			template : 'detail.html',
-			controller : 'detailcontroller',
+			controller : 'detailController',
 			resolve : {
 				app : ['$route', '$q', function ($route, $q) {
 					var deferred = $q.defer();

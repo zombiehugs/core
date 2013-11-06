@@ -43,7 +43,7 @@ describe('applistController', function() {
 		];
 		http.expectGET('/').respond(200, apps);
 
-		controller = controller('applistController', function() {
+		controller = controller('applistController', {
 			$routeParams: routeParams,
 			$scope : scope,
 			$location : location,
