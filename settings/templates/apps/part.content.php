@@ -40,17 +40,16 @@
 	
 	<!-- TODO : Put a check for already enabled app. -->
 	<button class="enable" ng-click="enable(appId)">
-		<?php p($l->t('Enable'); ?>
+		<?php p($l->t('Enable')); ?>
 	</button>
 	
 	<!-- TODO : Put a check for already enabled app. -->
 	<button class="disable" ng-click="disable(appId)">
-		<?php p($l->t('Disable'); ?>
+		<?php p($l->t('Disable')); ?>
 	</button>
 	
 	<!-- TODO :  Put a chech for already updated apps. -->
 	<button class="update" ng-click="update(appId)">
 		<?php p($l->t('Update')); ?>
 	</button>
-	<div class="warning"></div>
 </div>
