@@ -20,7 +20,7 @@
  */
 ?>
 
-<ul class="applist">
+<ul class="applist" ng-controller="applistController">
 	<li>
 		<a class="app-external" target="_blank" href="http://owncloud.org/dev">
 			<?php p($l->t('Add your App'));?> 

@@ -27,7 +27,7 @@
 		<?php print_unescaped($this->inc('apps/part.content')); ?>
 	</script>
 
-	<div ng-controller="applistController" id="app-navigation">
+	<div id="app-navigation">
 		<?php print_unescaped($this->inc('apps/part.applist')); ?>
 	</div>
 

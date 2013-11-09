@@ -39,15 +39,7 @@ config(['$httpProvider', '$routeProvider', '$windowProvider', '$provide',
 
 		$routeProvider.when('/:appId', {
 			template : 'detail.html',
-			controller : 'detailController',
-			resolve : {
-				app : ['$route', '$q', function ($route, $q) {
-					var deferred = $q.defer();
-					var appId = $route.current.params.appId;
-
-					return deferred.promise;
-				}]
-			}
+			controller : 'detailController'
 		}).otherwise({
 			redirectTo: '/'
 		});
