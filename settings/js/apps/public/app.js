@@ -41,13 +41,11 @@ appSettings.controller('detailController', ['$scope', '$routeParams', 'AppListSe
 				}
 			}
 			$scope.appname = $scope.allapps[val].name;
+			$scope.preview = $scope.allapps[val].preview;
+			$scope.licence = $scope.allapps[val].licence;
 			$scope.authorname = $scope.allapps[val].author;
 			$scope.desc = $scope.allapps[val].description;
 			$scope.vers = $scope.allapps[val].version;
-			console.log($scope.appname);
-			console.log($scope.authorname);
-			console.log($scope.desc);
-			console.log($scope.vers);
 		});
 		$scope.enable = function (appId) {
 			AppActionService.enableApp(appId);

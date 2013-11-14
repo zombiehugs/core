@@ -29,10 +29,6 @@
  	background: transparent;
  }
 
-.appinfo {
-	margin: 1em 40px;
-}
-
 #app-navigation {
 	padding-bottom: 0px;
 	position: absolute;
@@ -59,16 +55,44 @@
 
 }
 
-#right-content {
-	top: 45px;
-	left: 380px;
-	height:100%;
-	width: 100%;
+#rightcontent {
+	top: 45px; left: 380px;
+	height:100%; width: 100%;
+}
+
+.appinfo {
+	margin: 40px;
+}
+
+.appinfo .name {
+	font-size:24px;
+}
+
+span.version {
+	margin-left:12px; margin-right:12px;
+	color:#555;
+	font-size:16px;
+}
+
+.preview {
+	display: block;
+}
+
+.preview img {
+	border:1px solid #333;
+}
+
+p.description {
+	width: 65%;
+	font-size: 16px; line-height: 28px;
+}
+
+p.licence {
+	width: 65%;
 }
 
 small.recommendedapp { color:#FFF; background-color:#888; font-weight:bold; font-size: 0.6em; margin: 0; padding: 0.1em 0.2em; border-radius: 4px;}
 small.recommendedapp.list { float: right; }
-span.version { margin-left:1em; margin-right:1em; color:#555; }
 
 .app { position: relative; display: inline-block; padding: 0.2em 0 0.2em 0 !important; text-overflow: hidden; overflow: hidden; white-space: nowrap; /*transition: .2s max-width linear; -o-transition: .2s max-width linear; -moz-transition: .2s max-width linear; -webkit-transition: .2s max-width linear; -ms-transition: .2s max-width linear;*/ }
 .app.externalapp { max-width: 12.5em; }

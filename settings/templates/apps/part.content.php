@@ -21,20 +21,29 @@
 ?>
 
 <div class="appinfo">
-	<h3>
-		<strong><span class="name">{{ appname }}</span></strong>
-		<span class="version">{{ vers }}</span>
-	</h3>
+	<strong>
+		<span class="name">{{ appname }}</span>
+	</strong>
+	<span class="version">{{ vers }}</span>
+	<div class="preview">
+		<img src="{{ preview }}" alt="<?php p($l->t('No Preview Avaialable')); ?>" />		
+	</div>
 	<p class="description">{{ desc }}</p>
 	<p class="appslink">
 		<a href="#" target="_blank">
 			<?php p($l->t('See application page at apps.owncloud.com'));?>
 		</a>
 	</p>
-	<p class="license">
+	<p class="licence">
+		<span>
+			<strong>{{ licence }}</strong>
+		</span>
 		<?php
-			print_unescaped($l->t('<span class="licence"></span>-licensed by <span class="author">{{ author }}</span>'));
+			print_unescaped($l->t('-licensed by'));
 		?>
+		<span class="author">
+			<strong>{{ authorname }}</strong>
+		</span>
 	</p>
 
 	<!-- TODO : Put a check for already enabled app. -->
@@ -52,16 +61,3 @@
 		<?php p($l->t('Update')); ?>
 	</button>
 </div>
-
-        <h3><strong><span class="name"><?php p($l->t('Select an App'));?></span></strong><span
-                class="version"></span><small class="externalapp" style="visibility:hidden;"></small></h3>
-        <span class="score"></span>
-        <p class="description"></p>
-        <img src="" class="preview hidden" />
-        <p class="appslink hidden"><a href="#" target="_blank"><?php
-                p($l->t('See application page at apps.owncloud.com'));?></a></p>
-        <p class="license hidden"><?php
-                print_unescaped($l->t('<span class="licence"></span>-licensed by <span class="author"></span>'));?></p>
-        <input class="enable hidden" type="submit" />
-        <input class="update hidden" type="submit" value="<?php p($l->t('Update')); ?>" />
-        <div class="warning hidden"></div>
