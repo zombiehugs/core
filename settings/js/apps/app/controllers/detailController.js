@@ -19,9 +19,28 @@
  *
  */
 
-appSettings.controller('detailController', ['$scope', 'AppListService', 'AppActionService',
-	function($scope,AppListService,AppActionService){
-		
+appSettings.controller('detailController', ['$scope', '$routeParams', 'AppListService', 'AppActionService',
+	function($scope,$routeParams,AppListService,AppActionService){
+
+		var appId = $routeParams.appId;
+		var val;
+		$scope.allapps = AppListService.listAllApps().get(function(apps){
+			$scope.allapps = apps.data;
+			for (var i = 0; i <= $scope.allapps.length; i++) {
+				if (appId == $scope.allapps[i].id) {
+					val = i;
+					break;
+				}
+			}
+			$scope.appname = $scope.allapps[val].name;
+			$scope.authorname = $scope.allapps[val].author;
+			$scope.desc = $scope.allapps[val].description;
+			$scope.vers = $scope.allapps[val].version;
+			console.log($scope.appname);
+			console.log($scope.authorname);
+			console.log($scope.desc);
+			console.log($scope.vers);
+		});
 		$scope.enable = function (appId) {
 			AppActionService.enableApp(appId);
 		};
