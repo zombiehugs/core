@@ -64,6 +64,10 @@ class Cache {
 	 * @return int
 	 */
 	public function getMimetypeId($mime) {
+		if (empty($mime)) {
+			// Can not insert empty string into Oracle NOT NULL column.
+			$mime = 'application/octet-stream';
+		}
 		if (empty(self::$mimetypeIds)) {
 			$this->loadMimetypes();
 		}
@@ -140,6 +144,7 @@ class Cache {
 			$data['fileid'] = (int)$data['fileid'];
 			$data['size'] = (int)$data['size'];
 			$data['mtime'] = (int)$data['mtime'];
+			$data['storage_mtime'] = (int)$data['storage_mtime'];
 			$data['encrypted'] = (bool)$data['encrypted'];
             $data['unencrypted_size'] = (int)$data['unencrypted_size'];
 			$data['storage'] = $this->storageId;

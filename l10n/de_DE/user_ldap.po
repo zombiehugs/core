@@ -12,10 +12,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
-"Report-Msgid-Bugs-To: http://bugs.owncloud.org/\n"
-"POT-Creation-Date: 2013-10-27 07:25-0400\n"
-"PO-Revision-Date: 2013-10-27 10:40+0000\n"
-"Last-Translator: Mario Siegmann <mario_siegmann@web.de>\n"
+"Report-Msgid-Bugs-To: translations@owncloud.org\n"
+"POT-Creation-Date: 2013-11-11 05:45-0500\n"
+"PO-Revision-Date: 2013-11-11 08:12+0000\n"
+"Last-Translator: I Robot <owncloud-bot@tmit.eu>\n"
 "Language-Team: German (Germany) (http://www.transifex.com/projects/p/owncloud/language/de_DE/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -43,9 +43,9 @@ msgstr "Die Konfiguration ist gültig aber die Verbindung ist fehlgeschlagen. Bi
 
 #: ajax/testConfiguration.php:44
 msgid ""
-"The configuration is invalid. Please look in the ownCloud log for further "
+"The configuration is invalid. Please have a look at the logs for further "
 "details."
-msgstr "Die Konfiguration ist ungültig, sehen Sie für weitere Details bitte im ownCloud Log nach"
+msgstr "Die Konfiguration ist ungültig. Weitere Details können Sie in den Logdateien nachlesen."
 
 #: ajax/wizard.php:32
 msgid "No action specified"
@@ -142,6 +142,10 @@ msgstr "Ungültiger Host"
 msgid "Could not find the desired feature"
 msgstr "Konnte die gewünschte Funktion nicht finden"
 
+#: templates/part.settingcontrols.php:2
+msgid "Save"
+msgstr "Speichern"
+
 #: templates/part.settingcontrols.php:4
 msgid "Test Configuration"
 msgstr "Testkonfiguration"
@@ -153,7 +157,7 @@ msgstr "Hilfe"
 #: templates/part.wizard-groupfilter.php:4
 #, php-format
 msgid "Limit the access to %s to groups meeting this criteria:"
-msgstr "Beschränken Sie den Zugriff auf %s für die Gruppen-Sitzungen durch folgende Kriterien:"
+msgstr "Beschränke den Zugriff auf %s auf Gruppen, die die folgenden Kriterien erfüllen:"
 
 #: templates/part.wizard-groupfilter.php:8
 #: templates/part.wizard-userfilter.php:8
@@ -248,7 +252,7 @@ msgstr "Sie können Basis-DN für Benutzer und Gruppen in dem \"Erweitert\"-Reit
 #: templates/part.wizard-userfilter.php:4
 #, php-format
 msgid "Limit the access to %s to users meeting this criteria:"
-msgstr "Beschränken Sie den Zugriff auf %s für die Benutzer-Sitzungen durch folgende Kriterien:"
+msgstr "Beschränke den Zugriff auf %s auf Benutzer, die die folgenden Kriterien erfüllen:"
 
 #: templates/part.wizard-userfilter.php:31
 #, php-format

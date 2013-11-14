@@ -7,9 +7,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
-"Report-Msgid-Bugs-To: http://bugs.owncloud.org/\n"
-"POT-Creation-Date: 2013-10-27 07:25-0400\n"
-"PO-Revision-Date: 2013-10-27 06:40+0000\n"
+"Report-Msgid-Bugs-To: translations@owncloud.org\n"
+"POT-Creation-Date: 2013-11-11 05:45-0500\n"
+"PO-Revision-Date: 2013-11-11 08:12+0000\n"
 "Last-Translator: I Robot <owncloud-bot@tmit.eu>\n"
 "Language-Team: Spanish (Argentina) (http://www.transifex.com/projects/p/owncloud/language/es_AR/)\n"
 "MIME-Version: 1.0\n"
@@ -38,9 +38,9 @@ msgstr "La configuración es válida, pero el enlace falló. Por favor, comprob�
 
 #: ajax/testConfiguration.php:44
 msgid ""
-"The configuration is invalid. Please look in the ownCloud log for further "
+"The configuration is invalid. Please have a look at the logs for further "
 "details."
-msgstr "La configuración no es válida. Por favor, buscá en el log de ownCloud más detalles."
+msgstr ""
 
 #: ajax/wizard.php:32
 msgid "No action specified"
@@ -136,6 +136,10 @@ msgstr ""
 #: lib/wizard.php:910
 msgid "Could not find the desired feature"
 msgstr ""
+
+#: templates/part.settingcontrols.php:2
+msgid "Save"
+msgstr "Guardar"
 
 #: templates/part.settingcontrols.php:4
 msgid "Test Configuration"

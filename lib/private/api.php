@@ -245,12 +245,21 @@ class OC_API {
 		$return = OC_User::login($authUser, $authPw);
 		if ($return === true) {
 			self::$logoutRequired = true;
+
+			// initialize the user's filesystem
+			\OC_Util::setUpFS(\OC_User::getUser());
+
 			return $authUser;
 		}
 
 		// reuse existing login
 		$loggedIn = OC_User::isLoggedIn();
-		if ($loggedIn === true) {
+		$ocsApiRequest = isset($_SERVER['HTTP_OCS_APIREQUEST']) ? $_SERVER['HTTP_OCS_APIREQUEST'] === 'true' : false;
+		if ($loggedIn === true && $ocsApiRequest) {
+
+			// initialize the user's filesystem
+			\OC_Util::setUpFS(\OC_User::getUser());
+
 			return OC_User::getUser();
 		}
 

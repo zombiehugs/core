@@ -305,7 +305,21 @@ class Filesystem {
 		$parser = new \OC\ArrayParser();
 
 		$root = \OC_User::getHome($user);
-		self::mount('\OC\Files\Storage\Local', array('datadir' => $root), $user);
+
+		$userObject = \OC_User::getManager()->get($user);
+
+		if (!is_null($userObject)) {
+			// check for legacy home id (<= 5.0.12)
+			if (\OC\Files\Cache\Storage::exists('local::' . $root . '/')) {
+				self::mount('\OC\Files\Storage\Home', array('user' => $userObject, 'legacy' => true), $user);
+			}
+			else {
+				self::mount('\OC\Files\Storage\Home', array('user' => $userObject), $user);
+			}
+		}
+		else {
+			self::mount('\OC\Files\Storage\Local', array('datadir' => $root), $user);
+		}
 		$datadir = \OC_Config::getValue("datadirectory", \OC::$SERVERROOT . "/data");
 
 		//move config file to it's new position

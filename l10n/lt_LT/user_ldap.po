@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# Dr. ROX <to.dr.rox@gmail.com>, 2013
 # Liudas <liudas@aksioma.lt>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
-"Report-Msgid-Bugs-To: http://bugs.owncloud.org/\n"
-"POT-Creation-Date: 2013-10-27 07:25-0400\n"
-"PO-Revision-Date: 2013-10-27 06:40+0000\n"
+"Report-Msgid-Bugs-To: translations@owncloud.org\n"
+"POT-Creation-Date: 2013-11-11 05:45-0500\n"
+"PO-Revision-Date: 2013-11-11 08:12+0000\n"
 "Last-Translator: I Robot <owncloud-bot@tmit.eu>\n"
 "Language-Team: Lithuanian (Lithuania) (http://www.transifex.com/projects/p/owncloud/language/lt_LT/)\n"
 "MIME-Version: 1.0\n"
@@ -28,7 +29,7 @@ msgstr "Nepavyko pašalinti serverio konfigūracijos"
 
 #: ajax/testConfiguration.php:37
 msgid "The configuration is valid and the connection could be established!"
-msgstr ""
+msgstr "Konfigūracija yra tinkama bei prisijungta sėkmingai!"
 
 #: ajax/testConfiguration.php:40
 msgid ""
@@ -38,7 +39,7 @@ msgstr ""
 
 #: ajax/testConfiguration.php:44
 msgid ""
-"The configuration is invalid. Please look in the ownCloud log for further "
+"The configuration is invalid. Please have a look at the logs for further "
 "details."
 msgstr ""
 
@@ -73,7 +74,7 @@ msgstr "Išlaikyti nustatymus?"
 
 #: js/settings.js:99
 msgid "Cannot add server configuration"
-msgstr ""
+msgstr "Negalima pridėti serverio konfigūracijos"
 
 #: js/settings.js:113
 msgid "mappings cleared"
@@ -138,6 +139,10 @@ msgstr ""
 #: lib/wizard.php:910
 msgid "Could not find the desired feature"
 msgstr ""
+
+#: templates/part.settingcontrols.php:2
+msgid "Save"
+msgstr "Išsaugoti"
 
 #: templates/part.settingcontrols.php:4
 msgid "Test Configuration"

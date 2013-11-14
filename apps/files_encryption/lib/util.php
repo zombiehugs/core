@@ -205,7 +205,7 @@ class Util {
 				$this->userId,
 				'server-side',
 				0,
-				0
+				self::MIGRATION_OPEN
 			);
 			$query = \OCP\DB::prepare($sql);
 			$query->execute($args);
@@ -1145,10 +1145,7 @@ class Util {
 		// Make sure that a share key is generated for the owner too
 		list($owner, $ownerPath) = $this->getUidAndFilename($filePath);
 
-		$pathinfo = pathinfo($ownerPath);
-		if(array_key_exists('extension', $pathinfo) && $pathinfo['extension'] === 'part') {
-			$ownerPath = $pathinfo['dirname'] . '/' . $pathinfo['filename'];
-		}
+		$ownerPath = \OCA\Encryption\Helper::stripPartialFileExtension($ownerPath);
 
 		$userIds = array();
 		if ($sharingEnabled) {
@@ -1285,6 +1282,17 @@ class Util {
 		// If no record is found
 		if (empty($migrationStatus)) {
 			\OCP\Util::writeLog('Encryption library', "Could not get migration status for " . $this->userId . ", no record found", \OCP\Util::ERROR);
+			// insert missing entry in DB with status open
+			$sql = 'INSERT INTO `*PREFIX*encryption` (`uid`,`mode`,`recovery_enabled`,`migration_status`) VALUES (?,?,?,?)';
+			$args = array(
+				$this->userId,
+				'server-side',
+				0,
+				self::MIGRATION_OPEN
+			);
+			$query = \OCP\DB::prepare($sql);
+			$query->execute($args);
+
 			return self::MIGRATION_OPEN;
 			// If a record is found
 		} else {

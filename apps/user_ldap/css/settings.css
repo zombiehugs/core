@@ -3,13 +3,9 @@
 	width: 60%;
 }
 
-.tablecell {
-	display: table-cell !important;
-	white-space: nowrap;
-}
-
 .tablerow {
 	display: table-row;
+	white-space: nowrap;
 }
 
 .tablerow input, .tablerow textarea {
@@ -78,6 +74,11 @@
 
 .wizSpinner {
 	height: 15px;
+	margin: 0.3em;
+}
+
+.ldapSettingControls {
+	margin-top: 3ex;
 }
 
 #ldap fieldset p label {
@@ -90,9 +91,12 @@
 	padding-right: 5px;
 }
 
+#ldap fieldset input[type=submit] {
+	width: auto;
+}
+
 #ldap fieldset input, #ldap fieldset textarea {
  	width: 60%;
-	display: inline-block;
 }
 
 #ldap fieldset p input[type=checkbox] {
