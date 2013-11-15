@@ -34,7 +34,7 @@ appSettings.controller('detailController', ['$scope', '$routeParams', 'AppListSe
 				}
 			}
 			$scope.appname = $scope.allapps[val].name;
-			$scope.preview = $scope.allapps[val].preview;
+			//$scope.preview = $scope.allapps[val].preview;
 			$scope.licence = $scope.allapps[val].licence;
 			$scope.authorname = $scope.allapps[val].author;
 			$scope.desc = $scope.allapps[val].description;

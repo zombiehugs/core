@@ -27,9 +27,9 @@
 			<span class="name">{{ appname }}</span>
 		</strong>
 		<span class="version">{{ vers }}</span>
-		<div class="preview">
+		<!--<div ng-class="{ hidden : preview }" class="preview">
 			<img src="{{ preview }}" alt="<?php p($l->t('No Preview Avaialable')); ?>" />		
-		</div>
+		</div>-->
 		<p class="description">{{ desc }}</p>
 		<p class="appslink">
 			<a href="#" target="_blank">
