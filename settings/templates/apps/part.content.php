@@ -49,18 +49,21 @@
 		</p>
 
 		<!-- TODO : Put a check for already enabled app. -->
-		<button class="enable" ng-click="enable(appId)">
+		<button class="enable" ng-click="enable(appId)" ng-class="{ hidden : active }">
 			<?php p($l->t('Enable')); ?>
+			<loading></loading>
 		</button>
 		
 		<!-- TODO : Put a check for already enabled app. -->
-		<button class="disable" ng-click="disable(appId)">
+		<button class="disable" ng-click="disable(appId)" ng-class="{ hidden : !active }">
 			<?php p($l->t('Disable')); ?>
+			<loading></loading>
 		</button>
 		
 		<!-- TODO :  Put a chech for already updated apps. -->
-		<button class="update" ng-click="update(appId)">
+		<button class="update" ng-click="update(appId)" ng-class="{ hidden : !updates }">
 			<?php p($l->t('Update')); ?>
+			<loading></loading>
 		</button>
 	</div>
 </div>

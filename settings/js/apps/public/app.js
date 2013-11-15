@@ -45,6 +45,8 @@ appSettings.controller('detailController', ['$scope', '$routeParams', 'AppListSe
 					break;
 				}
 			}
+			$scope.active = $scope.allapps[val].active;
+			$scope.updates = $scope.allapps[val].update;
 			$scope.appname = $scope.allapps[val].name;
 			//$scope.preview = $scope.allapps[val].preview;
 			$scope.licence = $scope.allapps[val].licence;
