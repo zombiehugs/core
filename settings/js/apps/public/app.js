@@ -1,4 +1,4 @@
-var appSettings = angular.module('appSettings', ['ngResource']).
+var appSettings = angular.module('appSettings', ['ngResource', 'ngRoute']).
 config(['$httpProvider', '$routeProvider', '$windowProvider', '$provide',
 	function($httpProvider,$routeProvider, $windowProvider, $provide) {
 		
