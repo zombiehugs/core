@@ -9,6 +9,9 @@ Git master: [![Build Status](https://ci.owncloud.org/buildStatus/icon?job=ownClo
 ### Installation instructions
 http://doc.owncloud.org/server/5.0/developer_manual/app/gettingstarted.html
 
+### Upgrade instructions
+http://doc.owncloud.org/server/5.0/admin_manual/maintenance/update.html#upgrade
+
 ### Contribution Guidelines
 http://owncloud.org/dev/contribute/
 
