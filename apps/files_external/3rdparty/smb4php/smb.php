@@ -126,8 +126,10 @@ class smb {
 		// this put env is necessary to read the output of smbclient correctly
 		$old_locale = getenv('LC_ALL');
 		putenv('LC_ALL=en_US.UTF-8');
-		$output = popen (SMB4PHP_SMBCLIENT." -N {$auth} {$options} {$port} {$options} {$params} 2>/dev/null", 'r');
 		$gotInfo = false;
+		$cmd = SMB4PHP_SMBCLIENT." -N {$auth} {$options} {$port} {$options} {$params} 2>/dev/null";
+		\OC_Log::write('ext_smb', 'Executing command: ' . $cmd, \OC_Log::DEBUG);
+		$output = popen ($cmd, 'r');
 		$info = array ();
 		$info['info']= array ();
 		$mode = '';
@@ -187,6 +189,7 @@ class smb {
 					}elseif(substr($regs[0],0,29)=='NT_STATUS_FILE_IS_A_DIRECTORY'){
 						return false;
 					}
+		\OC_Log::write('ext_smb', 'Error: ' . $regs[0], \OC_Log::DEBUG);
 					trigger_error($regs[0].' params('.$params.')', E_USER_ERROR);
 				case 'error-connect':
 					// connection error can happen after obtaining share list if
@@ -214,6 +217,7 @@ class smb {
 		} else {
 			putenv('LC_ALL='.$old_locale);
 		}
+		\OC_Log::write('ext_smb', 'Success: ' . $info, \OC_Log::DEBUG);
 
 		return $info;
 	}
@@ -235,6 +239,7 @@ class smb {
 				break;
 			case 'share':
 				if ($o = smb::look ($pu)) {
+		\OC_Log::write('core', 'stat success for share ' . $pu['share'], \OC_Log::DEBUG);
 					$found = FALSE;
 					$lshare = strtolower ($pu['share']);  # fix by Eric Leung
 					foreach ($o['disk'] as $s) if ($lshare == strtolower($s)) {
@@ -243,11 +248,17 @@ class smb {
 						break;
 					}
 					if (! $found)
+						\OC_Log::write('core', 'stat failed for share (disk resource not found)' . $pu['share'], \OC_Log::DEBUG);
 						trigger_error ("url_stat(): disk resource '{$lshare}' not found in '{$pu['host']}'", E_USER_WARNING);
 				}
+				else {
+					\OC_Log::write('core', 'stat failed for share ' . $pu['share'], \OC_Log::DEBUG);
+				}
+				
 				break;
 			case 'path':
 				if ($o = smb::execute ('dir "'.$pu['path'].'"', $pu)) {
+		\OC_Log::write('core', 'stat success for path ' . $pu['path'], \OC_Log::DEBUG);
 					$p = explode('\\', $pu['path']);
 					$name = $p[count($p)-1];
 					if (isset ($o['info'][$name])) {
@@ -256,6 +267,7 @@ class smb {
 						trigger_error ("url_stat(): path '{$pu['path']}' not found", E_USER_WARNING);
 					}
 				} else {
+		\OC_Log::write('core', 'stat failed for path ' . $pu['path'], \OC_Log::DEBUG);
 					return false;
 // 					trigger_error ("url_stat(): dir failed for path '{$pu['path']}'", E_USER_WARNING);
 				}

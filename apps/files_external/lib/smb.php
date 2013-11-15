@@ -57,12 +57,16 @@ class SMB extends \OC\Files\Storage\StreamWrapper{
 		$path = urlencode($path);
 		$user = urlencode($this->user);
 		$pass = urlencode($this->password);
-		return 'smb://'.$user.':'.$pass.'@'.$this->host.$this->share.$this->root.$path;
+		$url = 'smb://'.$user.':'.$pass.'@'.$this->host.$this->share.$this->root.$path;
+		\OC_Log::write('ext_smb', 'Construct URL: ' . $url, \OC_Log::DEBUG);
+		return $url;
 	}
 
 	public function stat($path) {
 		if ( ! $path and $this->root=='/') {//mtime doesn't work for shares
+		\OC_Log::write('smb_ext', 'stat(' . $path . ') with mtime', \OC_Log::DEBUG);
 			$stat=stat($this->constructUrl($path));
+		\OC_Log::write('smb_ext', 'stat result: ' . $stat, \OC_Log::DEBUG);
 			if (empty($stat)) {
 				return false;
 			}
@@ -70,9 +74,11 @@ class SMB extends \OC\Files\Storage\StreamWrapper{
 			$stat['mtime']=$mtime;
 			return $stat;
 		} else {
+		\OC_Log::write('smb_ext', 'stat(' . $path . ') without mtime', \OC_Log::DEBUG);
 			$stat = stat($this->constructUrl($path));
 
 			// smb4php can return an empty array if the connection could not be established
+		\OC_Log::write('smb_ext', 'stat result: ' . $stat, \OC_Log::DEBUG);
 			if (empty($stat)) {
 				return false;
 			}
