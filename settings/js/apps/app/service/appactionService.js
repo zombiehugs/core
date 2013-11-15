@@ -23,17 +23,17 @@ appSettings.factory('AppActionService', ['$resource',
 	function ($resource) {
 		return {
 			enableApp : function(appId) {
-				return ($resource(OC.filePath('settings', 'ajax', 'enableapp.php')).post(
+				return ($resource(OC.filePath('settings', 'ajax', 'enableapp.php')).save(
 					{ appid : appId }
 				));
 			},
 			disableApp : function(appId) {
-				return ($resource(OC.filePath('settings', 'ajax', 'disableapp.php')).post(
+				return ($resource(OC.filePath('settings', 'ajax', 'disableapp.php')).save(
 					{ appid : appId }
 				));
 			},
 			updateApp : function(appId) {
-				return ($resource(OC.filePath('settings', 'ajax', 'updateApp.php')).post(
+				return ($resource(OC.filePath('settings', 'ajax', 'updateApp.php')).save(
 					{ appid : appId }
 				));
 			}
