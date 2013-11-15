@@ -21,43 +21,46 @@
 ?>
 
 <div class="appinfo">
-	<strong>
-		<span class="name">{{ appname }}</span>
-	</strong>
-	<span class="version">{{ vers }}</span>
-	<div class="preview">
-		<img src="{{ preview }}" alt="<?php p($l->t('No Preview Avaialable')); ?>" />		
-	</div>
-	<p class="description">{{ desc }}</p>
-	<p class="appslink">
-		<a href="#" target="_blank">
-			<?php p($l->t('See application page at apps.owncloud.com'));?>
-		</a>
-	</p>
-	<p class="licence">
-		<span>
-			<strong>{{ licence }}</strong>
-		</span>
-		<?php
-			print_unescaped($l->t('-licensed by'));
-		?>
-		<span class="author">
-			<strong>{{ authorname }}</strong>
-		</span>
-	</p>
+	<loading></loading>
+	<div class="infocontent" ng-class="{hidden : loading }">
+		<strong>
+			<span class="name">{{ appname }}</span>
+		</strong>
+		<span class="version">{{ vers }}</span>
+		<div class="preview">
+			<img src="{{ preview }}" alt="<?php p($l->t('No Preview Avaialable')); ?>" />		
+		</div>
+		<p class="description">{{ desc }}</p>
+		<p class="appslink">
+			<a href="#" target="_blank">
+				<?php p($l->t('See application page at apps.owncloud.com'));?>
+			</a>
+		</p>
+		<p class="licence">
+			<span>
+				<strong>{{ licence }}</strong>
+			</span>
+			<?php
+				print_unescaped($l->t('-licensed by'));
+			?>
+			<span class="author">
+				<strong>{{ authorname }}</strong>
+			</span>
+		</p>
 
-	<!-- TODO : Put a check for already enabled app. -->
-	<button class="enable" ng-click="enable(appId)">
-		<?php p($l->t('Enable')); ?>
-	</button>
-	
-	<!-- TODO : Put a check for already enabled app. -->
-	<button class="disable" ng-click="disable(appId)">
-		<?php p($l->t('Disable')); ?>
-	</button>
-	
-	<!-- TODO :  Put a chech for already updated apps. -->
-	<button class="update" ng-click="update(appId)">
-		<?php p($l->t('Update')); ?>
-	</button>
+		<!-- TODO : Put a check for already enabled app. -->
+		<button class="enable" ng-click="enable(appId)">
+			<?php p($l->t('Enable')); ?>
+		</button>
+		
+		<!-- TODO : Put a check for already enabled app. -->
+		<button class="disable" ng-click="disable(appId)">
+			<?php p($l->t('Disable')); ?>
+		</button>
+		
+		<!-- TODO :  Put a chech for already updated apps. -->
+		<button class="update" ng-click="update(appId)">
+			<?php p($l->t('Update')); ?>
+		</button>
+	</div>
 </div>

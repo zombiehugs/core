@@ -21,7 +21,11 @@
 
 appSettings.controller('applistController', ['$scope', 'AppListService',
 	function($scope, AppListService){
+		$scope.loading = true;
 		/* Displays the list of files in the Left Sidebar */
-		$scope.allapps = AppListService.listAllApps().get();
+		$scope.allapps = AppListService.listAllApps().get(function(apps) {
+			$scope.allapps = apps;			
+			$scope.loading = false;
+		});
 	}
 ]);

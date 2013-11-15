@@ -20,6 +20,10 @@
  *
  */
 
+ .hidden {
+ 	display: none;
+ }
+
  #app-navigation .checkshipped {
  	display:none;
  }
@@ -62,6 +66,11 @@
 
 .appinfo {
 	margin: 40px;
+}
+
+.appinfo .loading {
+	height: 100px; width: 100px;
+	position: absolute; top: 20%; left: 30%;
 }
 
 .appinfo .name {

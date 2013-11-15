@@ -23,8 +23,12 @@ config(['$httpProvider', '$routeProvider', '$windowProvider', '$provide',
 ]);
 appSettings.controller('applistController', ['$scope', 'AppListService',
 	function($scope, AppListService){
+		$scope.loading = true;
 		/* Displays the list of files in the Left Sidebar */
-		$scope.allapps = AppListService.listAllApps().get();
+		$scope.allapps = AppListService.listAllApps().get(function(apps) {
+			$scope.allapps = apps;			
+			$scope.loading = false;
+		});
 	}
 ]);
 appSettings.controller('detailController', ['$scope', '$routeParams', 'AppListService', 'AppActionService',
@@ -32,6 +36,7 @@ appSettings.controller('detailController', ['$scope', '$routeParams', 'AppListSe
 
 		var appId = $routeParams.appId;
 		var val;
+		$scope.loading = true;
 		$scope.allapps = AppListService.listAllApps().get(function(apps){
 			$scope.allapps = apps.data;
 			for (var i = 0; i <= $scope.allapps.length; i++) {
@@ -46,6 +51,7 @@ appSettings.controller('detailController', ['$scope', '$routeParams', 'AppListSe
 			$scope.authorname = $scope.allapps[val].author;
 			$scope.desc = $scope.allapps[val].description;
 			$scope.vers = $scope.allapps[val].version;
+			$scope.loading = false;
 		});
 		$scope.enable = function (appId) {
 			AppActionService.enableApp(appId);

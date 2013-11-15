@@ -24,6 +24,7 @@ appSettings.controller('detailController', ['$scope', '$routeParams', 'AppListSe
 
 		var appId = $routeParams.appId;
 		var val;
+		$scope.loading = true;
 		$scope.allapps = AppListService.listAllApps().get(function(apps){
 			$scope.allapps = apps.data;
 			for (var i = 0; i <= $scope.allapps.length; i++) {
@@ -38,6 +39,7 @@ appSettings.controller('detailController', ['$scope', '$routeParams', 'AppListSe
 			$scope.authorname = $scope.allapps[val].author;
 			$scope.desc = $scope.allapps[val].description;
 			$scope.vers = $scope.allapps[val].version;
+			$scope.loading = false;
 		});
 		$scope.enable = function (appId) {
 			AppActionService.enableApp(appId);
