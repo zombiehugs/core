@@ -38,17 +38,24 @@ module.exports = function(grunt) {
 		},
 
 		concat: {
-			options: {
-				stripBanners: true
-			},
-			
-			dist: {
+			basic: {
+				options: {
+					stripBanners: true
+				},
 				src: [
-					'../../js/apps/config/config.js',
+					'../../js/apps/config/config.js'
+				],
+				dest: '<%= meta.production %>config.js',
+			},
+			extras: {
+				options: {
+					stripBanners: true
+				},
+				src: [
 					'../../js/apps/app/**/*.js'
 				],
 				dest: '<%= meta.production %>app.js'
-			}
+			},
 		},
 
 		jshint: {
