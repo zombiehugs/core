@@ -879,7 +879,7 @@ class OC_Util {
 	 * @return bool
 	 */
 	public static function isPHPoutdated() {
-		return version_compare(phpversion(), '5.3.2', '<'); 
+		return version_compare(phpversion(), '5.3.8', '<'); 
 	}
 
 	/**
