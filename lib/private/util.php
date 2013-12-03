@@ -875,6 +875,14 @@ class OC_Util {
 	}
 
 	/**
+	 * @brief Check if a PHP version older then 5.3.8 is installed.
+	 * @return bool
+	 */
+	public static function isPHPoutdated() {
+		return version_compare(phpversion(), '5.3.2', '<'); 
+	}
+
+	/**
 	 * @brief Check if the ownCloud server can connect to the internet
 	 * @return bool
 	 */
